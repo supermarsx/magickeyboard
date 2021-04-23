@@ -1,6 +1,6 @@
 # magickeyboard
 
-This is a mirror repository for Apple Magic Keyboard 1 (removable batteries, rounded top) and 2 (slim, embedded battery) drivers, plus a pt_PT custom made keyboard layout.
+This is a mirror repository for Apple Magic Keyboard 1 (removable batteries, rounded top) and 2 (slim, embedded battery) drivers, plus a pt_PT custom made keyboard layout. Use your magic keyboard on any bluetooth enabled Windows machine.
 
 ### Whats the purpose
 
