@@ -14,7 +14,7 @@ These packages are not readily available to end users and sometimes you'll not b
 | Magic Keyboard 2    | [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true) |
 | pt_PT Custom Layout | [ptptcustomlayout_AppleMagicKeyboard.zip](https://github.com/eduardomota/magickeyboard/blob/main/ptptcustomlayout_AppleMagicKeyboard.zip?raw=true) |
 
-### File hash table
+#### File hash table
 
 | Filename                                                     | Hash                                                         | Signed         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | -------------- |
