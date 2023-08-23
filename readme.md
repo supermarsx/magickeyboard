@@ -4,7 +4,7 @@ This is a mirror repository for Apple Magic Keyboard 1 (removable batteries, rou
 
 ### Whats the purpose
 
-These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading bootcamp from MacOS. These packages fix issues such as not being able to use delete (fn + backspace) on the keyboard or not detecting the device properly. Usually changes are ready and functional right after install but you may need to restart in some circunstances.
+These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading bootcamp from MacOS. These packages fix issues such as not being able to use delete (fn + backspace) on the keyboard or not detecting the device properly. Usually changes are ready and functional right after install but you may need to restart in some circumstances.
 
 
 
