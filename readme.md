@@ -44,7 +44,7 @@ Magic Keyboard Drivers from Apple
 
 
 
- Magic Keyboard Layout files, inside
+ Magic Keyboard Layout files, inside All Keyboard Layouts folder
 
 | Filename                         | Description                                                             |
 | -------------------------------- | ----------------------------------------------------------------------- |
