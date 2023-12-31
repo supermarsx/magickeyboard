@@ -50,7 +50,7 @@ Magic Keyboard Drivers from Apple
 | -------------------------------- | ----------------------------------------------------------------------- |
 | `install_keyboard_layouts.bat`   | Install all Magic Keyboard Layouts (needs to be ran as administrator)   |
 | `uninstall_keyboard_layouts.bat` | Uninstall all Magic Keyboard Layouts (needs to be ran as administrator) |
-| `install_filelist.txt`           | A list of keyboard layout DLL  files to install and uninstall           |
+| `install_filelist.txt`           | A list of keyboard layout DLL  files to install or uninstall            |
 | `*.dll`                          | Keyboard Layout DLL file from Apple, see list below                     |
 
 
