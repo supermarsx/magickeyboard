@@ -1,6 +1,6 @@
 # magickeyboard
 
-This is a mirror repository for Apple Magic Keyboard 1 (removable batteries, rounded top) and 2 (slim, embedded battery) drivers, plus Apple Keyboard Layouts for all the languages available. Use your magic keyboard on any bluetooth enabled Windows machine.
+This is a mirror repository for Apple Magic Keyboard 1 (removable batteries, rounded top), 2 (slim, embedded battery) and 3 (slim, rounded corners and embedded battery) drives, plus Apple Keyboard Layouts for all the languages available. Use your magic keyboard on any bluetooth enabled Windows machine. Use Magic Keyboard 2 driver for Magic Keyboard 3.
 
 
 
@@ -14,8 +14,8 @@ This is a mirror repository for Apple Magic Keyboard 1 (removable batteries, rou
 
 - Download the packages you need
 - Use the installers 
-  - `magickeyboard1_AppleKeyboardInstaller64.exe` 
-  - `magickeyboard2_AppleKeyboardInstaller64.exe`
+  - `magickeyboard1_AppleKeyboardInstaller64.exe` (for Magic Keyboard 1) 
+  - `magickeyboard2_AppleKeyboardInstaller64.exe` (for Magic Keyboard 2 and 3)
   - `install_keyboard_layouts.bat` (is inside the "All Keyboard Layouts *" folder)
 - ?
 - Profit
@@ -37,10 +37,10 @@ These packages are not readily available to end users and sometimes you'll not b
 
 Magic Keyboard Drivers from Apple
 
-| Device           | Filename                                                                                                                                                   |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Magic Keyboard 1 | [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true) |
-| Magic Keyboard 2 | [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true) |
+| Device             | Filename                                                                                                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Magic Keyboard 1   | [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true) |
+| Magic Keyboard 2/3 | [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true) |
 
 
 
