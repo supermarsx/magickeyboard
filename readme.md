@@ -3,7 +3,6 @@
 This is a mirror repository for Apple Magic Keyboard 1 (removable batteries, rounded top), 2 (slim, embedded battery) and 3 (slim, rounded corners and embedded battery) drives, plus Apple Keyboard Layouts for all the languages available. Use your magic keyboard on any bluetooth enabled Windows machine. Use Magic Keyboard 2 driver for Magic Keyboard 3.
 
 
-
 [Download this repo](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
 
 [**Also download this repo but in bold**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
@@ -29,7 +28,7 @@ Also note, don't change files or installers, etc if you don't know what you're d
 
 ### Whats the purpose
 
-These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading bootcamp from MacOS. These packages fix issues such as not being able to use delete (fn + backspace) on the keyboard or not detecting the device properly. Usually changes are ready and functional right after install but you may need to restart in some circumstances.
+These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading bootcamp from MacOS or `brigadier`. These packages fix issues such as not being able to use delete key (fn + backspace) on the keyboard or not detecting the device properly. Usually changes are ready and functional right after install but you may need to restart in some circumstances.
 
 
 
@@ -104,16 +103,17 @@ All the currently available keyboard layouts:
 - Hungarian (Hungarian (Apple)) - (`HungaryA.dll`)
 
 
-
 **Note:** List schema: `Layout name` (`Layout name shown in Settings`) (`Corresponding DLL file`)
 
 
 
 #### If a layout doesn't show up in keyboard layouts
 
-- Try to look for the english name of the layout that's how the installation is set (ex. "Belgian (Apple)");
+You could try:
 
-- Change the "reg add" instructions for your keyboard layout to your preferred name  in the line where "/v" is "Layout Text", after "/d" should be the layout name (ex.: `reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /v "Layout Text" /t REG_SZ /d "BRI'ISH (Apple)"`);
+- Try to look for the english name of the layout that's how the installation is set above like (ex. "Belgian (Apple)");
+
+- Change the registry add (`reg add`) instructions for your keyboard layout to your preferred name in the line where `/v` is "Layout Text", after `/d` should be the layout name like (ex.: `reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /v "Layout Text" /t REG_SZ /d "BRI'ISH (Apple)"`);
 
 - Reinstall your keyboard layout manually as instructed below.
 
@@ -123,17 +123,23 @@ All the currently available keyboard layouts:
 
 To manually install a keyboard layout using a DLL you'll need:
 
-- Keyboard layout DLL file (ex.: BritishA.dll);
+- Keyboard layout DLL file (ex.: `BritishA.dll`);
 
-- Regedit add key (`reg add`) instructions found in `install_keyboard_layouts.bat`.
+- Regedit add (`reg add`) instructions found inside `install_keyboard_layouts.bat`.
 
 Then you need to follow these steps:
 
 - Copy DLL file to system32 folder;
 
-- Add the corresponding layout keys to the registry through the "reg add" instructions using a an elevated command line (cmd) prompt.
+- Add the corresponding layout keys to the registry through the registry add (`reg add`) instructions using a an elevated command line (cmd) prompt.
 
 Your layout will be ready for use.
+
+
+
+### Uninstall Keyboard Layouts
+
+Just use the `uninstall_keyboard_layouts.bat` batch file.
 
 
 
