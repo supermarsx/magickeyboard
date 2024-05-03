@@ -45,7 +45,7 @@ To **install only the driver** follow these steps:
 
 1. **Download** one of the installers for your keyboard version/model:
    - **Magic Keyboard 1**: [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true); 
-   - **Magic Keyboard 2 and 3**: [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true).
+   - **Magic Keyboard 2 and 3**: [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true).
 2. **Execute** your chosen installer.
 
 Your keyboard should be working as expected.
@@ -111,7 +111,7 @@ Also **removes the need to fully install/download bootcamp** if you're not actua
 | Device                     | Filename                                                                                                                                                   |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Magic Keyboard 1**       | [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true)  |
-| **Magic Keyboard 2 and 3** | [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true) |
+| **Magic Keyboard 2 and 3** | [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true) |
 
 **Layouts**
 
