@@ -2,33 +2,33 @@
 
 This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (removable batteries, rounded top), 2 (slim, embedded battery) and 3 (slim, rounded corners and embedded battery) **drivers**, plus all the Apple **keyboard layouts** currently available. Use your magic keyboard on any bluetooth enabled Windows machine.
 
-[**Download this repository**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
+[**[Download this repository]**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
 
 ## Table of Contents
 
-- [Quick Start](#quick-start)
+- [**Quick Start**](#quick-start)
   - [Driver only](#driver-only)
   - [Driver and layouts](#driver-and-layouts)
   - [Layouts only](#layouts-only)
   - [Other methods/options](#other-methodsoptions)
-- [Whats the purpose?](#whats-the-purpose)
-- [File table](#file-table)
-- [Installation instructions](#installation-instructions)
+- [**Whats the purpose?**](#whats-the-purpose)
+- [**File table**](#file-table)
+- [**Installation instructions**](#installation-instructions)
   - [Automatically install driver](#automatically-install-driver)
   - [Manually install driver](#manually-install-driver)
   - [Automatically install layouts](#automatically-install-layouts)
   - [Manually install layouts](#manually-install-layouts)
   - [Uninstall layouts](#uninstall-layouts)
-- [Layout topics](#layout-topics)
+- [**Layout topics**](#layout-topics)
   - [Layout languages](#layout-languages)
   - [Translate layout names](#translate-layout-names)
-- [Questions and problem resolution](#questions-and-problem-resolution)
+- [**Questions and problem resolution**](#questions-and-problem-resolution)
   - [Layouts don't get installed if i run the batch file as an administrator](#layouts-dont-get-installed-if-i-run-the-batch-file-as-an-administrator)
   - [Layout doesn't show up in keyboard layouts](#layout-doesnt-show-up-in-keyboard-layouts)
   - [I'm unable to bind, remap or reregister certain keys using x method](#im-unable-to-bind-remap-or-reregister-certain-keys-using-x-method)
   - [Are these files legit?](#are-these-files-legit)
   - [Screwed up badly?](#screwed-up-badly)
-- [Support, warranty, guarantees](#support-warranty-guarantees)
+- [**Support, warranty, guarantees**](#support-warranty-guarantees)
 
 ## Quick Start
 
@@ -41,8 +41,8 @@ Recommended installation methods are [**Driver only**](#driver-only) or [**Drive
 To **install only the driver** follow these steps:
 
 1. **Download** one of the installers for your keyboard version/model:
-  1. **Magic Keyboard 1**: [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true);
-  2. **Magic Keyboard 2 and 3**: [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true).
+   - **Magic Keyboard 1**: [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true); 
+   - **Magic Keyboard 2 and 3**: [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true).
 2. **Execute** your chosen installer.
 
 Your keyboard should be working as expected.
@@ -55,11 +55,11 @@ To **install both driver and layouts** follow these steps:
 
 1. [**Download** drivers and layouts](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main);
 2. **Execute** the appropriate installer for your keyboard version/model:
-  1. `magickeyboard1_AppleKeyboardInstaller64.exe` for the Magic Keyboard 1;
-  2. `magickeyboard2_AppleKeyboardInstaller64.exe` for Magic Keyboard 2 and 3.
-3. **Translate** keyboard layout names (optional):
-  1. **Read** [Layout languages](#layout-languages);
-  2. **Refer** to [Translate layout names](#translate-layout-names).
+   - `magickeyboard1_AppleKeyboardInstaller64.exe` for the Magic Keyboard 1;
+   - `magickeyboard2_AppleKeyboardInstaller64.exe` for Magic Keyboard 2 and 3.
+3. **Translate** keyboard layout names **(optional)**:
+   - **Read** [Layout languages](#layout-languages);
+   - **Refer** to [Translate layout names](#translate-layout-names).
 4. **Navigate** to `All Keyboard Layouts` folder and run `install_keyboard_layouts.bat` as an **administrator**.
 
 Your keyboard and respective layouts should be working.
@@ -71,12 +71,12 @@ Your keyboard and respective layouts should be working.
 To **install keyboard layouts** follow these steps:
 
 1. [**Download** all keyboard layouts folder](https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip);
-2. **Translate** the keyboard layout name (optional):
-  1. **Read** [Layout languages](#layout-languages);
-  2. **Refer** to [Translate layout names](#translate-layout-names).
+2. **Translate** the keyboard layout name **(optional)**:
+   - **Read** [Layout languages](#layout-languages);
+   - **Refer** to [Translate layout names](#translate-layout-names).
 3. **Run** `install_keyboard_layouts.bat` as an administrator.
 
-Your keyboard layouts should be working as intended.
+Your keyboard layouts should be working as intended. 
 
 ### Other methods/options
 
@@ -88,11 +88,11 @@ If can find more **downloadables **in the [**latest release page**](https://gith
 
 ## Whats the purpose?
 
-These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading **bootcamp** from MacOS or `brigadier` for example.
+These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading **bootcamp** from MacOS or `brigadier` for example. 
 
-These packages **fix issues** such as not being able to **use delete key** (fn + backspace) on the keyboard or not **detecting the device properly**.
+These packages **fix issues** such as not being able to **use delete key** (fn + backspace) on the keyboard or not **detecting the device properly**. 
 
-Usually changes are **ready and functional** right after install but you may need to restart in some scenarios.
+Usually changes are **ready and functional** right after install but you may need to restart in some scenarios. 
 
 Also **removes the need to fully install/download bootcamp** if you're not actually using an apple machine ...and it's free, no need for paid apps if you just need the damn thing working.
 
@@ -100,34 +100,33 @@ Also **removes the need to fully install/download bootcamp** if you're not actua
 
 **Drivers**
 
-| Device | Filename |
-| --- | --- |
-| **Magic Keyboard 1** | [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true) |
+| Device                     | Filename                                                                                                                                                   |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Magic Keyboard 1**       | [magickeyboard1_AppleKeyboardInstaller64.exe](https://github.com/supermarsx/magickeyboard/blob/main/magickeyboard1_AppleKeyboardInstaller64.exe?raw=true)  |
 | **Magic Keyboard 2 and 3** | [magickeyboard2_AppleKeyboardInstaller64.exe](https://github.com/eduardomota/magickeyboard/blob/main/magickeyboard2_AppleKeyboardInstaller64.exe?raw=true) |
 
 **Layouts**
 
-| Languages | Filename |
-| --- | --- |
-| All | [All.Keyboard.Layouts.1.0.3.40.zip](https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip) |
+| Languages | Filename                                                                                                                               |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| All       | [All.Keyboard.Layouts.1.0.3.40.zip](https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip) |
 
 **Specific layout files, inside `All Keyboard Layouts` folder**
 
-| Filename | Description |
-| --- | --- |
-| `install_keyboard_layouts.bat` | **Install** all Magic Keyboard layouts (needs to be ran as an administrator). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_keyboard_layouts.bat) |
+| Filename                         | Description                                                                                                                                                                                                                |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `install_keyboard_layouts.bat`   | **Install** all Magic Keyboard layouts (needs to be ran as an administrator). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_keyboard_layouts.bat)     |
 | `uninstall_keyboard_layouts.bat` | **Uninstall** all Magic Keyboard layouts (needs to be ran as an administrator). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/uninstall_keyboard_layouts.bat) |
-| `install_filelist.txt` | A list of keyboard layout DLL files to install or uninstall. [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_filelist.txt) |
-| `*.dll` | Keyboard layout **DLL file** from Apple, list here: [Layout languages](#layout-languages). |
+| `install_filelist.txt`           | A list of keyboard layout DLL  files to install or uninstall. [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_filelist.txt)                             |
+| `*.dll`                          | Keyboard layout **DLL file** from Apple, list here: [Layout languages](#layout-languages).                                                                                                                                 |
 
 ## Installation instructions
 
 ### Automatically install driver
 
 1. **Get** your corresponding **keyboard version installer**;
-  
+
 2. **Run** it, you'll need **administrator privileges**.
-  
 
 ### Manually install driver
 
@@ -137,19 +136,20 @@ If you still need to **manually install** the driver for some special reason you
 
 1. **Extract** files from the corresponding **keyboard version installer** (with 7-zip for example);
 2. Do **one** of three things:
-  1. **Execute** `DPInst.exe` directly;
-  2. **Update** the device driver through the device manager and target the extracted folder;
-  3. Whatever you want.
+   1. **Execute** `DPInst.exe` directly;
+   2. **Update** the device driver through the device manager and target the extracted folder;
+   3. Whatever you want.
 
 ### Automatically install layouts
 
 To **automatically install** all keyboard layouts you'll need:
 
 1. A **copy** of `All Keyboard Layouts` folder;
-2. **Translate** any layout names inside `install_keyboard_layouts.bat` **(optional);**
+2. **Translate** any layout names inside `install_keyboard_layouts.bat` **(optional)**;
 3. **Run** `install_keyboard_layouts.bat` as an **administrator**.
 
 Your keyboard layouts will be ready to use.
+
 
 ### Manually install layouts
 
@@ -165,16 +165,16 @@ Then you need to follow these steps:
 
 Your layout will be ready for use.
 
+
 ### Uninstall layouts
 
 To **uninstall all keyboard layouts** follow these steps:
 
 1. **Navigate** to `All Keyboard Layouts`;
-  
 2. **Run** `uninstall_keyboard_layouts.bat` batch file with **administrator privileges**.
-  
 
 All Apple keyboard layouts should be gone.
+
 
 ## Layout topics
 
@@ -240,7 +240,7 @@ When you install/reinstall layout names should be corrected.
 
 ### I'm unable to bind, remap or reregister certain keys using x method
 
-If you're trying to somehow **change certain key functions** from your keyboard, binding, rebinding, remapping, whatever and seem unable to, you might be running into the **drivers limitations** of the keyboard on Windows, that means **i don't have a solution**. As far as i've tried in the past i wasn't able to use PowerToys, AutoIt, C++, AutoHotKey, C#, etc to do it successfully. **Some keys don't appear to register** at all even if they work as originally intended, meaning to solve this you'll need to somehow **reverse engineer** and go through all the hoops of that kind of process to maybe find a solution that works. I can't help with this, sorry.
+If you're trying to somehow **change certain key functions** from your keyboard, binding, rebinding, remapping, whatever and seem unable to, you might be running into the **drivers limitations** of the keyboard on Windows, that means **i don't have a solution**. As far as i've tried in the past i wasn't able to use PowerToys, AutoIt, C++, AutoHotKey, C#, etc to do it successfully. **Some keys don't appear to register** at all even if they work as originally intended, meaning to solve this you'll need to somehow **reverse engineer** and go through all the hoops of that kind of process to maybe find a solution that works. I can't help with this, sorry. 
 
 **Reference**, [Issue #1](https://github.com/supermarsx/magickeyboard/issues/1).
 
