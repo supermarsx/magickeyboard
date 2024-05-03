@@ -4,9 +4,10 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
 
 [**Download this repository**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
 
-## Table of Contents
+## Table of Contents
 
-1. [Quick Start](#quick-start)
+- [Quick Start](#quick-start)
+  
   - [Driver only](#driver-only)
     
   - [Driver and layouts](#driver-and-layouts)
@@ -15,9 +16,12 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
     
   - [Other methods/options](#other-methodsoptions)
     
-2. [Whats the purpose?](#whats-the-purpose)
-3. [File table](#file-table)
-4. [Installation instructions](#installation-instructions)
+- [Whats the purpose?](#whats-the-purpose)
+  
+- [File table](#file-table)
+  
+- [Installation instructions](#installation-instructions)
+  
   - [Automatically install driver](#automatically-install-driver)
     
   - [Manually install driver](#manually-install-driver)
@@ -28,12 +32,14 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
     
   - [Uninstall layouts](#uninstall-layouts)
     
-5. [Layout topics](#layout-topics)
+- [Layout topics](#layout-topics)
+  
   - [Layout languages](#layout-languages)
     
   - [Translate layout names](#translate-layout-names)
     
-6. [Questions and problem resolution](#questions-and-problem-resolution)
+- [Questions and problem resolution](#questions-and-problem-resolution)
+  
   - [Layouts don't get installed if i run the batch file as an administrator](#layouts-dont-get-installed-if-i-run-the-batch-file-as-an-administrator)
     
   - [Layout doesn't show up in keyboard layouts](#layout-doesnt-show-up-in-keyboard-layouts)
@@ -44,9 +50,10 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
     
   - [Screwed up badly?](#screwed-up-badly)
     
-7. [Support, warranty, guarantees](#support-warranty-guarantees)
+- [Support, warranty, guarantees](#support-warranty-guarantees)
+  
 
-## Quick Start
+## Quick Start
 
 Recommended installation methods are [**Driver only**](#driver-only) or [**Driver and layouts**](#driver-and-layouts).
 
@@ -347,7 +354,6 @@ Good luck.
   - The won't be accepted:
     
     - Screw up issues and/or help.
-      
 - No warranties, explicit and/or implied;
   
 - No guarantees, explicit and/or implied.
