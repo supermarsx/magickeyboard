@@ -4,7 +4,7 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
 
 [**[Download this repository]**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
 
-[**Go to Quick Start**](#quick-start)
+[**[Go to Quick Start]**](#quick-start)
 
 
 ## Table of Contents
