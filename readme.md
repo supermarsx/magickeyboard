@@ -4,7 +4,7 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
 
 [**[Download this repository]**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
 
-[**[Go to Quick Start]**](#quick-start)
+[**Go to Quick Start**](#quick-start)
 
 
 ## Table of Contents
@@ -224,7 +224,7 @@ All keyboard layouts currently available:
 
 **Note:** You should only translate layout names if you're comfortable with **registry key instructions** and **batch files**, meaning you know what they do and/or what you're supposed to edit fo them to work correctly.
 
-To translate layout names do the following steps:
+To **translate layout names** do the following steps:
 
 1. **Navigate** to `All Keyboard Layouts folder`;
 2. **Open** `install_keyboard_layouts.bat` with your preferred editor;
