@@ -4,7 +4,7 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
 
 [**Download this repository**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
 
-### Table of Contents
+## Table of Contents
 
 1. [Quick Start](#quick-start)
   - [Driver only](#driver-only)
@@ -46,11 +46,11 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
     
 7. [Support, warranty, guarantees](#support-warranty-guarantees)
 
-### Quick Start
+## Quick Start
 
 Recommended installation methods are [**Driver only**](#driver-only) or [**Driver and layouts**](#driver-and-layouts).
 
-#### Driver only
+### Driver only
 
 **Note:** You'll need administrator privileges.
 
@@ -69,7 +69,7 @@ Your keyboard should be working as expected.
 
 ####
 
-#### Driver and layouts
+### Driver and layouts
 
 **Note:** You'll need administrator privileges.
 
@@ -94,7 +94,7 @@ To install both driver and layouts follow these steps:
 
 Your keyboard and respective layouts should be working.
 
-#### Layouts only
+### Layouts only
 
 **Note:** You'll need administrator privileges.
 
@@ -113,7 +113,7 @@ To install keyboard layouts follow these steps:
 
 Your keyboard layouts should be working as intended.
 
-#### Other methods/options
+### Other methods/options
 
 To install a single keyboard layout, use unpacked driver files or other different methods, options or combinations you should refer to the [Table of Contents](#table-of-contents) to find your preferred method and alternative actions.
 
@@ -121,7 +121,7 @@ If can find more downloadables in the [latest release page](https://github.com/s
 
 **Note:** Don't change files, installers, etc. specially if you don't know what you're doing, check the "[Screwed up?](#screwed-up)" topic for more information. For most use cases just use the installers and you'll be fine. Major changes are needed only in specific use case scenarios.
 
-### Whats the purpose?
+## Whats the purpose?
 
 These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading bootcamp from MacOS or `brigadier` for example.
 
@@ -131,7 +131,7 @@ Usually changes are ready and functional right after install but you may need to
 
 Also removes the need to fully install/download bootcamp if you're not actually using an apple machine ...and it's free, no need for paid apps if you just need the damn thing working.
 
-### File table
+## File table
 
 **Drivers**
 
@@ -155,16 +155,16 @@ Magic Keyboard layout files, inside `All Keyboard Layouts` folder
 | `install_filelist.txt` | A list of keyboard layout DLL files to install or uninstall |
 | `*.dll` | Keyboard Layout DLL file from Apple, see list below |
 
-### Installation instructions
+## Installation instructions
 
-#### Automatically install driver
+### Automatically install driver
 
 1. Get your corresponding keyboard version installer;
   
 2. Run it, you'll need administrator privileges.
   
 
-#### Manually install driver
+### Manually install driver
 
 **Note:** Unless you have a specific reason for why you need individual files you should opt for automatic installation.
 
@@ -181,7 +181,7 @@ If you still need to manually install the driver for some special reason you can
   3. Whatever you want.
     
 
-#### Automatically install layouts
+### Automatically install layouts
 
 To automatically install all keyboard layouts you'll need:
 
@@ -194,7 +194,7 @@ To automatically install all keyboard layouts you'll need:
 
 Your keyboard layouts will be ready to use.
 
-#### Manually install layouts
+### Manually install layouts
 
 To manually install a keyboard layout using a DLL you'll need:
 
@@ -212,15 +212,15 @@ Then you need to follow these steps:
 
 Your layout will be ready for use.
 
-#### Uninstall layouts
+### Uninstall layouts
 
 1. Just run `uninstall_keyboard_layouts.bat` batch file with administrator privileges.
 
 All keyboard layouts should be gone.
 
-### Layout topics
+## Layout topics
 
-#### Layout languages
+### Layout languages
 
 All keyboard layouts currently available:
 
@@ -271,7 +271,7 @@ All keyboard layouts currently available:
 
 **Note:** List schema: `Layout name` (`Layout name shown in Settings`) (`Corresponding DLL file`)
 
-#### Translate layout names
+### Translate layout names
 
 **Note:** You should only translate layout names if you're comfortable with registry key instructions and batch files, meaning you know what they do and/or what you're supposed to edit fo them to work correctly.
 
@@ -288,9 +288,9 @@ To translate layout names do the following steps:
 
 When you install/reinstall layout names should be corrected.
 
-### Questions and problem resolution
+## Questions and problem resolution
 
-#### Layouts don't get installed if i run the batch file as an administrator
+### Layouts don't get installed if i run the batch file as an administrator
 
 You could try:
 
@@ -303,7 +303,7 @@ You could try:
 
 ####
 
-#### Layout doesn't show up in keyboard layouts
+### Layout doesn't show up in keyboard layouts
 
 You could try:
 
@@ -314,15 +314,15 @@ You could try:
 - Reinstall your keyboard layout manually as instructed below.
   
 
-#### I'm unable to bind, remap or reregister certain keys using x method
+### I'm unable to bind, remap or reregister certain keys using x method
 
 If you're trying to somehow change certain key functions from your keyboard, binding, rebindin, remapping, whatever and seem unable to, you might be running into the drivers limitations of the keyboard on Windows, that means i don't have a solution. As far as i've tried in the past i wasn't able to use PowerToys, AutoIt, C++, AutoHotKey, C#, etc to do it successfully. Some keys don't appear to register at all even if they work as originally intended, meaning to solve this you'll need to somehow reverse engineer and go through all the hoops of that kind of process to maybe find a solution that works. I can't help with this, sorry. Reference, [Issue #1](https://github.com/supermarsx/magickeyboard/issues/1).
 
-#### Are these files legit?
+### Are these files legit?
 
 They're officially signed files from Apple that you can check through the properties of each file, both DLL and executables. The only things that are not official are the keyboard layout installer/uninstaller batch files as well as the file list and the old layout archive containing a custom mapped pt-pt layout using the microsoft keyboard mapping tool thing many years ago.
 
-#### Screwed up badly?
+### Screwed up badly?
 
 Screwed up, deleted `system32` or something?
 
@@ -330,7 +330,7 @@ No warranty, you're on your own.
 
 Good luck.
 
-### Support, warranty, guarantees
+## Support, warranty, guarantees
 
 - Support only through issues if i feel like it with limitations:
   
