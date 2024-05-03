@@ -117,7 +117,7 @@ Also **removes the need to fully install/download bootcamp** if you're not actua
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `install_keyboard_layouts.bat`   | **Install** all Magic Keyboard layouts (needs to be ran as an administrator). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_keyboard_layouts.bat)     |
 | `uninstall_keyboard_layouts.bat` | **Uninstall** all Magic Keyboard layouts (needs to be ran as an administrator). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/uninstall_keyboard_layouts.bat) |
-| `install_filelist.txt`           | A list of keyboard layout DLL  files to install or uninstall. [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_filelist.txt)                             |
+| `install_filelist.txt`           | **List** of keyboard layout DLL  files to install or uninstall. [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_filelist.txt)                             |
 | `*.dll`                          | Keyboard layout **DLL file** from Apple, list here: [Layout languages](#layout-languages).                                                                                                                                 |
 
 ## Installation instructions
@@ -130,7 +130,7 @@ Also **removes the need to fully install/download bootcamp** if you're not actua
 
 ### Manually install driver
 
-**Note:** Unless you have a specific reason for why you need individual files you should opt for automatic installation.
+**Note:** Unless you have a **specific reason** for why you need individual files you should opt for automatic installation.
 
 If you still need to **manually install** the driver for some special reason you can:
 
@@ -155,8 +155,8 @@ Your keyboard layouts will be ready to use.
 
 To **manually install** a keyboard layout using a DLL you'll need:
 
-- Keyboard layout DLL file (ex.: `BritishA.dll`);
-- Regedit add (`reg add`) instructions found inside `install_keyboard_layouts.bat`.
+- **Keyboard** layout DLL file (ex.: `BritishA.dll`);
+- **Regedit** add (`reg add`) instructions found inside `install_keyboard_layouts.bat`.
 
 Then you need to follow these steps:
 
