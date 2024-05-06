@@ -61,7 +61,7 @@ To **install both driver and layouts** follow these steps:
 
 1. [**Download** drivers and layouts](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main);
 2. **Execute** the appropriate installer for your keyboard version/model:
-   - `magickeyboard1_AppleKeyboardInstaller64.exe` for the Magic Keyboard 1;
+   - `magickeyboard1_AppleKeyboardInstaller64.exe` for Magic Keyboard 1;
    - `magickeyboard2_AppleKeyboardInstaller64.exe` for Magic Keyboard 2 and 3.
 3. **Translate** keyboard layout names **(optional)**:
    - **Read** [Layout languages](#layout-languages);
