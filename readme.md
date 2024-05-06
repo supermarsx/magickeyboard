@@ -90,7 +90,7 @@ Your keyboard layouts should be working as intended.
 
 To **install a single keyboard layout**, **use unpacked driver files** or **other different methods, options or combinations** you should refer to the [Table of Contents](#table-of-contents) to find your preferred method and alternative actions.
 
-If can find more **downloadables **in the [**latest release page**](https://github.com/supermarsx/magickeyboard/releases/latest).
+If can find more **downloadables** in the [**latest release page**](https://github.com/supermarsx/magickeyboard/releases/latest).
 
 **Note:** Don't change files, installers, etc. specially if you don't know what you're doing, check the "[Screwed up?](#screwed-up)" topic for more information. For most use cases just use the installers and you'll be fine. Major changes are needed only in specific use case scenarios.
 
