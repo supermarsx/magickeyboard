@@ -92,7 +92,7 @@ To **install a single keyboard layout**, **use unpacked driver files** or **othe
 
 If can find more **downloadables** in the [**latest release page**](https://github.com/supermarsx/magickeyboard/releases/latest).
 
-**Note:** Don't change files, installers, etc. specially if you don't know what you're doing, check the "[Screwed up?](#screwed-up)" topic for more information. For most use cases just use the installers and you'll be fine. Major changes are needed only in specific use case scenarios.
+**Note:** Don't change files, installers, etc. specially if you don't know what you're doing, check the "[Screwed up badly?](#screwed-up-badly)" topic for more information. For most use cases just use the installers and you'll be fine. Major changes are needed only in specific use case scenarios.
 
 
 ## Whats the purpose?
