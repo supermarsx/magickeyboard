@@ -51,6 +51,9 @@ reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000416" /f 
 REM Removing Russian Layout
 reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000419" /f >nul 2>&1
 
+REM Removing Spanish Layout
+reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040a" /f >nul 2>&1
+
 REM Removing Swedish Layout
 reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000041d" /f >nul 2>&1
 
