@@ -102,6 +102,12 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000419" /v "La
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000419" /v "Layout Id" /t REG_SZ /d "00c8" /f >nul 2>&1
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000419" /v "Layout Component ID" /t REG_SZ /d "B0F62A69BE9446488ED502E800DBC36C" /f >nul 2>&1
 
+REM Spanish Layout
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040a" /v "Layout Text" /t REG_SZ /d "Spanish (Apple)" /f >nul 2>&1
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040a" /v "Layout File" /t REG_SZ /d "SpanishA.dll" /f >nul 2>&1
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040a" /v "Layout Id" /t REG_SZ /d "00c5" /f >nul 2>&1
+reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040a" /v "Layout Component ID" /t REG_SZ /d "C3364C7C44BC444A88A50459135D35B5" /f >nul 2>&1
+
 REM Swedish Layout
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000041d" /v "Layout Text" /t REG_SZ /d "Swedish (Apple)" /f >nul 2>&1
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000041d" /v "Layout File" /t REG_SZ /d "SwedishA.dll" /f >nul 2>&1
