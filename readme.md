@@ -2,13 +2,13 @@
 
 This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (removable batteries, rounded top), 2 (slim, embedded battery) and 3 (slim, rounded corners and embedded battery) **drivers**, plus all the Apple **keyboard layouts** currently available. Use your magic keyboard on any bluetooth enabled Windows machine.
 
-![Made with brain](https://img.shields.io/badge/Made%20with-brain%E2%84%A2-orange.svg?style=flat-square)
-![GitHub Stars](https://img.shields.io/github/stars/supermarsx/magickeyboard?style=flat-square&label=Stars)
-![GitHub Forks](https://img.shields.io/github/forks/supermarsx/magickeyboard?style=flat-square&label=Forks)
-![GitHub Watchers](https://img.shields.io/github/watchers/supermarsx/magickeyboard?style=flat-square&label=Watchers)
-![GitHub repo size](https://img.shields.io/github/repo-size/supermarsx/magickeyboard?style=flat-square&label=Repo%20Size)
-![GitHub Downloads](https://img.shields.io/github/downloads/supermarsx/magickeyboard/total.svg?style=flat-square&label=Downloads)
-![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/supermarsx/magickeyboard?style=flat-square&label=Issues)
+[![Made with brain](https://img.shields.io/badge/Made%20with-brain%E2%84%A2-orange.svg?style=flat-square)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[![GitHub Stars](https://img.shields.io/github/stars/supermarsx/magickeyboard?style=flat-square&label=Stars)](#)
+[![GitHub Forks](https://img.shields.io/github/forks/supermarsx/magickeyboard?style=flat-square&label=Forks)](#)
+[![GitHub Watchers](https://img.shields.io/github/watchers/supermarsx/magickeyboard?style=flat-square&label=Watchers)](#)
+[![GitHub repo size](https://img.shields.io/github/repo-size/supermarsx/magickeyboard?style=flat-square&label=Repo%20Size)](#)
+[![GitHub Downloads](https://img.shields.io/github/downloads/supermarsx/magickeyboard/total.svg?style=flat-square&label=Downloads)](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/supermarsx/magickeyboard?style=flat-square&label=Issues)](#)
 
 
 [**[Download this repository]**](https://codeload.github.com/supermarsx/magickeyboard/zip/refs/heads/main)
