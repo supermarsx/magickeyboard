@@ -231,7 +231,7 @@ All keyboard layouts currently available:
 
 ### Translate layout names
 
-**Note:** You should only translate layout names if you're comfortable with **registry key instructions** and **batch files**, meaning you know what they do and/or what you're supposed to edit fo them to work correctly.
+**Note:** You should only translate layout names if you're comfortable with **registry key instructions** and **batch files**, meaning you know what they do and/or what you're supposed to edit for them to work correctly.
 
 To **translate layout names** do the following steps:
 
