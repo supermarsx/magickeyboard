@@ -23,7 +23,7 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
   - [Driver and layouts](#driver-and-layouts)
   - [Layouts only](#layouts-only)
   - [Other methods/options](#other-methodsoptions)
-- [**Whats the purpose?**](#whats-the-purpose)
+- [**Why did i make this?**](#why-did-i-make-this)
 - [**File table**](#file-table)
 - [**Installation instructions**](#installation-instructions)
   - [Automatically install driver](#automatically-install-driver)
@@ -104,7 +104,7 @@ If can find more **downloadables** in the [**latest release page**](https://gith
 **Note:** Don't change files, installers, etc. specially if you don't know what you're doing, check the "[Screwed up badly?](#screwed-up-badly)" topic for more information. For most use cases just use the installers and you'll be fine. Major changes are needed only in specific use case scenarios.
 
 
-## Whats the purpose?
+## Why did i make this?
 
 These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading **bootcamp** from MacOS or `brigadier` for example. 
 
@@ -113,6 +113,8 @@ These packages **fix issues** such as not being able to **use delete key** (fn +
 Usually changes are **ready and functional** right after install but you may need to restart in some scenarios. 
 
 Also **removes the need to fully install/download bootcamp** if you're not actually using an apple machine ...and it's free, no need for paid apps if you just need the damn thing working.
+
+I needed an easy way to use Apples keyboard without getting all the bloat along with it and without any third party software and so this was born. 
 
 
 ## File table
