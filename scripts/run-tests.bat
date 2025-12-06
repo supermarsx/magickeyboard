@@ -49,6 +49,11 @@ if %FAILED%==1 (
 echo [test] All tests passed
 endlocal
 
+REM --- translations test ---
+echo.
+echo [test] Running translations test (Windows)
+scripts\test-translations.bat
+
 REM --- smoke test (dry-run) ---
 echo.
 echo [test] Running dry-run smoke test (simulated install)
@@ -60,3 +65,12 @@ if errorlevel 1 (
   exit /b 10
 )
 echo [test] Dry-run simulated install executed successfully
+
+echo.
+echo [test] Dry-run via elevated wrapper (no UAC expected) — install_keyboard_layouts_elevated.bat /DRYRUN /SILENT
+powershell -NoProfile -Command "& { $p = Start-Process -FilePath '%~dp0..\All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts_elevated.bat' -ArgumentList '/DRYRUN','/SILENT' -NoNewWindow -PassThru -Wait; exit $p.ExitCode }"
+if errorlevel 1 (
+  echo [test] elevated wrapper dry-run failed with exit code %ERRORLEVEL%
+  exit /b 11
+)
+echo [test] Elevated wrapper dry-run OK
