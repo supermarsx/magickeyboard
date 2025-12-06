@@ -181,7 +181,7 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000409" /v "La
 REM Chinese Traditional Layout?
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\00000404" /v "Layout File" /t REG_SZ /d "ChinaTA.dll" /f >nul 2>&1
 
-REM Chinese Standard Layout?
+REM Chinese Simplified Layout?
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\00000804" /v "Layout File" /t REG_SZ /d "ChinaSA.dll" /f >nul 2>&1
 
 REM Turkish Layout
