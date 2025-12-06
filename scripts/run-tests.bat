@@ -48,3 +48,15 @@ if %FAILED%==1 (
 
 echo [test] All tests passed
 endlocal
+
+REM --- smoke test (dry-run) ---
+echo.
+echo [test] Running dry-run smoke test (simulated install)
+set "MAGIC_DRYRUN=1"
+set "MAGIC_SILENT=1"
+call "%~dp0..\All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts.bat"
+if errorlevel 1 (
+  echo [test] Dry-run install returned error: %ERRORLEVEL%
+  exit /b 10
+)
+echo [test] Dry-run simulated install executed successfully
