@@ -41,6 +41,14 @@ Notes:
 - The wrapper uses the standard Windows UAC prompt — it cannot automatically bypass elevation without credentials.
 - The wrapper sets `MAGIC_SILENT` for called scripts so they run without an interactive pause.
 
+Locale-aware layout titles
+
+The installer now detects the system UI locale and will set the `Layout Text` registry value using a translations file (`translations.json`) shipped with this folder. Translations are looked up by layout key (matching the DLL filename, without extension) and the system UI locale (for example: `fr-FR`, `de-DE`, `es-ES`). If a translated name is not available for the current locale the installer falls back to English (`en`).
+
+PowerShell helper `get_translation.ps1` is used internally by `install_keyboard_layouts.bat` to fetch the most appropriate translated string and write it to the registry.
+
+If you want to add or improve translations, edit `translations.json` and use `scripts/compute_checksums.bat` or `scripts/compute_checksums.sh` to refresh tests.
+
 Security & verification (added):
 
 - A checksum manifest `install_checksums.txt` is included — the installer will require this file and verify the SHA256 checksum for every DLL before copying to `C:\Windows\System32`.
