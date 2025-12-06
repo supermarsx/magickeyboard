@@ -1,0 +1,33 @@
+{
+  "BelgiumA": {
+    "en": "Belgian (Apple)",
+    "fr-FR": "Belge (Apple)",
+    "de-DE": "Belgisch (Apple)",
+    "nl-NL": "Belgisch (Apple)",
+    "es-ES": "Belga (Apple)",
+    "it-IT": "Belga (Apple)"
+  },
+  "BritishA": { "en": "British (Apple)", "fr-FR": "Britannique (Apple)", "de-DE": "Britisch (Apple)", "es-ES": "Inglés británico (Apple)" },
+  "CanadaA": { "en": "Canadian (Apple)", "fr-FR": "Canadien (Apple)", "de-DE": "Kanadisch (Apple)" },
+  "ChinaSA": { "en": "Chinese Simplified (Apple)", "zh-CN": "中文 (简体) (Apple)" },
+  "ChinaTA": { "en": "Chinese Traditional (Apple)", "zh-TW": "中文 (繁體) (Apple)" },
+  "CzechA": { "en": "Czech (Apple)", "cs-CZ": "Čeština (Apple)" },
+  "DanishA": { "en": "Danish (Apple)", "da-DK": "Dansk (Apple)" },
+  "DutchA": { "en": "Dutch (Apple)", "nl-NL": "Nederlands (Apple)" },
+  "FinnishA": { "en": "Finnish (Apple)", "fi-FI": "Suomi (Apple)" },
+  "FrenchA": { "en": "French (Apple)", "fr-FR": "Français (Apple)" },
+  "GermanA": { "en": "German (Apple)", "de-DE": "Deutsch (Apple)" },
+  "ItalianA": { "en": "Italian (Apple)", "it-IT": "Italiano (Apple)" },
+  "NorwayA": { "en": "Norwegian (Apple)", "nb-NO": "Norsk (Apple)" },
+  "PolishA": { "en": "Polish (Apple)", "pl-PL": "Polski (Apple)" },
+  "PortuguA": { "en": "Portuguese (Apple)", "pt-PT": "Português (Apple)", "pt-BR": "Português (Apple)" },
+  "RussianA": { "en": "Russian (Apple)", "ru-RU": "Русский (Apple)" },
+  "SpanishA": { "en": "Spanish (Apple)", "es-ES": "Español (Apple)" },
+  "SwedishA": { "en": "Swedish (Apple)", "sv-SE": "Svenska (Apple)" },
+  "SwissA": { "en": "Swiss (Apple)", "de-DE": "Schweiz (Apple)", "fr-FR": "Suisse (Apple)" },
+  "IntlEngA": { "en": "International English (Apple)" },
+  "USA": { "en": "USA (Apple)", "en-US": "United States (Apple)" },
+  "TurkeyA": { "en": "Turkish (Apple)", "tr-TR": "Türkçe (Apple)" },
+  "TurkeyQA": { "en": "Turkish Q (Apple)", "tr-TR": "Türkçe Q (Apple)" },
+  "HungaryA": { "en": "Hungarian (Apple)", "hu-HU": "Magyar (Apple)" }
+}
