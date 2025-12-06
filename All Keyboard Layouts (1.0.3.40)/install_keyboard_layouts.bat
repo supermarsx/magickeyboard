@@ -1,12 +1,38 @@
 @echo OFF & cls & echo.
+
+REM ---------------------------------------------------------------------------
+REM install_keyboard_layouts.bat
+REM
+REM Purpose:
+REM   Add keyboard layout registry entries and copy layout DLLs to C:\Windows\System32.
+REM
+REM How it works:
+REM   1) This script requires Administrator privileges. It detects elevation using
+REM      "net session" and will abort if not elevated (you'll be prompted to run
+REM      it as Administrator).
+REM   2) Adds registry keys under HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts
+REM      for a list of Apple-style keyboard layouts (Layout Text, File, Id, Component ID)
+REM   3) Copies layout DLL files listed in install_filelist.txt into C:\Windows\System32\
+REM
+REM Usage:
+REM   Right-click and choose "Run as Administrator" OR use the helper
+REM   self-elevating installer (install_keyboard_layouts_elevated.bat).
+REM
+REM Safety & Notes:
+REM   - This modifies HKLM and writes to System32 which requires admin rights.
+REM   - Removing or overwriting system DLLs can break the system. Use the
+REM     provided uninstall script to remove these entries and files.
+REM   - The script silences output (redirects to nul). To debug run commands
+REM     manually or remove ">nul 2>&1" redirects.
+REM ---------------------------------------------------------------------------
+
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-  echo You must right-click and select
-  echo "RUN AS ADMINISTRATOR" to run this script.
+  echo ERROR: Administrator privileges required. Right-click and choose "Run as Administrator".
   echo Exiting...
   echo.
   pause
-  exit
+  exit /b 1
 )
 
 echo Installing Keyboard Layouts
@@ -163,9 +189,66 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040e" /v "La
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040e" /v "Layout Component ID" /t REG_SZ /d "725BE97D2AD14042BA539D96030F93AA" /f >nul 2>&1
 
 echo Copying DLL layouts to system32 folder
-for /F "usebackq tokens=*" %%f in ("install_filelist.txt") do copy "%%~f" "C:\Windows\System32\" >nul 2>&1
+
+REM Ensure a checksum manifest exists
+if not exist "%~dp0install_checksums.txt" (
+  echo ERROR: checksum manifest install_checksums.txt not found in the same folder as this script.
+  echo Install aborting — checksum verification is required before copying into System32.
+  exit /b 2
+)
+
+setlocal enabledelayedexpansion
+for /F "usebackq tokens=*" %%f in ("install_filelist.txt") do (
+  echo Verifying "%%~f" ...
+  if not exist "%%~f" (
+    echo ERROR: file "%%~f" listed in install_filelist.txt is missing!
+    exit /b 3
+  )
+
+  REM Lookup expected hash in install_checksums.txt (format: <sha256>  <filename>)
+  set "EXPECTED="
+  for /F "usebackq tokens=1* delims= " %%H in ('findstr /I /C:"%%~f" "%~dp0install_checksums.txt"') do (
+    set "EXPECTED=%%H"
+  )
+  if not defined EXPECTED (
+    echo ERROR: no checksum entry found for %%~f in install_checksums.txt
+    exit /b 4
+  )
+
+  REM Compute actual SHA256 using certutil and extract the hex string line
+  for /F "tokens=*" %%A in ('certutil -hashfile "%%~f" SHA256 ^| findstr /v "SHA256 CertUtil"') do (
+    set "ACTUAL=%%A"
+  )
+  set "ACTUAL=!ACTUAL: =!"
+
+  if /I NOT "!ACTUAL!"=="!EXPECTED!" (
+    echo ERROR: checksum mismatch for %%~f
+    echo Expected: !EXPECTED!
+    echo Actual:   !ACTUAL!
+    exit /b 5
+  )
+
+  REM Signature verification — require a valid Authenticode signature
+  for /F "usebackq tokens=*" %%S in ('powershell -NoProfile -Command "(Get-AuthenticodeSignature '%~dp0%%~f').Status" 2^>^&1') do (
+    set "SIGN_STATUS=%%S"
+  )
+  if /I NOT "!SIGN_STATUS!"=="Valid" (
+    echo ERROR: signature verification failed for %%~f (Status=!SIGN_STATUS!)
+    exit /b 6
+  )
+
+  copy "%%~f" "C:\Windows\System32\" >nul 2>&1
+  if errorlevel 1 (
+    echo ERROR: failed to copy %%~f to C:\Windows\System32\
+    exit /b 7
+  ) else (
+    echo OK: copied %%~f
+  )
+)
+endlocal
 
 echo Finished installing layouts
 echo.
 
-pause
+REM If MAGIC_SILENT is defined, skip interactive pause (used by automated installers)
+if not defined MAGIC_SILENT pause

@@ -1,12 +1,36 @@
 @echo OFF & cls & echo.
+
+REM ---------------------------------------------------------------------------
+REM uninstall_keyboard_layouts.bat
+REM
+REM Purpose:
+REM   Remove registry entries for installed keyboard layouts and delete the
+REM   corresponding DLL files from C:\Windows\System32 (based on install_filelist.txt).
+REM
+REM How it works:
+REM   1) Requires Administrator privileges. Detects elevation via "net session".
+REM   2) Deletes the HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts keys
+REM      for the layouts installed by the installer script.
+REM   3) Deletes DLL files listed in install_filelist.txt from C:\Windows\System32\
+REM
+REM Usage:
+REM   Run as Administrator. To script this unattended use the self-elevating
+REM   installer/uninstaller (install_keyboard_layouts_elevated.bat or add an
+REM   unattended switch to call this file).
+REM
+REM Safety & Notes:
+REM   - This removes registry keys and deletes files from System32. Only run
+REM     if you want these layouts removed. There is no recovery from file deletion
+REM     other than restoring from backups.
+REM ---------------------------------------------------------------------------
+
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-  echo You must right-click and select
-  echo "RUN AS ADMINISTRATOR" to run this script.
+  echo ERROR: Administrator privileges required. Right-click and choose "Run as Administrator".
   echo Exiting...
   echo.
   pause
-  exit
+  exit /b 1
 )
 
 echo "Uninstalling Keyboard Layouts"
@@ -90,4 +114,5 @@ for /F "usebackq tokens=*" %%f in ("install_filelist.txt") do del "C:\Windows\Sy
 echo "Finished uninstalling layouts"
 echo.
 
-pause
+REM If MAGIC_SILENT is defined, skip interactive pause (used by automated uninstallers)
+if not defined MAGIC_SILENT pause

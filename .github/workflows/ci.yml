@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  lint_and_format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run lint checks
+        run: |
+          chmod +x scripts/check-lint.sh
+          scripts/check-lint.sh
+      - name: Run format checks
+        run: |
+          chmod +x scripts/check-format.sh
+          scripts/check-format.sh
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: lint_and_format
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: |
+          chmod +x scripts/run-tests.sh
+          scripts/run-tests.sh
+
+  windows-verify:
+    runs-on: windows-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify install file list (Windows)
+        shell: cmd
+        run: |
+          cd "All Keyboard Layouts (1.0.3.40)"
+          verify_install_filelist.bat
+
+  package_artifact:
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run packaging
+        run: |
+          chmod +x scripts/package_layouts.sh
+          scripts/package_layouts.sh "$GITHUB_RUN_ID"
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: layouts-archive
+          path: dist/*.zip

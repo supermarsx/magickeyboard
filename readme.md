@@ -169,9 +169,32 @@ To **automatically install** all keyboard layouts you'll need:
 
 1. A **copy** of `All Keyboard Layouts` folder;
 2. **Translate** any layout names inside `install_keyboard_layouts.bat` **(optional)**;
-3. **Run** `install_keyboard_layouts.bat` as an **administrator**.
+3. **Run** one of the installer options as an **administrator**:
+
+   - Interactive (will show UAC):
+
+     ```bat
+     install_keyboard_layouts_elevated.bat
+     ```
+
+   - Silent / unattended (no interactive pause, writes to `%TEMP%\magickeyboard_install.log`):
+
+     ```bat
+     install_keyboard_layouts_elevated.bat /SILENT
+     ```
+
+   - (Alternative) Run the original installer directly:
+
+     ```bat
+     install_keyboard_layouts.bat  (right-click → Run as administrator)
+     ```
 
 Your keyboard layouts will be ready to use.
+
+## Continuous Integration & maintenance
+
+- This repository includes a GitHub Actions workflow at `.github/workflows/ci.yml` which runs lightweight lint/format checks and tests, validates the file list on Windows runners, and packages the layout folder as a ZIP artifact.
+- Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests.
 
 
 ### Manually install layouts
