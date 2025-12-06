@@ -11,18 +11,27 @@ try {
 }
 
 $locale = (Get-UICulture).Name
-if (-not $json.PSObject.Properties.Name -contains $Key) {
-  Write-Error "Translations do not contain key: $Key"
-  exit 3
+
+$entry = $null
+if ($json.PSObject.Properties.Name -contains $Key) { $entry = $json.$Key }
+
+$value = $null
+if ($entry -ne $null) {
+  if ($entry.PSObject.Properties.Name -contains $locale) { $value = $entry.$locale }
+  if (-not $value -and $entry.PSObject.Properties.Name -contains 'en') { $value = $entry.en }
+  if (-not $value) {
+    # If no 'en' but other translations exist, use the first available as a last resort
+    $firstProp = $entry.PSObject.Properties | Select-Object -First 1 -ExpandProperty Name
+    if ($firstProp) { $value = $entry.$firstProp }
+  }
 }
 
-$entry = $json.$Key
-$value = $null
-if ($entry.PSObject.Properties.Name -contains $locale) { $value = $entry.$locale }
-if (-not $value -and $entry.PSObject.Properties.Name -contains 'en') { $value = $entry.en }
 if (-not $value) {
-  Write-Error "No translation available for key: $Key (locale $locale)"
-  exit 4
+  # Fallback: attempt to produce a reasonable English-ish label from Key
+  $friendly = $Key -replace '([A-Z])', ' $1' -replace '\s+$',''
+  $friendly = $friendly.Trim()
+  if ($friendly -notlike '*Apple*') { $friendly = "$friendly (Apple)" }
+  $value = $friendly
 }
 
 Write-Output $value

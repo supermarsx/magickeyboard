@@ -12,6 +12,7 @@ REM   - Supports the following switches when launching this script:
 REM       /SILENT    or /S  -> Run without interactive prompts (no pause)
 REM       /UNINSTALL or /U  -> Run uninstall flow instead of install
 REM       /LOG=<path>       -> Use custom logfile path; default is %TEMP%\magickeyboard_install.log
+REM       /DRYRUN            -> Simulate actions (no files copied and no registry writes). Useful for testing.
 REM
 REM Behavior:
 REM   - If not already running elevated the script will re-launch itself elevated
@@ -49,6 +50,7 @@ if "%~1"=="" goto arg_done
   )
   if /I "%arg%"=="/SILENT" set "MAGIC_SILENT_FLAG=/SILENT" & shift & goto arg_loop
   if /I "%arg%"=="/S" set "MAGIC_SILENT_FLAG=/SILENT" & shift & goto arg_loop
+  if /I "%arg%"=="/DRYRUN" set "MAGIC_DRYRUN_FLAG=/DRYRUN" & shift & goto arg_loop
   if /I "%arg%"=="/UNINSTALL" set "MODE=UNINSTALL" & shift & goto arg_loop
   if /I "%arg%"=="/U" set "MODE=UNINSTALL" & shift & goto arg_loop
   rem unknown arg -> ignore
@@ -70,11 +72,21 @@ rem We're elevated from here on
 echo Running elevated: %~f0 %*
 echo Log: %LOGFILE%
 
+if defined MAGIC_DRYRUN (
+  echo NOTE: running in DRYRUN mode — no files will be copied and registry writes will be simulated.
+)
+
 rem Mark scripts as silent if requested
 if defined MAGIC_SILENT_FLAG (
   set "MAGIC_SILENT=1"
 ) else (
   set "MAGIC_SILENT="
+)
+
+if defined MAGIC_DRYRUN_FLAG (
+  set "MAGIC_DRYRUN=1"
+) else (
+  set "MAGIC_DRYRUN="
 )
 
 rem Rotate old logs and enforce retention

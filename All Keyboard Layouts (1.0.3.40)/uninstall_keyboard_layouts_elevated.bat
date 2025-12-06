@@ -6,7 +6,8 @@ REM   Small convenience wrapper to uninstall using the elevated installer
 REM If we're already elevated, just call uninstall
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~dp0install_keyboard_layouts_elevated.bat' -ArgumentList '/UNINSTALL' -Verb RunAs"
+  set "ARGS=/UNINSTALL %*"
+  powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~dp0install_keyboard_layouts_elevated.bat' -ArgumentList '%ARGS%' -Verb RunAs"
   exit /b %errorlevel%
 )
 
