@@ -36,6 +36,15 @@ jobs:
     needs: tests
     steps:
       - uses: actions/checkout@v4
+      - name: Run Windows checks (lint/format/tests)
+        shell: cmd
+        run: |
+          cd "%GITHUB_WORKSPACE%"
+          echo Running Windows lint/format/tests
+          scripts\check-lint.bat
+          scripts\check-format.bat
+          scripts\compute_checksums.bat
+          scripts\run-tests.bat
       - name: Verify install file list (Windows)
         shell: cmd
         run: |
