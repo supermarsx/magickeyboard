@@ -38,7 +38,17 @@ if defined MAGIC_DRYRUN (
   )
 )
 
-echo "Uninstalling Keyboard Layouts"
+echo ================================================================
+echo Uninstalling Apple keyboard layouts — Magic Keyboard collection
+echo Started at %DATE% %TIME%
+echo ================================================================
+
+REM Count targets
+set "TOTAL=0"
+for /F "usebackq tokens=*" %%A in ("install_filelist.txt") do set /a TOTAL+=1
+echo Files listed for uninstall: %TOTAL%
+set "REMOVED=0"
+echo.
 
 REM Detect dry-run (simulated) mode
 set "DRYRUN=0"
@@ -232,11 +242,19 @@ echo "Deleting copied DLL layout files from system32"
 for /F "usebackq tokens=*" %%f in ("install_filelist.txt") do (
   if "%DRYRUN%"=="1" (
     echo DRYRUN: would delete C:\Windows\System32\%%f
+    set /a REMOVED+=1
   ) else (
     del "C:\Windows\System32\%%f" >nul 2>&1
+    if not errorlevel 1 set /a REMOVED+=1
   )
 )
 
+echo.
+echo ================================================================
+echo Completed uninstall summary:
+echo   Files listed: %TOTAL%
+echo   Files removed/simulated: %REMOVED%
+echo ================================================================
 echo "Finished uninstalling layouts"
 echo.
 

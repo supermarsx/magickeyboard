@@ -65,6 +65,10 @@ Log rotation & retention:
 Utility scripts (added):
 
 - `verify_install_filelist.bat` — quick check to ensure all files listed in `install_filelist.txt` are present.
+
+Friendly installer messages & dry-run
+
+- Installer and uninstaller now include clear, friendly start banners, progress messages and a final summary. These are safe to inspect in `/DRYRUN` mode where no writes are performed.
 - `install_checksums.txt` — SHA256 checksums for the layout DLLs (used by the installer for verification).
 - `install_keyboard_layouts_elevated.bat` — self-elevating installer (documented above)
 - `uninstall_keyboard_layouts_elevated.bat` — helper wrapper that elevates and uninstalls

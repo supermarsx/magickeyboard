@@ -60,12 +60,17 @@ if "%~1"=="" goto arg_done
 rem --- detect elevation ---
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-  echo Requesting elevated privileges (UAC prompt) ...
-  rem Re-launch with same arguments; ensure full path is used
-  set "ARGS=%*"
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~f0' -ArgumentList '%ARGS%' -Verb RunAs"
-  if %errorlevel% neq 0 exit /b %errorlevel%
-  exit /b 0
+  if defined MAGIC_DRYRUN_FLAG (
+    echo Running in DRYRUN mode without elevation (simulation only) ...
+    set "MAGIC_DRYRUN=1"
+  ) else (
+    echo Requesting elevated privileges (UAC prompt) ...
+    rem Re-launch with same arguments; ensure full path is used
+    set "ARGS=%*"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '%~f0' -ArgumentList '%ARGS%' -Verb RunAs"
+    if %errorlevel% neq 0 exit /b %errorlevel%
+    exit /b 0
+  )
 )
 
 rem We're elevated from here on

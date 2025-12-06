@@ -40,7 +40,17 @@ if defined MAGIC_DRYRUN (
   )
 )
 
-echo Installing Keyboard Layouts
+echo ================================================================
+echo Installing Apple keyboard layouts — Magic Keyboard collection
+echo Started at %DATE% %TIME%
+echo ================================================================
+
+REM Count files to process
+set "TOTAL=0"
+for /F "usebackq tokens=*" %%A in ("install_filelist.txt") do set /a TOTAL+=1
+echo Files listed for install: %TOTAL%
+set "INSTALLED=0"
+echo.
 
 echo Creating Registry keys
 REM Detect dry-run mode (set by elevated wrapper or caller via MAGIC_DRYRUN)
@@ -364,6 +374,7 @@ if not exist "%~dp0install_checksums.txt" (
 
 setlocal enabledelayedexpansion
 for /F "usebackq tokens=*" %%f in ("install_filelist.txt") do (
+  echo ------------------------------------------------
   echo Verifying "%%~f" ...
   if not exist "%%~f" (
     echo ERROR: file "%%~f" listed in install_filelist.txt is missing!
@@ -406,18 +417,26 @@ for /F "usebackq tokens=*" %%f in ("install_filelist.txt") do (
 
   if "%DRYRUN%"=="1" (
     echo DRYRUN: would copy "%%~f" to C:\Windows\System32\
+    set /a INSTALLED+=1
   ) else (
     copy "%%~f" "C:\Windows\System32\" >nul 2>&1
   if errorlevel 1 (
     echo ERROR: failed to copy %%~f to C:\Windows\System32\
     exit /b 7
-    ) else (
-      echo OK: copied %%~f
-    )
+      ) else (
+        echo OK: copied %%~f
+        set /a INSTALLED+=1
+      )
   )
 )
 endlocal
 
+echo.
+echo ================================================================
+echo Completed installation summary:
+echo   Files processed: %TOTAL%
+echo   Files installed/simulated: %INSTALLED%
+echo ================================================================
 echo Finished installing layouts
 echo.
 
