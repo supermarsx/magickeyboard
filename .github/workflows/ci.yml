@@ -30,6 +30,10 @@ jobs:
         run: |
           chmod +x scripts/run-tests.sh
           scripts/run-tests.sh
+      - name: Run translation tests (POSIX)
+        run: |
+          chmod +x scripts/test-translations.sh
+          scripts/test-translations.sh
 
   windows-verify:
     runs-on: windows-latest
@@ -45,6 +49,7 @@ jobs:
           scripts\check-format.bat
           scripts\compute_checksums.bat
           scripts\run-tests.bat
+          scripts\test-translations.bat
       - name: Verify install file list (Windows)
         shell: cmd
         run: |
