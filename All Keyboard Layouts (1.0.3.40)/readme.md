@@ -53,10 +53,14 @@ Security & verification (added):
 
 - A checksum manifest `install_checksums.txt` is included — the installer will require this file and verify the SHA256 checksum for every DLL before copying to `C:\Windows\System32`.
 - The installer also performs an Authenticode signature check (via PowerShell) and will refuse to copy unsigned or invalid packages.
+ - A checksum manifest `install_checksums.txt` is included — the installer requires this file and verifies the SHA256 checksum for every DLL before copying to `C:\Windows\System32`.
+ - The installer also performs an Authenticode signature check (via PowerShell). Signature failures now produce a WARNING but the installer will continue (it will still respect checksum mismatches which remain fatal). You can use `/DRYRUN` to simulate installs without copying files and to validate checks locally.
 
 Log rotation & retention:
 
 - The elevated installer rotates the main logfile (`%TEMP%\magickeyboard_install.log`) when it starts and keeps archived logs for a configurable retention period (default 7 days). Use `/LOG=<path>` and `/LOGR=<days>` to customize.
+ - The elevated installer rotates the main logfile (`%TEMP%\magickeyboard_install.log`) when it starts and keeps archived logs for a configurable retention period (default 7 days). Use `/LOG=<path>` and `/LOGR=<days>` to customize.
+ - Use `/DRYRUN` to simulate an install/uninstall. DRYRUN will skip registry writes and file copies so you can safely test the process or run CI checks without elevated privileges.
 
 Utility scripts (added):
 
