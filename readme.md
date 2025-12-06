@@ -195,6 +195,11 @@ Your keyboard layouts will be ready to use.
 
 - This repository includes a GitHub Actions workflow at `.github/workflows/ci.yml` which runs lightweight lint/format checks and tests, validates the file list on Windows runners, and packages the layout folder as a ZIP artifact.
 - Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests.
+ - Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests. There are both POSIX (bash) and Windows (batch/PowerShell) helpers to support running checks and packaging on CI or developer machines. Windows-specific scripts include `scripts\check-lint.bat`, `scripts\check-format.bat`, `scripts\compute_checksums.bat`, `scripts\run-tests.bat`, and `scripts\package_layouts.ps1`.
+
+### Locale-aware layout names
+
+The layout installer now supports translated `Layout Text` registry values. It detects the system UI locale and sets the translated layout name from `All Keyboard Layouts (1.0.3.40)/translations.json` using a small PowerShell helper (`get_translation.ps1`). The installer falls back to English where translations are missing. See the `All Keyboard Layouts` README for more details.
 
 
 ### Manually install layouts
