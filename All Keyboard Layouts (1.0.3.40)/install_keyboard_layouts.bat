@@ -94,16 +94,6 @@ reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b" /v "La
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b" /v "Layout Id" /t REG_SZ /d "00cb" /f >nul 2>&1
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b" /v "00cb" /t REG_SZ /d "DutchA.dll" /f >nul 2>&1
 
-REM (duplicate section omitted)
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000413" /v "Layout File" /t REG_SZ /d "DutchA.dll" /f >nul 2>&1
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000413" /v "Layout Id" /t REG_SZ /d "00c1" /f >nul 2>&1
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000413" /v "Layout Component ID" /t REG_SZ /d "3844B95343FB43D68E9695D6E88F016E" /f >nul 2>&1
-
-REM (duplicate section omitted)
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b" /v "Layout File" /t REG_SZ /d "FinnishA.dll" /f >nul 2>&1
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b" /v "Layout Id" /t REG_SZ /d "00cb" /f >nul 2>&1
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b" /v "Layout Component ID" /t REG_SZ /d "ECE9937799D242F5AE0CAA446EDEDC62" /f >nul 2>&1
-
 REM French Layout
 call :get_layout_text FrenchA LAYOUT_TEXT
 reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040c" /v "Layout Text" /t REG_SZ /d "%LAYOUT_TEXT%" /f >nul 2>&1
