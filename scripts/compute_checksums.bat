@@ -2,6 +2,9 @@
 chcp 65001 >nul
 echo.
 echo [compute] Building SHA256 checksum manifest for layout files (Windows)
+REM Purpose:
+REM   Generate install_checksums.txt (SHA256) for the files listed in install_filelist.txt.
+REM   This is used to validate files before copying to System32 during installation.
 
 setlocal ENABLEDELAYEDEXPANSION
 set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"

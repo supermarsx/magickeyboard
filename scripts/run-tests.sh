@@ -80,3 +80,13 @@ echo "[test] Running smoke dry-run test for Linux (best-effort)"
 if [ -f "All Keyboard Layouts (1.0.3.40)/install_keyboard_layouts.bat" ]; then
   echo "NOTE: We cannot execute .bat files on POSIX as a real run — use Windows runner for full execution tests."
 fi
+
+echo
+echo "[test] Running PowerShell matrix installer dry-run (POSIX)"
+if command -v pwsh >/dev/null 2>&1; then
+  # use absolute layout_dir paths to avoid failing after we cd earlier in the script
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/install_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -TranslationsPath "$layout_dir/translations.json" -DryRun >/dev/null 2>&1 || { echo "ERROR: PowerShell matrix dry-run failed"; exit 8; }
+  echo "[test] PowerShell matrix installer dry-run OK"
+else
+  echo "[test] pwsh (PowerShell) not available — skipping PowerShell matrix dry-run"
+fi

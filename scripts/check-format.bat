@@ -2,6 +2,9 @@
 chcp 65001 >nul
 echo.
 echo [format] Checking .bat files for trailing whitespace and final newline (Windows)
+REM Purpose:
+REM   Ensure batch files follow formatting rules (no trailing whitespace, end with newline).
+REM   This helps avoid accidental formatting changes and ensures consistent diffs.
 
 setlocal ENABLEDELAYEDEXPANSION
 set "FAIL=0"

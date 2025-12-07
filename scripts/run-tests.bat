@@ -2,6 +2,10 @@
 chcp 65001 >nul
 echo.
 echo [test] Validating layout filelist and checksums (Windows)
+REM Purpose:
+REM   Execute the Windows test suite: file/checksum validation, translations tests,
+REM   matrix integrity checks, and a dry-run using the elevated wrappers and
+REM   PowerShell helpers where available.
 
 setlocal ENABLEDELAYEDEXPANSION
 set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"
@@ -80,3 +84,14 @@ if errorlevel 1 (
   exit /b 11
 )
 echo [test] Elevated wrapper dry-run OK
+
+REM --- PowerShell matrix dry-run (Windows) ---
+echo.
+echo [test] Running PowerShell matrix installer dry-run (Windows)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\install_registry_from_matrix.ps1" -MatrixPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\layouts.json" -TranslationsPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\translations.json" -DryRun
+if errorlevel 1 (
+  echo [test] PowerShell matrix dry-run failed with exit code %ERRORLEVEL%
+  exit /b 12
+) else (
+  echo [test] PowerShell matrix dry-run OK
+)
