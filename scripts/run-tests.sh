@@ -99,3 +99,20 @@ if command -v pwsh >/dev/null 2>&1; then
 else
   echo "[test] pwsh (PowerShell) not available — skipping uninstall matrix dry-run"
 fi
+
+echo
+echo "[test] Running unit tests in tests/posix (POSIX)"
+if [ -x "$root_dir/tests/posix/test_get_system_locale.sh" ]; then
+  "$root_dir/tests/posix/test_get_system_locale.sh"
+else
+  echo "[test] No POSIX unit tests found or not executable - skipping"
+fi
+
+echo
+echo "[test] Running PowerShell unit tests (POSIX host)"
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$root_dir/tests/powershell/test_get_translation.ps1" -LayoutDir "$layout_dir" || { echo "ERROR: PowerShell translation tests failed"; exit 10; }
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$root_dir/tests/powershell/test_matrix_dryrun.ps1" -LayoutDir "$layout_dir" || { echo "ERROR: PowerShell matrix dry-run tests failed"; exit 11; }
+else
+  echo "[test] pwsh (PowerShell) not available — skipping PowerShell unit tests"
+fi
