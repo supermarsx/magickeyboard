@@ -1,8 +1,24 @@
 Import-Module Pester -MinimumVersion 5.0 -ErrorAction Stop
 
-$ScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$RepoRoot = Resolve-Path "$ScriptRoot/../../../"
-$LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
+function Find-RepoRoot {
+    param([string[]]$starts)
+    if (-not $starts) { $starts = @() }
+    if ($PSScriptRoot) { $starts += $PSScriptRoot }
+    $starts += (Get-Location).Path
+    if ($env:GITHUB_WORKSPACE) { $starts += $env:GITHUB_WORKSPACE }
+
+    foreach ($s in $starts | Where-Object { $_ }) {
+        try { $cur = (Resolve-Path -Path $s).Path } catch { continue }
+        while ($true) {
+            if (Test-Path (Join-Path $cur 'All Keyboard Layouts (1.0.3.40)')) { return $cur }
+            $parent = Split-Path -Parent $cur
+            if ($parent -eq $cur) { break }
+            $cur = $parent
+        }
+    }
+    throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found from starts: $($starts -join ', ')"
+}
+
 
 Describe 'Layouts JSON and checksums' {
     BeforeAll {
