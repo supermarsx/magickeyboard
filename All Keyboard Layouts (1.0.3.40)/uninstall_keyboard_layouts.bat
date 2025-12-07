@@ -69,173 +69,20 @@ if not defined MAGIC_SILENT if "%DRYRUN%"=="0" (
   )
 )
 
-echo "Removing Registry keys"
-REM Removing Belgian Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000813
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000813" /f >nul 2>&1
-)
+echo "Removing Registry keys (via layouts.json -> uninstall_registry_from_matrix.ps1)"
 
-REM Removing British Layout
 if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json" -DryRun
+  if errorlevel 1 (
+    echo ERROR: registry dry-run failed
+    exit /b 6
+  )
 ) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /f >nul 2>&1
-)
-
-REM Removing Canadian Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000c0c
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000c0c" /f >nul 2>&1
-)
-
-REM Removing Danish Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000406
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000406" /f >nul 2>&1
-)
-
-REM Removing Dutch Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000413
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000413" /f >nul 2>&1
-)
-
-REM Removing Finnish Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040b" /f >nul 2>&1
-)
-
-REM Removing French Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040c
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040c" /f >nul 2>&1
-)
-
-REM Removing German Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000407
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000407" /f >nul 2>&1
-)
-
-REM Removing Italian Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000410
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000410" /f >nul 2>&1
-)
-
-REM Removing Norwegian Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000414
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000414" /f >nul 2>&1
-)
-
-REM Removing Polish Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000415
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000415" /f >nul 2>&1
-)
-
-REM Removing Portuguese Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000416
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000416" /f >nul 2>&1
-)
-
-REM Removing Russian Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000419
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000419" /f >nul 2>&1
-)
-
-REM Removing Spanish Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040a
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040a" /f >nul 2>&1
-)
-
-REM Removing Swedish Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000041d
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000041d" /f >nul 2>&1
-)
-
-REM Removing Swiss Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000100c
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000100c" /f >nul 2>&1
-)
-
-REM Removing International English Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0020409
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0020409" /f >nul 2>&1
-)
-
-REM Removing USA Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000409
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000409" /f >nul 2>&1
-)
-
-REM Removing Chinese Traditional Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\00000404
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\00000404" /f >nul 2>&1
-)
-
-REM Removing Chinese Standard Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\00000804
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\00000804" /f >nul 2>&1
-)
-
-REM Removing Turkish Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a100041f
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a100041f" /f >nul 2>&1
-)
-
-REM Removing Turkish Q Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000041f
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000041f" /f >nul 2>&1
-)
-
-REM Removing Czech Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000405
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000405" /f >nul 2>&1
-)
-
-REM Removing Hungarian Layout
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would delete registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040e
-) else (
-  reg delete "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a000040e" /f >nul 2>&1
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json"
+  if errorlevel 1 (
+    echo ERROR: registry uninstall failed
+    exit /b 6
+  )
 )
 
 echo "Deleting copied DLL layout files from system32"

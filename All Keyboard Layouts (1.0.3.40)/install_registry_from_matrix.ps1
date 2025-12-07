@@ -54,8 +54,15 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
     } catch { $layoutText = $key }
   }
 
-  $regKey = $entry.reg_key
-  $fullRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\$regKey"
+  # prefer explicit reg_path in matrix; otherwise construct from reg_key
+  if ($entry.PSObject.Properties.Name -contains 'reg_path' -and $entry.reg_path) {
+    $fullRegPath = $entry.reg_path -replace '\\{2,}','\\'
+    # normalize leading HKLM\ to HKLM:\ for the registry provider
+    if ($fullRegPath -like 'HKLM\\*') { $fullRegPath = $fullRegPath -replace '^HKLM\\','HKLM:\' }
+  } else {
+    $regKey = $entry.reg_key
+    $fullRegPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\$regKey"
+  }
 
   if ($DryRun) {
     Write-Host "DRYRUN: would create registry key $fullRegPath"
