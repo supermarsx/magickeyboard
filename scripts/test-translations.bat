@@ -22,9 +22,10 @@ set "MISSING_LOCALES=0"
 set "EMPTY_VALUES=0"
 set "PLACEHOLDERS=0"
 set "REQUIRED_LOCALES=en en-US fr-FR de-DE es-ES nl-NL it-IT pt-PT pt-BR ru-RU zh-CN zh-TW pl-PL sv-SE fi-FI nb-NO cs-CZ hu-HU tr-TR en-CA"
-for /F "usebackq delims=" %%F in ("%ROOT%\install_filelist.txt") do (
-  if "%%F"=="" (goto :cont)
-  set "KEY=%%~nF"
+
+for /F "usebackq delims=" %%K in (`powershell -NoProfile -Command "(Get-Content -Raw -Path '%ROOT%\layouts.json' | ConvertFrom-Json).PSObject.Properties.Name -join '`n'"`) do (
+  if "%%K"=="" (goto :cont)
+  set "KEY=%%K"
   for %%L in (%REQUIRED_LOCALES%) do (
     powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $j = Get-Content -Raw -Path '%ROOT%\\translations.json' | ConvertFrom-Json; if ($j.'!KEY' -and $j.'!KEY'.'%%L') { $v = $j.'!KEY'.'%%L'; if ([string]::IsNullOrWhiteSpace($v)) { exit 4 } elseif ($v -eq '!KEY') { exit 5 } else { exit 0 } } else { exit 2 } } catch { exit 3 }" > nul 2>&1
     if errorlevel 5 (

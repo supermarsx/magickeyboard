@@ -10,8 +10,13 @@ $out = Join-Path $root '..\dist'
 if (-not (Test-Path $out)) { New-Item -ItemType Directory -Path $out | Out-Null }
 
 Push-Location $layouts
-if (-not (Test-Path .\install_checksums.txt)) {
-  Write-Output "Checksums missing — generating install_checksums.txt"
+try {
+  $hassha = (Get-Content -Raw -Path .\layouts.json | ConvertFrom-Json | Where-Object { $_.sha256 }) -ne $null
+} catch {
+  $hassha = $false
+}
+if (-not $hassha) {
+  Write-Output "layouts.json has no embedded sha256 entries — generating helper layouts.checksums.json"
   & "$root\compute_checksums.bat"
 }
 

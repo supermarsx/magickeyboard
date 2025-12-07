@@ -14,9 +14,9 @@ fi
 archive_name="All.Keyboard.Layouts.$version.zip"
 cd "$layout_dir"
 
-if [ ! -f install_checksums.txt ]; then
-  echo "install_checksums.txt missing — generating checksums"
-  ../scripts/compute_checksums.sh
+if ! jq -e '[.[] | select(.sha256)] | length > 0' layouts.json >/dev/null 2>&1; then
+  echo "Warning: layouts.json has no embedded sha256 values — generating helper checksums.json"
+  ../scripts/compute_checksums.sh || true
 fi
 
 zip -r "$out_dir/$archive_name" . -x "*.DS_Store"

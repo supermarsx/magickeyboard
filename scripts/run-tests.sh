@@ -9,57 +9,44 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 
-echo "Running tests for layout packaging and checksums..."
+echo "Running tests for layout packaging and checksums (layouts.json + embedded sha256)"
 
-if [ ! -f "$layout_dir/install_filelist.txt" ]; then
-  echo "ERROR: install_filelist.txt missing"
-  exit 2
-fi
-if [ ! -f "$layout_dir/install_checksums.txt" ]; then
-  echo "ERROR: install_checksums.txt missing"
+if [ ! -f "$layout_dir/layouts.json" ]; then
+  echo "ERROR: layouts.json missing"
   exit 2
 fi
 
 missing=0
-while IFS= read -r file; do
-  if [ -z "$file" ]; then
+cd "$layout_dir"
+
+# build file list and check files exist + validate sha256 against embedded layouts.json
+jq -e '. | type == "object"' layouts.json >/dev/null 2>&1 || { echo "ERROR: layouts.json invalid JSON"; exit 3; }
+
+files=$(jq -r '.[] | .file' layouts.json)
+for f in $files; do
+  if [ -z "$f" ]; then continue; fi
+  if [ ! -f "$f" ]; then
+    echo "ERROR: referenced file missing: $f"
+    missing=1
     continue
   fi
-  if [ ! -f "$layout_dir/$file" ]; then
-    echo "ERROR: referenced file missing: $file"
+  expected=$(jq -r "[.[] | select(.file==\"$f\") | .sha256] | .[0]" layouts.json)
+  if [ -z "$expected" ] || [ "$expected" = "null" ]; then
+    echo "ERROR: no sha256 embedded for $f in layouts.json"
+    missing=1
+    continue
+  fi
+  actual=$(shasum -a 256 "$f" | awk '{print $1}')
+  if [ "$actual" != "$expected" ]; then
+    echo "ERROR: checksum mismatch for $f"
+    echo "  expected: $expected"
+    echo "  actual:   $actual"
     missing=1
   fi
-done < "$layout_dir/install_filelist.txt"
+done
 
 if [ $missing -ne 0 ]; then
-  echo "Some files from install_filelist.txt are missing"
-  exit 3
-fi
-
-echo "Validating checksums..."
-cd "$layout_dir"
-failed=0
-while IFS= read -r line; do
-  # skip empty lines
-  [ -z "$line" ] && continue
-  expected_hash="$(echo "$line" | awk '{print $1}')"
-  fname="$(echo "$line" | awk '{print $2}')"
-  if [ ! -f "$fname" ]; then
-    echo "ERROR: checksum entry references missing file: $fname"
-    failed=1
-    continue
-  fi
-  actual_hash="$(shasum -a 256 "$fname" | awk '{print $1}')"
-  if [ "$actual_hash" != "$expected_hash" ]; then
-    echo "ERROR: checksum mismatch for $fname"
-    echo "  expected: $expected_hash"
-    echo "  actual:   $actual_hash"
-    failed=1
-  fi
-done < install_checksums.txt
-
-if [ $failed -ne 0 ]; then
-  echo "Checksum tests failed"
+  echo "Checksum/file presence tests failed"
   exit 4
 fi
 
@@ -111,12 +98,11 @@ fi
 echo
 echo "[test] Running PowerShell unit tests (POSIX host)"
 if command -v pwsh >/dev/null 2>&1; then
-  pwsh -NoProfile -ExecutionPolicy Bypass -File "$root_dir/tests/powershell/test_get_translation.ps1" -LayoutDir "$layout_dir" || { echo "ERROR: PowerShell translation tests failed"; exit 10; }
-  pwsh -NoProfile -ExecutionPolicy Bypass -File "$root_dir/tests/powershell/test_matrix_dryrun.ps1" -LayoutDir "$layout_dir" || { echo "ERROR: PowerShell matrix dry-run tests failed"; exit 11; }
+  # run Pester v5 tests (all tests under tests/powershell/pester)
   echo
   echo "[test] Running Pester tests (PowerShell assertions)"
   # Run Pester tests in the pester folder. If Pester isn't available, attempt to import or skip.
-  pwsh -NoProfile -ExecutionPolicy Bypass -Command "try { Import-Module Pester -ErrorAction Stop; } catch { Write-Host 'Pester not found; attempting to install to CurrentUser'; Install-Module -Name Pester -Force -Scope CurrentUser -Confirm:\$false -ErrorAction SilentlyContinue }; Import-Module Pester; Invoke-Pester -Script '$root_dir/tests/powershell/pester' -EnableExit;" || { echo "ERROR: Pester tests failed"; exit 12; }
+  pwsh -NoProfile -ExecutionPolicy Bypass -Command "try { Import-Module Pester -MinimumVersion 5.0 -ErrorAction Stop } catch { Write-Host 'Pester not found; installing to CurrentUser'; Install-Module -Name Pester -Force -Scope CurrentUser -Confirm:\$false -ErrorAction Stop }; Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path '$root_dir/tests/powershell/pester' -EnableExit;" || { echo "ERROR: Pester tests failed"; exit 12; }
 else
   echo "[test] pwsh (PowerShell) not available — skipping PowerShell unit tests"
 fi

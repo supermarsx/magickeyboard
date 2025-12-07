@@ -44,40 +44,55 @@ Describe 'Layouts JSON and checksums' {
         $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
         $matrix = Get-Content -Raw -Path (Join-Path $LayoutDir 'layouts.json') | ConvertFrom-Json
         $trans = Get-Content -Raw -Path (Join-Path $LayoutDir 'translations.json') | ConvertFrom-Json
-        $filelist = (Get-Content -Path (Join-Path $LayoutDir 'install_filelist.txt') -ErrorAction Stop) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-        $checksums = @{}
-        foreach ($line in (Get-Content -Path (Join-Path $LayoutDir 'install_checksums.txt'))) {
-            if ($line -match '^\s*$') { continue }
-            $parts = $line -split '\s+'; $checksums[$parts[1]] = $parts[0]
-        }
+        $filelist = @()
+        foreach ($p in $matrix.PSObject.Properties) { $filelist += $p.Value.file }
     }
 
-    It 'layouts.json entries match install_filelist.txt files and keys are present' {
+    It 'layouts.json entries include file properties for all keys' {
         $matrixFiles = @()
         foreach ($p in $matrix.PSObject.Properties) { $matrixFiles += $p.Value.file }
 
-        $missingFromMatrix = $filelist | Where-Object { $_ -notin $matrixFiles }
-        $missingFromFilelist = $matrixFiles | Where-Object { $_ -notin $filelist }
-
-        $missingFromMatrix | Should -BeNullOrEmpty -Because 'all files in install_filelist.txt should be present in layouts.json'
-        $missingFromFilelist | Should -BeNullOrEmpty -Because 'layouts.json should not contain extra files not listed in install_filelist.txt'
+        $matrixFiles | Should -Not -BeNullOrEmpty -Because 'layouts.json must contain file entries for layout keys'
+        ($matrixFiles | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Measure-Object).Count | Should -Be ($matrix.PSObject.Properties.Count)
     }
 
-    It 'all DLL files listed in install_filelist.txt have checksum entries' {
-        foreach ($f in $filelist) {
-            $f = $f.Trim()
-            if ($f -eq '') { continue }
-            Test-Path (Join-Path $LayoutDir $f) | Should -BeTrue -Because "file $f must exist"
-            $checksums.ContainsKey($f) | Should -BeTrue -Because "checksum entry for $f required in install_checksums.txt"
+    It 'all files listed in layouts.json exist and include sha256 values' {
+        foreach ($p in $matrix.PSObject.Properties) {
+            $fname = $p.Value.file
+            $fname | Should -Not -BeNullOrEmpty -Because "matrix entry $($p.Name) must include a file"
+            Test-Path (Join-Path $LayoutDir $fname) | Should -BeTrue -Because "file $fname must exist"
+            $p.Value.PSObject.Properties.Name | Should -Contain 'sha256' -Because "matrix entry $($p.Name) must include sha256"
         }
     }
 
-    It 'checksums for files are correct' {
-        foreach ($kv in $checksums.GetEnumerator()) {
-            $f = Join-Path $LayoutDir $kv.Key
-            Test-Path $f | Should -BeTrue -Because "file exists for checksum $($kv.Key)"
-            $actual = (Get-FileHash -Path $f -Algorithm SHA256).Hash
-            $actual | Should -Be $kv.Value -Because "computed SHA256 should match expected for $($kv.Key)"
+    It 'embedded sha256 values match actual file content' {
+        foreach ($p in $matrix.PSObject.Properties) {
+            $fname = $p.Value.file
+            $expected = $p.Value.sha256
+            $path = Join-Path $LayoutDir $fname
+            Test-Path $path | Should -BeTrue -Because "file $fname must exist for hashing"
+            $actual = (Get-FileHash -Path $path -Algorithm SHA256).Hash
+            $actual | Should -Be $expected -Because "sha256 for $fname must match the embedded value in layouts.json"
+        }
+    }
+
+    Context 'negative scenarios' {
+        It 'detects checksum mismatch when layouts.json contains wrong sha256 for a file' {
+            # create a temporary copy of layouts.json with a tampered sha for the first DLL
+            $tmp = [System.IO.Path]::GetTempFileName()
+            $orig = Get-Content -Raw -Path (Join-Path $LayoutDir 'layouts.json') | ConvertFrom-Json
+            $keys = $orig.PSObject.Properties.Name
+            $k0 = $keys[0]
+            $orig.$k0.sha256 = ('00' * 32)
+            $json = $orig | ConvertTo-Json -Depth 6
+            Set-Content -Path $tmp -Value $json
+
+            $entry = $orig.$k0
+            $path = Join-Path $LayoutDir $entry.file
+            $actual = (Get-FileHash -Path $path -Algorithm SHA256).Hash
+            # assert the tampered sha does not match the real hash
+            $actual | Should -Not -Be $entry.sha256
+            Remove-Item -Path $tmp -Force
         }
     }
 

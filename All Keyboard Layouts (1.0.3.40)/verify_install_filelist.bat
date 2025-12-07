@@ -2,15 +2,15 @@
 cls
 REM Purpose:
 REM   Quick verification helper — checks all files listed in install_filelist.txt exist in this folder.
-echo Verifying install_filelist.txt files exist in the current folder
+echo NOTE: install_filelist.txt is deprecated. Verifying files referenced in layouts.json exist in this folder
 
 set "MISSING=0"
 
-for /F "usebackq tokens=*" %%F in ("install_filelist.txt") do (
-  if exist "%%~fF" (
-    echo OK: %%~fF
+for /F "usebackq delims=" %%K in ('powershell -NoProfile -Command "(Get-Content -Raw -Path '%~dp0layouts.json' | ConvertFrom-Json).PSObject.Properties.Value | ForEach-Object { $_.file } -join '`n'"') do (
+  if exist "%%~fK" (
+    echo OK: %%~fK
   ) else (
-    echo MISSING: %%~fF
+    echo MISSING: %%~fK
     set "MISSING=1"
   )
 )
@@ -20,5 +20,5 @@ if "%MISSING%"=="1" (
   exit /b 2
 )
 
-echo All files listed in install_filelist.txt are present.
+echo All files referenced in layouts.json are present.
 exit /b 0

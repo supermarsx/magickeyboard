@@ -10,10 +10,10 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 
-echo "[test-translations] Verifying translations.json coverage for files in install_filelist.txt"
+echo "[test-translations] Verifying translations.json coverage for entries in layouts.json"
 
-if [ ! -f "$layout_dir/install_filelist.txt" ]; then
-  echo "ERROR: install_filelist.txt not found"
+if [ ! -f "$layout_dir/layouts.json" ]; then
+  echo "ERROR: layouts.json not found"
   exit 2
 fi
 if [ ! -f "$layout_dir/translations.json" ]; then
@@ -28,9 +28,8 @@ missing_keys=0
 missing_locales=0
 empty_values=0
 placeholders=0
-while IFS= read -r file; do
-  [ -z "$file" ] && continue
-  key="${file%.*}"
+keys=$(jq -r 'keys[]' "$layout_dir/layouts.json")
+for key in $keys; do
   if ! jq -e ".\"$key\"" "$layout_dir/translations.json" >/dev/null 2>&1; then
     echo "ERROR: translations.json is missing key for $file ($key)"
     missing=1
@@ -57,7 +56,7 @@ while IFS= read -r file; do
       missing=1; placeholders=$((placeholders+1))
     fi
   done
-done < "$layout_dir/install_filelist.txt"
+done
 
 if [ $missing -ne 0 ]; then
   echo "[test-translations] FAILED — $missing issues found"
@@ -67,4 +66,4 @@ if [ $missing -ne 0 ]; then
   exit 3
 fi
 
-echo "[test-translations] OK — translations.json contains entries for all files in install_filelist.txt (no missing/placeholder values)"
+echo "[test-translations] OK — translations.json contains entries for all layouts in layouts.json (no missing/placeholder values)"

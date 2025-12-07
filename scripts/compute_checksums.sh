@@ -5,20 +5,27 @@ root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 
 cd "$layout_dir"
-if [ ! -f install_filelist.txt ]; then
-  echo "install_filelist.txt not found in $layout_dir"
-  exit 2
-fi
+echo "NOTE: install_filelist.txt/install_checksums.txt are deprecated. layouts.json contains authoritative sha256 checksums.
+This helper will compute fresh SHA256 values for the files and write a helper JSON file 'layouts.checksums.json' for review.
+You can copy the values into layouts.json if updating the canonical matrix."
 
-echo "Computing SHA256 checksums for files listed in install_filelist.txt"
-rm -f install_checksums.txt
-while IFS= read -r file; do
-  [ -z "$file" ] && continue
-  if [ ! -f "$file" ]; then
-    echo "WARN: $file not found — skipping"
+rm -f layouts.checksums.json
+echo "{" > layouts.checksums.json
+first=1
+for f in *.dll; do
+  [ -z "$f" ] && continue
+  if [ ! -f "$f" ]; then
     continue
   fi
-  shasum -a 256 "$file" >> install_checksums.txt
-done < install_filelist.txt
+  hash=$(shasum -a 256 "$f" | awk '{print $1}')
+  if [ $first -eq 1 ]; then
+    first=0
+  else
+    echo "," >> layouts.checksums.json
+  fi
+  printf '  "%s": "%s"' "$f" "$hash" >> layouts.checksums.json
+done
+echo
+echo "}" >> layouts.checksums.json
 
-echo "Wrote install_checksums.txt ($(wc -l < install_checksums.txt) entries)"
+echo "Wrote layouts.checksums.json (review and merge into layouts.json if desired)"
