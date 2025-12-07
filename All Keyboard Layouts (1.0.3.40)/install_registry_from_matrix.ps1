@@ -79,7 +79,9 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
 
     Write-Host "OK: registry updated for $key -> $fullRegPath"
   } catch {
-    Write-Warning "Failed to update registry for $key: $_"
+    # Use Out-String to safely include the error object in the message on all platforms
+    $errMsg = ($_ | Out-String).Trim()
+    Write-Warning ("Failed to update registry for {0}: {1}" -f $key, $errMsg)
     exit 1
   }
 }

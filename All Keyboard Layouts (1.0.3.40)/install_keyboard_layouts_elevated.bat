@@ -118,6 +118,7 @@ if /I "%MODE%"=="INSTALL" (
   )
   echo Install completed successfully>> "%LOGFILE%"
   if not defined MAGIC_SILENT pause
+  endlocal
   exit /b 0
 )
 
@@ -134,8 +135,10 @@ if /I "%MODE%"=="UNINSTALL" (
   )
   echo Uninstall completed successfully>> "%LOGFILE%"
   if not defined MAGIC_SILENT pause
+  endlocal
   exit /b 0
 )
 
 echo Unknown mode: %MODE%
+endlocal
 exit /b 1

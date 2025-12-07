@@ -1,7 +1,8 @@
 @echo off
 cls
 REM Purpose:
-REM   Small convenience wrapper to uninstall using the elevated installer
+REM   Small convenience wrapper to uninstall using the elevated installer.
+REM   Supports passing through switches to the elevated installer (/DRYRUN, /SILENT, etc.).
 
 REM If we're already elevated, just call uninstall
 net session >nul 2>&1
