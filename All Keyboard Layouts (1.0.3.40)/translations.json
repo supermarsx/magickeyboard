@@ -505,5 +505,26 @@
     "hu-HU": "Török Q (Apple)",
     "tr-TR": "Türkçe Q (Apple)"
   },
-  "HungaryA": { "en": "Hungarian (Apple)", "en-US": "Hungarian (Apple)", "hu-HU": "Magyar (Apple)" }
+  "HungaryA": {
+    "en": "Hungarian (Apple)",
+    "en-US": "Hungarian (Apple)",
+    "en-CA": "Hungarian (Apple)",
+    "fr-FR": "Hongrois (Apple)",
+    "de-DE": "Ungarisch (Apple)",
+    "es-ES": "Húngaro (Apple)",
+    "nl-NL": "Hongaars (Apple)",
+    "it-IT": "Ungherese (Apple)",
+    "pt-PT": "Húngaro (Apple)",
+    "pt-BR": "Húngaro (Apple)",
+    "ru-RU": "Венгерский (Apple)",
+    "zh-CN": "匈牙利语 (Apple)",
+    "zh-TW": "匈牙利語 (Apple)",
+    "pl-PL": "Węgierski (Apple)",
+    "sv-SE": "Ungerska (Apple)",
+    "fi-FI": "Unkari (Apple)",
+    "nb-NO": "Ungarsk (Apple)",
+    "cs-CZ": "Maďarština (Apple)",
+    "hu-HU": "Magyar (Apple)",
+    "tr-TR": "Macarca (Apple)"
+  }
 }
