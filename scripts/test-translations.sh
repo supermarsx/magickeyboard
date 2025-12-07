@@ -15,6 +15,8 @@ if [ ! -f "$layout_dir/translations.json" ]; then
   exit 2
 fi
 
+REQUIRED_LOCALES=(en en-US fr-FR de-DE es-ES nl-NL it-IT pt-PT pt-BR ru-RU zh-CN zh-TW pl-PL sv-SE fi-FI nb-NO cs-CZ hu-HU tr-TR en-CA)
+
 missing=0
 while IFS= read -r file; do
   [ -z "$file" ] && continue
@@ -24,10 +26,13 @@ while IFS= read -r file; do
     missing=1
     continue
   fi
-  # Ensure there is at least an English fallback
-  if ! jq -e ".\"$key\".en" "$layout_dir/translations.json" >/dev/null 2>&1; then
-    echo "WARN: no 'en' fallback for $key (translations.json) — tests will still pass but translation fallback may be inconsistent"
-  fi
+  # Ensure translations for all required locales are present
+  for locale in "${REQUIRED_LOCALES[@]}"; do
+    if ! jq -e ".\"$key\".\"${locale}\"" "$layout_dir/translations.json" >/dev/null 2>&1; then
+      echo "ERROR: translations.json is missing locale '$locale' for key $key"
+      missing=1
+    fi
+  done
 done < "$layout_dir/install_filelist.txt"
 
 if [ $missing -ne 0 ]; then

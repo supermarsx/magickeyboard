@@ -16,13 +16,16 @@ if not exist "%ROOT%\translations.json" (
 )
 
 set "MISSING=0"
+set "REQUIRED_LOCALES=en en-US fr-FR de-DE es-ES nl-NL it-IT pt-PT pt-BR ru-RU zh-CN zh-TW pl-PL sv-SE fi-FI nb-NO cs-CZ hu-HU tr-TR en-CA"
 for /F "usebackq delims=" %%F in ("%ROOT%\install_filelist.txt") do (
   if "%%F"=="" (goto :cont)
   set "KEY=%%~nF"
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\get_translation.ps1" -Key "!KEY!" -File "%ROOT%\translations.json" > nul 2>&1
-  if errorlevel 1 (
-    echo ERROR: get_translation.ps1 failed for key !KEY!
-    set MISSING=1
+  for %%L in (%REQUIRED_LOCALES%) do (
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "try { $j = Get-Content -Raw -Path '%ROOT%\translations.json' | ConvertFrom-Json; if ($j.'!KEY' -and $j.'!KEY'.'%%L') { exit 0 } else { exit 2 } } catch { exit 3 }" > nul 2>&1
+    if errorlevel 1 (
+      echo ERROR: translations.json missing locale %%L for key !KEY!
+      set MISSING=1
+    )
   )
 :cont
 )
