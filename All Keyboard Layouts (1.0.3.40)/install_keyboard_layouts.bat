@@ -11,6 +11,7 @@ REM   1) This script requires Administrator privileges. It detects elevation usi
 REM      "net session" and will abort if not elevated (you'll be prompted to run
 REM      it as Administrator).
 REM   2) Adds registry keys under HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts
+REM      (the registry mapping is now stored in layouts.json and applied via install_registry_from_matrix.ps1)
 REM      for a list of Apple-style keyboard layouts (Layout Text, File, Id, Component ID)
 REM   3) Copies layout DLL files listed in install_filelist.txt into C:\Windows\System32\
 REM
