@@ -90,3 +90,12 @@ if command -v pwsh >/dev/null 2>&1; then
 else
   echo "[test] pwsh (PowerShell) not available — skipping PowerShell matrix dry-run"
 fi
+
+echo
+echo "[test] Running PowerShell uninstall matrix dry-run (POSIX)"
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/uninstall_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -DryRun >/dev/null 2>&1 || { echo "ERROR: PowerShell uninstall dry-run failed"; exit 9; }
+  echo "[test] PowerShell uninstall matrix dry-run OK"
+else
+  echo "[test] pwsh (PowerShell) not available — skipping uninstall matrix dry-run"
+fi

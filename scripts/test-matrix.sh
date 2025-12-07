@@ -42,6 +42,21 @@ while IFS= read -r f; do
       missing=$((missing+1)); missing_props=$((missing_props+1))
     fi
   done
+  # ensure reg_path exists and appears valid
+  if ! jq -e ".\"$key\".reg_path" "$layout_dir/layouts.json" >/dev/null 2>&1; then
+    echo "ERROR: layouts.json.$key missing property reg_path"
+    missing=$((missing+1)); missing_props=$((missing_props+1))
+  else
+    rp=$(jq -r ".\"$key\".reg_path" "$layout_dir/layouts.json")
+    if [ "$rp" = "null" ] || [ -z "$rp" ]; then
+      echo "ERROR: layouts.json.$key empty reg_path"
+      missing=$((missing+1)); missing_props=$((missing_props+1))
+    fi
+    if ! echo "$rp" | grep -qE '^(HKLM:|HKLM\\\\|HKLM\\)'; then
+      echo "ERROR: layouts.json.$key reg_path does not look like a HKLM registry path: $rp"
+      missing=$((missing+1)); missing_props=$((missing_props+1))
+    fi
+  fi
 done < "$layout_dir/install_filelist.txt"
 
 if [ $missing -ne 0 ]; then
@@ -50,4 +65,18 @@ if [ $missing -ne 0 ]; then
 fi
 
 echo "[test-matrix] OK — layouts.json includes entries for all files in install_filelist.txt (total=$total)"
+
+# Ensure our batch installers call into the matrix-driven powershell helpers
+if [ -f "$layout_dir/install_keyboard_layouts.bat" ]; then
+  if ! grep -q "install_registry_from_matrix.ps1" "$layout_dir/install_keyboard_layouts.bat" >/dev/null 2>&1; then
+    echo "ERROR: install_keyboard_layouts.bat does not call install_registry_from_matrix.ps1"
+    exit 5
+  fi
+fi
+if [ -f "$layout_dir/uninstall_keyboard_layouts.bat" ]; then
+  if ! grep -q "uninstall_registry_from_matrix.ps1" "$layout_dir/uninstall_keyboard_layouts.bat" >/dev/null 2>&1; then
+    echo "ERROR: uninstall_keyboard_layouts.bat does not call uninstall_registry_from_matrix.ps1"
+    exit 5
+  fi
+fi
 exit 0

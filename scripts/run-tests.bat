@@ -95,3 +95,14 @@ if errorlevel 1 (
 ) else (
   echo [test] PowerShell matrix dry-run OK
 )
+
+  REM Uninstall matrix dry-run
+  echo.
+  echo [test] Running PowerShell uninstall matrix dry-run (Windows)
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\layouts.json" -DryRun
+  if errorlevel 1 (
+    echo [test] PowerShell uninstall dry-run failed with exit code %ERRORLEVEL%
+    exit /b 13
+  ) else (
+    echo [test] PowerShell uninstall dry-run OK
+  )
