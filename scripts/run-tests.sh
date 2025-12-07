@@ -113,6 +113,10 @@ echo "[test] Running PowerShell unit tests (POSIX host)"
 if command -v pwsh >/dev/null 2>&1; then
   pwsh -NoProfile -ExecutionPolicy Bypass -File "$root_dir/tests/powershell/test_get_translation.ps1" -LayoutDir "$layout_dir" || { echo "ERROR: PowerShell translation tests failed"; exit 10; }
   pwsh -NoProfile -ExecutionPolicy Bypass -File "$root_dir/tests/powershell/test_matrix_dryrun.ps1" -LayoutDir "$layout_dir" || { echo "ERROR: PowerShell matrix dry-run tests failed"; exit 11; }
+  echo
+  echo "[test] Running Pester tests (PowerShell assertions)"
+  # Run Pester tests in the pester folder. If Pester isn't available, attempt to import or skip.
+  pwsh -NoProfile -ExecutionPolicy Bypass -Command "try { Import-Module Pester -ErrorAction Stop; } catch { Write-Host 'Pester not found; attempting to install to CurrentUser'; Install-Module -Name Pester -Force -Scope CurrentUser -Confirm:\$false -ErrorAction SilentlyContinue }; Import-Module Pester; Invoke-Pester -Script '$root_dir/tests/powershell/pester' -EnableExit;" || { echo "ERROR: Pester tests failed"; exit 12; }
 else
   echo "[test] pwsh (PowerShell) not available — skipping PowerShell unit tests"
 fi
