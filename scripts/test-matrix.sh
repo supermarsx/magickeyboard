@@ -57,6 +57,14 @@ while IFS= read -r f; do
       missing=$((missing+1)); missing_props=$((missing_props+1))
     fi
   fi
+  # Also check reg_path -> reg_key consistency when reg_key exists
+  if jq -e ".\"$key\".reg_key" "$layout_dir/layouts.json" >/dev/null 2>&1; then
+    rk=$(jq -r ".\"$key\".reg_key" "$layout_dir/layouts.json")
+    if ! echo "$rp" | grep -q "$rk"; then
+      echo "ERROR: layouts.json.$key reg_path does not include reg_key ($rk) : $rp"
+      missing=$((missing+1)); missing_props=$((missing_props+1))
+    fi
+  fi
 done < "$layout_dir/install_filelist.txt"
 
 if [ $missing -ne 0 ]; then
@@ -72,6 +80,41 @@ if [ -f "$layout_dir/install_keyboard_layouts.bat" ]; then
     echo "ERROR: install_keyboard_layouts.bat does not call install_registry_from_matrix.ps1"
     exit 5
   fi
+fi
+# Edge-case tests: ensure there are no extra keys in layouts.json not present in install_filelist.txt
+extra_count=0
+keys=$(jq -r 'keys[]' "$layout_dir/layouts.json")
+for k in $keys; do
+  if ! grep -q "^$k\.dll$" "$layout_dir/install_filelist.txt" >/dev/null 2>&1; then
+    echo "ERROR: layouts.json contains key $k but no corresponding file in install_filelist.txt"
+    extra_count=$((extra_count+1))
+  fi
+done
+if [ $extra_count -ne 0 ]; then
+  echo "[test-matrix] FAILED — $extra_count extra layout keys found in layouts.json"
+  exit 5
+fi
+
+echo "[test-matrix] No extra keys in layouts.json — OK"
+
+# Dry-run message count tests for install/uninstall matrix helpers
+if command -v pwsh >/dev/null 2>&1; then
+  # count non-empty file lines (handle files without trailing newline)
+  total_files=$(grep -cve '^\s*$' "$layout_dir/install_filelist.txt" || echo 0)
+  out=$(pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/install_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -TranslationsPath "$layout_dir/translations.json" -DryRun)
+  got=$(echo "$out" | grep -c "DRYRUN: would create registry key")
+  if [ "$got" -ne "$total_files" ]; then
+    echo "ERROR: install dry-run reported $got create messages, expected $total_files"
+    exit 6
+  fi
+
+  out2=$(pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/uninstall_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -DryRun)
+  got2=$(echo "$out2" | grep -c "DRYRUN: would delete registry key")
+  if [ "$got2" -ne "$total_files" ]; then
+    echo "ERROR: uninstall dry-run reported $got2 delete messages, expected $total_files"
+    exit 6
+  fi
+  echo "[test-matrix] install/uninstall dry-run message counts OK"
 fi
 if [ -f "$layout_dir/uninstall_keyboard_layouts.bat" ]; then
   if ! grep -q "uninstall_registry_from_matrix.ps1" "$layout_dir/uninstall_keyboard_layouts.bat" >/dev/null 2>&1; then

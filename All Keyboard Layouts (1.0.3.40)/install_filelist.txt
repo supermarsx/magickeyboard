@@ -1,5 +1,7 @@
 BelgiumA.dll
 BritishA.dll
+CanadaA.dll
+DanishA.dll
 DutchA.dll
 FinnishA.dll
 FrenchA.dll
