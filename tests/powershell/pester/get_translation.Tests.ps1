@@ -1,23 +1,29 @@
 Import-Module Pester -MinimumVersion 5.0 -ErrorAction Stop
 
-$starts = @()
-if ($PSScriptRoot) { $starts += $PSScriptRoot }
-$starts += (Get-Location).Path
-if ($env:GITHUB_WORKSPACE) { $starts += $env:GITHUB_WORKSPACE }
-$found = $null
-foreach ($s in $starts) {
-    if (-not $s) { continue }
-    try { $cur = (Resolve-Path -Path $s).Path } catch { continue }
-    while ($true) {
-        if (Test-Path (Join-Path $cur 'All Keyboard Layouts (1.0.3.40)')) { $found = $cur; break }
-        $parent = Split-Path -Parent $cur
-        if ($parent -eq $cur) { break }
-        $cur = $parent
+function Find-RepoRoot {
+    param([string[]]$starts)
+    if (-not $starts) { $starts = @() }
+    # prefer script-based locations when available so discovery works during Pester's discovery phase
+    if ($PSCommandPath) { $starts += (Split-Path -Parent $PSCommandPath) }
+    if ($PSScriptRoot) { $starts += $PSScriptRoot }
+    if ($MyInvocation -and $MyInvocation.MyCommand.Path) { $starts += (Split-Path -Parent $MyInvocation.MyCommand.Path) }
+    $starts += (Get-Location).Path
+    if ($env:GITHUB_WORKSPACE) { $starts += $env:GITHUB_WORKSPACE }
+
+    foreach ($s in $starts | Where-Object { $_ }) {
+        try { $cur = (Resolve-Path -Path $s).Path } catch { continue }
+        while ($true) {
+            if (Test-Path (Join-Path $cur 'All Keyboard Layouts (1.0.3.40)')) { return $cur }
+            $parent = Split-Path -Parent $cur
+            if ($parent -eq $cur) { break }
+            $cur = $parent
+        }
     }
-    if ($found) { break }
+    throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found from starts: $($starts -join ', ')"
 }
-if (-not $found) { throw "Repo root with layouts directory not found" }
-$LayoutDir = Resolve-Path "$found/All Keyboard Layouts (1.0.3.40)"
+
+$RepoRoot = Find-RepoRoot
+$LayoutDir = Resolve-Path (Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)')
 $translations = Join-Path $LayoutDir 'translations.json'
 $gt = Join-Path $LayoutDir 'get_translation.ps1'
 

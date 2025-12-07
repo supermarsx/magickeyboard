@@ -3,7 +3,9 @@ Import-Module Pester -MinimumVersion 5.0 -ErrorAction Stop
 function Find-RepoRoot {
     param([string[]]$starts)
     if (-not $starts) { $starts = @() }
+    if ($PSCommandPath) { $starts += (Split-Path -Parent $PSCommandPath) }
     if ($PSScriptRoot) { $starts += $PSScriptRoot }
+    if ($MyInvocation -and $MyInvocation.MyCommand.Path) { $starts += (Split-Path -Parent $MyInvocation.MyCommand.Path) }
     $starts += (Get-Location).Path
     if ($env:GITHUB_WORKSPACE) { $starts += $env:GITHUB_WORKSPACE }
 

@@ -3,7 +3,9 @@ Import-Module Pester -MinimumVersion 5.0 -ErrorAction Stop
 function Find-RepoRoot {
     param([string[]]$starts)
     if (-not $starts) { $starts = @() }
+    if ($PSCommandPath) { $starts += (Split-Path -Parent $PSCommandPath) }
     if ($PSScriptRoot) { $starts += $PSScriptRoot }
+    if ($MyInvocation -and $MyInvocation.MyCommand.Path) { $starts += (Split-Path -Parent $MyInvocation.MyCommand.Path) }
     $starts += (Get-Location).Path
     if ($env:GITHUB_WORKSPACE) { $starts += $env:GITHUB_WORKSPACE }
 
@@ -53,7 +55,8 @@ Describe 'Layouts JSON and checksums' {
         foreach ($p in $matrix.PSObject.Properties) { $matrixFiles += $p.Value.file }
 
         $matrixFiles | Should -Not -BeNullOrEmpty -Because 'layouts.json must contain file entries for layout keys'
-        ($matrixFiles | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Measure-Object).Count | Should -Be ($matrix.PSObject.Properties.Count)
+        $nonEmptyCount = ($matrixFiles | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }).Count
+        $nonEmptyCount | Should -Be ($matrix.PSObject.Properties.Count)
     }
 
     It 'all files listed in layouts.json exist and include sha256 values' {
