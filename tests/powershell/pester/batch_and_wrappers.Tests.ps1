@@ -21,8 +21,7 @@ function Find-RepoRoot {
     throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found from starts: $($starts -join ', ')"
 }
 
-$RepoRoot = Find-RepoRoot
-$LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
+## Don't resolve repo paths at parse time - compute in BeforeAll
 
 Describe 'Batch/Wrapper script content tests' {
     BeforeAll {

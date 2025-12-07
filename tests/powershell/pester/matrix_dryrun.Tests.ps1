@@ -19,14 +19,35 @@ function Find-RepoRoot {
     throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found from starts: $($starts -join ', ')"
 }
 
-$RepoRoot = Find-RepoRoot
-$LayoutDir = Resolve-Path (Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)')
-$matrixPath = Join-Path $LayoutDir 'layouts.json'
-$installScript = Join-Path $LayoutDir 'install_registry_from_matrix.ps1'
-$uninstallScript = Join-Path $LayoutDir 'uninstall_registry_from_matrix.ps1'
+## Compute repository paths in BeforeAll to avoid discovery-time nulls in Pester
 
 Describe 'Matrix installer dry-run' {
     BeforeAll {
+        # discover repository root from multiple possible starting points
+        $starts = @()
+        if ($PSCommandPath) { $starts += (Split-Path -Parent $PSCommandPath) }
+        if ($PSScriptRoot) { $starts += $PSScriptRoot }
+        if ($MyInvocation -and $MyInvocation.MyCommand.Path) { $starts += (Split-Path -Parent $MyInvocation.MyCommand.Path) }
+        $starts += (Get-Location).Path
+        if ($env:GITHUB_WORKSPACE) { $starts += $env:GITHUB_WORKSPACE }
+        $found = $null
+        foreach ($s in $starts) {
+            if (-not $s) { continue }
+            try { $cur = (Resolve-Path -Path $s).Path } catch { continue }
+            while ($true) {
+                if (Test-Path (Join-Path $cur 'All Keyboard Layouts (1.0.3.40)')) { $found = $cur; break }
+                $parent = Split-Path -Parent $cur
+                if ($parent -eq $cur) { break }
+                $cur = $parent
+            }
+            if ($found) { break }
+        }
+        if (-not $found) { throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found" }
+        $RepoRoot = $found
+        $LayoutDir = Resolve-Path (Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)')
+        $matrixPath = Join-Path $LayoutDir 'layouts.json'
+        $installScript = Join-Path $LayoutDir 'install_registry_from_matrix.ps1'
+        $uninstallScript = Join-Path $LayoutDir 'uninstall_registry_from_matrix.ps1'
         if (-not (Test-Path $matrixPath)) { throw "Missing layouts.json: $matrixPath" }
         $matrix = Get-Content -Raw -Path $matrixPath | ConvertFrom-Json
         $actionable = 0
