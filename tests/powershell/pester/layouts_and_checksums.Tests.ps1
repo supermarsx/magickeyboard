@@ -22,7 +22,25 @@ function Find-RepoRoot {
 
 Describe 'Layouts JSON and checksums' {
     BeforeAll {
-        $RepoRoot = Find-RepoRoot
+        # Inline repo discovery to ensure the helper is available during Pester discovery and execution
+        $starts = @()
+        if ($PSScriptRoot) { $starts += $PSScriptRoot }
+        $starts += (Get-Location).Path
+        if ($env:GITHUB_WORKSPACE) { $starts += $env:GITHUB_WORKSPACE }
+        $found = $null
+        foreach ($s in $starts) {
+            if (-not $s) { continue }
+            try { $cur = (Resolve-Path -Path $s).Path } catch { continue }
+            while ($true) {
+                if (Test-Path (Join-Path $cur 'All Keyboard Layouts (1.0.3.40)')) { $found = $cur; break }
+                $parent = Split-Path -Parent $cur
+                if ($parent -eq $cur) { break }
+                $cur = $parent
+            }
+            if ($found) { break }
+        }
+        if (-not $found) { throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found" }
+        $RepoRoot = $found
         $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
         $matrix = Get-Content -Raw -Path (Join-Path $LayoutDir 'layouts.json') | ConvertFrom-Json
         $trans = Get-Content -Raw -Path (Join-Path $LayoutDir 'translations.json') | ConvertFrom-Json
@@ -37,8 +55,12 @@ Describe 'Layouts JSON and checksums' {
     It 'layouts.json entries match install_filelist.txt files and keys are present' {
         $matrixFiles = @()
         foreach ($p in $matrix.PSObject.Properties) { $matrixFiles += $p.Value.file }
-        $matrixFiles | Should -BeSubsetOf ($filelist)
-        $filelist | Should -BeSubsetOf ($matrixFiles) -Because 'install_filelist.txt and layouts.json should reference the same files'
+
+        $missingFromMatrix = $filelist | Where-Object { $_ -notin $matrixFiles }
+        $missingFromFilelist = $matrixFiles | Where-Object { $_ -notin $filelist }
+
+        $missingFromMatrix | Should -BeNullOrEmpty -Because 'all files in install_filelist.txt should be present in layouts.json'
+        $missingFromFilelist | Should -BeNullOrEmpty -Because 'layouts.json should not contain extra files not listed in install_filelist.txt'
     }
 
     It 'all DLL files listed in install_filelist.txt have checksum entries' {
