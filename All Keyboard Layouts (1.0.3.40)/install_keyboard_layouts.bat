@@ -46,20 +46,10 @@ echo Installing Apple keyboard layouts — Magic Keyboard collection
 echo Started at %DATE% %TIME%
 echo ================================================================
 
-rem --- parse passthrough args (supports /DRYRUN, /SILENT, /LOCALE= and /LAYOUTS=)
-set "MAGIC_LOCALE="
-set "MAGIC_LAYOUTS="
-:arg_loop
-if "%~1"=="" goto arg_done
-  set "arg=%~1"
-  if /I "%arg%"=="/DRYRUN" ( set "MAGIC_DRYRUN=1" & shift & goto arg_loop )
-  if /I "%arg%"=="/SILENT" ( set "MAGIC_SILENT=1" & shift & goto arg_loop )
-  if /I "%arg%"=="/S" ( set "MAGIC_SILENT=1" & shift & goto arg_loop )
-  if /I "%arg:~0,8%"=="/LOCALE=" ( set "MAGIC_LOCALE=%arg:~8%" & shift & goto arg_loop )
-  if /I "%arg:~0,9%"=="/LAYOUTS=" ( set "MAGIC_LAYOUTS=%arg:~9%" & shift & goto arg_loop )
-  rem unknown args are ignored by this script but are accepted for passthrough wrappers
-  shift & goto arg_loop
-:arg_done
+rem Centralized argument parsing — use the shared helper so flags are consistent
+call "%~dp0parse_args.bat" %*
+
+rem parse_args.bat sets: PASS_ARGS, MAGIC_SILENT, MAGIC_DRYRUN, MAGIC_LOCALE, MAGIC_LAYOUTS, MODE
 
 REM Count files to process
 set "TOTAL=0"

@@ -14,7 +14,8 @@
 
 param(
   [string] $MatrixPath = "$PSScriptRoot\layouts.json",
-  [switch] $DryRun
+  [switch] $DryRun,
+  [string[]] $Layouts
 )
 
 if (-not (Test-Path $MatrixPath)) {
@@ -24,7 +25,19 @@ if (-not (Test-Path $MatrixPath)) {
 
 $matrix = Get-Content -Raw -Path $MatrixPath | ConvertFrom-Json
 
+# Support comma-separated single-argument for -Layouts
+if ($Layouts -and $Layouts.Count -eq 1 -and $Layouts[0] -match ',') {
+  $Layouts = $Layouts[0] -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+}
+
 foreach ($key in $matrix.PSObject.Properties.Name) {
+  # If -Layouts supplied, only process listed layout keys
+  if ($Layouts -and $Layouts.Count -gt 0) {
+    if ($Layouts -notcontains $key) {
+      if ($DryRun) { Write-Host "DRYRUN: skipping $key (not listed in -Layouts)" }
+      continue
+    }
+  }
   $entry = $matrix.$key
 
   if ($entry.PSObject.Properties.Name -contains 'reg_path' -and $entry.reg_path) {

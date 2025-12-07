@@ -110,7 +110,7 @@ if errorlevel 1 (
   REM --- run Pester suite if pwsh available ---
   echo.
   echo [test] Running Pester tests (PowerShell)
-  powershell -NoProfile -Command "try { Import-Module Pester -MinimumVersion 5.0 -ErrorAction Stop } catch { Write-Host 'Pester not found; installing to CurrentUser'; Install-Module -Name Pester -Force -Scope CurrentUser -Confirm:$false -ErrorAction Stop }; Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path 'tests/powershell/pester' -EnableExit; exit $LASTEXITCODE"
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run-pester.ps1" -PesterPath "%~dp0..\tests\powershell\pester"
   if errorlevel 1 (
     echo [test] Pester tests failed
     exit /b 20

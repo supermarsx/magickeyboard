@@ -62,6 +62,24 @@ Log rotation & retention:
  - The elevated installer rotates the main logfile (`%TEMP%\magickeyboard_install.log`) when it starts and keeps archived logs for a configurable retention period (default 7 days). Use `/LOG=<path>` and `/LOGR=<days>` to customize.
  - Use `/DRYRUN` to simulate an install/uninstall. DRYRUN will skip registry writes and file copies so you can safely test the process or run CI checks without elevated privileges.
 
+Release creation
+
+- A helper script `scripts/create-release.sh <n>` will package the layouts and create a git tag named `Release-<n>` and, if the `gh` CLI is available and authenticated, create a GitHub release and upload the generated archive. To create "Release 2":
+
+```bash
+scripts/create-release.sh 2
+```
+
+Windows (PowerShell) usage
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\create-release.ps1 -ReleaseNumber 2
+```
+
+This will create an archive under `dist/`, tag the repo as `Release-2`, and attempt to create a GitHub release if the `gh` CLI is present and authenticated.
+
+The script uses `scripts/package_layouts.sh` to create an archive under `dist/` and then tags the repo with `Release-2` (and pushes tags if a remote is present). If you want the release published to GitHub, install and authenticate the `gh` CLI before running the script.
+
 Utility scripts (added):
 
 - `verify_install_filelist.bat` — quick check to ensure all files listed in `install_filelist.txt` are present.

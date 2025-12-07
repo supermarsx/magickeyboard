@@ -28,47 +28,15 @@ REM ---------------------------------------------------------------------------
 
 setlocal enabledelayedexpansion
 
-rem --- parse arguments ---
-set "MODE=INSTALL"
-set "MAGIC_SILENT_FLAG="
-set "MAGIC_DRYRUN_FLAG="
-set "MAGIC_LOCALE_FLAG="
-set "MAGIC_LAYOUTS_FLAG="
-set "PASS_ARGS="
-set "LOGFILE=%TEMP%\magickeyboard_install.log"
-set "LOG_RETENTION_DAYS=7"
+rem Use the shared parser so elevated and non-elevated wrappers stay in sync
+call "%~dp0parse_args.bat" %*
 
-:arg_loop
-if "%~1"=="" goto arg_done
-  set "arg=%~1"
-  rem preserve all args for passthrough to inner installer
-  if defined PASS_ARGS ( set "PASS_ARGS=%PASS_ARGS% %arg%" ) else ( set "PASS_ARGS=%arg%" )
-  set "arg_upper=!arg:~0,6!"
-  if /I "!arg:~0,6!"=="/LOGR=" (
-    set "LOG_RETENTION_DAYS=%arg:~6%"
-    shift
-    goto arg_loop
-  )
-  if /I "!arg:~0,5!"=="/LOG=" (
-    set "LOGFILE=%arg:~5%"
-    shift
-    goto arg_loop
-  )
-  if /I "%arg%"=="/SILENT" set "MAGIC_SILENT_FLAG=/SILENT" & shift & goto arg_loop
-  if /I "%arg%"=="/S" set "MAGIC_SILENT_FLAG=/SILENT" & shift & goto arg_loop
-  if /I "%arg%"=="/DRYRUN" set "MAGIC_DRYRUN_FLAG=/DRYRUN" & shift & goto arg_loop
-  if /I "%arg:~0,8%"=="/LOCALE=" set "MAGIC_LOCALE_FLAG=%arg:~8%" & shift & goto arg_loop
-  if /I "%arg:~0,9%"=="/LAYOUTS=" set "MAGIC_LAYOUTS_FLAG=%arg:~9%" & shift & goto arg_loop
-  if /I "%arg%"=="/UNINSTALL" set "MODE=UNINSTALL" & shift & goto arg_loop
-  if /I "%arg%"=="/U" set "MODE=UNINSTALL" & shift & goto arg_loop
-  rem unknown arg preserved in PASS_ARGS
-  shift & goto arg_loop
-:arg_done
+rem PASS_ARGS, MAGIC_SILENT, MAGIC_DRYRUN, MAGIC_LOCALE, MAGIC_LAYOUTS and MODE are set by parse_args.bat
 
 rem --- detect elevation ---
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-  if defined MAGIC_DRYRUN_FLAG (
+  if defined MAGIC_DRYRUN (
     echo Running in DRYRUN mode without elevation (simulation only) ...
     set "MAGIC_DRYRUN=1"
   ) else (
@@ -90,22 +58,16 @@ if defined MAGIC_DRYRUN (
 )
 
 rem Mark scripts as silent if requested
-if defined MAGIC_SILENT_FLAG (
+if defined MAGIC_SILENT (
   set "MAGIC_SILENT=1"
 ) else (
   set "MAGIC_SILENT="
 )
 
-if defined MAGIC_DRYRUN_FLAG (
+if defined MAGIC_DRYRUN (
   set "MAGIC_DRYRUN=1"
 ) else (
   set "MAGIC_DRYRUN="
-)
-
-rem Rotate old logs and enforce retention
-if exist "%LOGFILE%" (
-  powershell -NoProfile -Command "try { Rename-Item -LiteralPath '%LOGFILE%' -NewName ('magickeyboard_install_' + (Get-Date -Format 'yyyyMMddHHmmss') + '.log') -ErrorAction Stop } catch { }"
-  powershell -NoProfile -Command "Get-ChildItem -Path (Split-Path '%LOGFILE%') -Filter 'magickeyboard_install.log*' | Where-Object { ($_.LastWriteTime -lt (Get-Date).AddDays(-%LOG_RETENTION_DAYS%)) } | Remove-Item -Force -ErrorAction SilentlyContinue"
 )
 
 rem Helper to log

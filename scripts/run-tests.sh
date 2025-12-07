@@ -102,7 +102,7 @@ if command -v pwsh >/dev/null 2>&1; then
   echo
   echo "[test] Running Pester tests (PowerShell assertions)"
   # Run Pester tests in the pester folder. If Pester isn't available, attempt to import or skip.
-  pwsh -NoProfile -ExecutionPolicy Bypass -Command "try { Import-Module Pester -MinimumVersion 5.0 -ErrorAction Stop } catch { Write-Host 'Pester not found; installing to CurrentUser'; Install-Module -Name Pester -Force -Scope CurrentUser -Confirm:\$false -ErrorAction Stop }; Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path '$root_dir/tests/powershell/pester' -EnableExit;" || { echo "ERROR: Pester tests failed"; exit 12; }
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$root_dir/scripts/run-pester.ps1" -PesterPath "$root_dir/tests/powershell/pester" || { echo "ERROR: Pester tests failed"; exit 12; }
 else
   echo "[test] pwsh (PowerShell) not available — skipping PowerShell unit tests"
 fi

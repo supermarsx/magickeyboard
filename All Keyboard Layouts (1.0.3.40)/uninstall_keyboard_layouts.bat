@@ -43,6 +43,11 @@ echo Uninstalling Apple keyboard layouts — Magic Keyboard collection
 echo Started at %DATE% %TIME%
 echo ================================================================
 
+rem Centralized argument parsing — use the shared helper so flags are consistent
+call "%~dp0parse_args.bat" %*
+
+rem parse_args.bat sets: PASS_ARGS, MAGIC_SILENT, MAGIC_DRYRUN, MAGIC_LOCALE, MAGIC_LAYOUTS, MODE
+
 REM Count targets
 set "TOTAL=0"
 for /F "usebackq tokens=*" %%A in ("install_filelist.txt") do set /a TOTAL+=1
@@ -72,13 +77,17 @@ if not defined MAGIC_SILENT if "%DRYRUN%"=="0" (
 echo "Removing Registry keys (via layouts.json -> uninstall_registry_from_matrix.ps1)"
 
 if "%DRYRUN%"=="1" (
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json" -DryRun
+  set "LAYOUTS_ARG="
+  if defined MAGIC_LAYOUTS set "LAYOUTS_ARG=-Layouts \"%MAGIC_LAYOUTS%\""
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json" -DryRun %LAYOUTS_ARG%
   if errorlevel 1 (
     echo ERROR: registry dry-run failed
     exit /b 6
   )
 ) else (
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json"
+  set "LAYOUTS_ARG="
+  if defined MAGIC_LAYOUTS set "LAYOUTS_ARG=-Layouts \"%MAGIC_LAYOUTS%\""
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json" %LAYOUTS_ARG%
   if errorlevel 1 (
     echo ERROR: registry uninstall failed
     exit /b 6
