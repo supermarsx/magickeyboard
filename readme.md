@@ -197,6 +197,31 @@ Your keyboard layouts will be ready to use.
 - Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests.
  - Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests. There are both POSIX (bash) and Windows (batch/PowerShell) helpers to support running checks and packaging on CI or developer machines. Windows-specific scripts include `scripts\check-lint.bat`, `scripts\check-format.bat`, `scripts\compute_checksums.bat`, `scripts\run-tests.bat`, and `scripts\package_layouts.ps1`.
 
+**Developer & testing**
+
+- Run the complete test suite locally (POSIX host with PowerShell available):
+
+```bash
+chmod +x scripts/run-tests.sh
+./scripts/run-tests.sh
+```
+
+- The test runner executes layout file/checksum validation, translation coverage, matrix checks and unit tests (POSIX shell tests and PowerShell Pester tests). If Pester is not present it will attempt to install it for the current user.
+
+- To run only the POSIX tests:
+
+```bash
+./tests/posix/test_get_system_locale.sh
+```
+
+- To run PowerShell Pester tests manually (requires `pwsh`):
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -Command "Import-Module Pester -MinimumVersion 5.0; Invoke-Pester -Path './tests/powershell/pester' -EnableExit"
+```
+
+If you'd like, I can add or improve the CI workflow to run the same tests across Linux/macOS/Windows runners.
+
 Installer UX and tests
 
 - Installer and uninstaller show friendly step-by-step messages and a completion summary. You can use `/DRYRUN` to simulate an install/uninstall and review messages without making changes.
@@ -205,6 +230,19 @@ Installer UX and tests
 ### Locale-aware layout names
 
 The layout installer now supports translated `Layout Text` registry values. It detects the system UI locale and sets the translated layout name from `All Keyboard Layouts (1.0.3.40)/translations.json` using a small PowerShell helper (`get_translation.ps1`). The installer falls back to English where translations are missing. See the `All Keyboard Layouts` README for more details.
+
+Additional installer flags (PowerShell)
+
+- `-Locale <locale>`: force a specific locale when resolving translated layout names (examples: `en-US`, `fr-FR`, `zh-TW`). When omitted the installer will use the system UI locale.
+- `-Layouts <key1[,key2,...]>`: only install the specified layout keys from `layouts.json`. Accepts multiple values or a single comma-separated string. Useful to install a single layout or a small subset.
+
+Example (dry-run, using PowerShell):
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File "./install_registry_from_matrix.ps1" -MatrixPath ".\layouts.json" -TranslationsPath ".\translations.json" -DryRun -Locale "fr-FR" -Layouts "BelgiumA,USA"
+```
+
+This will simulate installing only the `BelgiumA` and `USA` layouts and show the resolved translations in French.
 
 
 ### Manually install layouts

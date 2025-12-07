@@ -46,6 +46,21 @@ echo Installing Apple keyboard layouts — Magic Keyboard collection
 echo Started at %DATE% %TIME%
 echo ================================================================
 
+rem --- parse passthrough args (supports /DRYRUN, /SILENT, /LOCALE= and /LAYOUTS=)
+set "MAGIC_LOCALE="
+set "MAGIC_LAYOUTS="
+:arg_loop
+if "%~1"=="" goto arg_done
+  set "arg=%~1"
+  if /I "%arg%"=="/DRYRUN" ( set "MAGIC_DRYRUN=1" & shift & goto arg_loop )
+  if /I "%arg%"=="/SILENT" ( set "MAGIC_SILENT=1" & shift & goto arg_loop )
+  if /I "%arg%"=="/S" ( set "MAGIC_SILENT=1" & shift & goto arg_loop )
+  if /I "%arg:~0,8%"=="/LOCALE=" ( set "MAGIC_LOCALE=%arg:~8%" & shift & goto arg_loop )
+  if /I "%arg:~0,9%"=="/LAYOUTS=" ( set "MAGIC_LAYOUTS=%arg:~9%" & shift & goto arg_loop )
+  rem unknown args are ignored by this script but are accepted for passthrough wrappers
+  shift & goto arg_loop
+:arg_done
+
 REM Count files to process
 set "TOTAL=0"
 for /F "usebackq tokens=*" %%A in ("install_filelist.txt") do set /a TOTAL+=1
@@ -91,7 +106,12 @@ if not defined MAGIC_SILENT if "%DRYRUN%"=="0" (
 
     REM Use the installer helper to apply registry changes from layouts.json (handles translations)
     if "%DRYRUN%"=="1" (
-      powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_registry_from_matrix.ps1" -DryRun > "%TEMP%\magickb-registry-dryrun.log" 2>&1
+      rem Build optional PowerShell args
+      set "LOCALE_ARG="
+      set "LAYOUTS_ARG="
+      if defined MAGIC_LOCALE set "LOCALE_ARG=-Locale \"%MAGIC_LOCALE%\""
+      if defined MAGIC_LAYOUTS set "LAYOUTS_ARG=-Layouts \"%MAGIC_LAYOUTS%\""
+      powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json" -TranslationsPath "%~dp0translations.json" -DryRun %LOCALE_ARG% %LAYOUTS_ARG% > "%TEMP%\magickb-registry-dryrun.log" 2>&1
       if errorlevel 1 (
         echo ERROR: registry dry-run failed - see %TEMP%\magickb-registry-dryrun.log
         exit /b 6
@@ -99,7 +119,12 @@ if not defined MAGIC_SILENT if "%DRYRUN%"=="0" (
         type "%TEMP%\magickb-registry-dryrun.log"
       )
     ) else (
-      powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_registry_from_matrix.ps1" > "%TEMP%\magickb-registry.log" 2>&1
+      rem Build optional PowerShell args
+      set "LOCALE_ARG="
+      set "LAYOUTS_ARG="
+      if defined MAGIC_LOCALE set "LOCALE_ARG=-Locale \"%MAGIC_LOCALE%\""
+      if defined MAGIC_LAYOUTS set "LAYOUTS_ARG=-Layouts \"%MAGIC_LAYOUTS%\""
+      powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_registry_from_matrix.ps1" -MatrixPath "%~dp0layouts.json" -TranslationsPath "%~dp0translations.json" %LOCALE_ARG% %LAYOUTS_ARG% > "%TEMP%\magickb-registry.log" 2>&1
       if errorlevel 1 (
         echo ERROR: registry update failed - see %TEMP%\magickb-registry.log
         exit /b 6

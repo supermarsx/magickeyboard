@@ -18,7 +18,9 @@
 param(
   [string] $MatrixPath = "$PSScriptRoot\layouts.json",
   [string] $TranslationsPath = "$PSScriptRoot\translations.json",
-  [switch] $DryRun
+  [switch] $DryRun,
+  [string] $Locale,
+  [string[]] $Layouts
 )
 
 if (-not (Test-Path $MatrixPath)) {
@@ -26,9 +28,23 @@ if (-not (Test-Path $MatrixPath)) {
   exit 2
 }
 
+if (-not $Locale) { $Locale = $null }
+
 $matrix = Get-Content -Raw -Path $MatrixPath | ConvertFrom-Json
 
+# Support comma-separated single-argument for -Layouts
+if ($Layouts -and $Layouts.Count -eq 1 -and $Layouts[0] -match ',') {
+  $Layouts = $Layouts[0] -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+}
+
 foreach ($key in $matrix.PSObject.Properties.Name) {
+  # If -Layouts supplied, only process listed layout keys
+  if ($Layouts -and $Layouts.Count -gt 0) {
+    if ($Layouts -notcontains $key) {
+      if ($DryRun) { Write-Host "DRYRUN: skipping $key (not listed in -Layouts)" }
+      continue
+    }
+  }
   $entry = $matrix.$key
 
   # resolve translated layout text using the helper script if available
@@ -36,7 +52,9 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
   $gt = Join-Path $PSScriptRoot 'get_translation.ps1'
   if (Test-Path $gt) {
     try {
-      $layoutText = & $gt -Key $key -File $TranslationsPath -ErrorAction Stop
+      # pass the requested locale if provided
+      if ($Locale) { $layoutText = & $gt -Key $key -File $TranslationsPath -Locale $Locale -ErrorAction Stop }
+      else { $layoutText = & $gt -Key $key -File $TranslationsPath -ErrorAction Stop }
       # get_translation.ps1 prints the string — trim it
       if ($LASTEXITCODE -ne 0) { $layoutText = $null }
       $layoutText = $layoutText -as [string]
@@ -66,6 +84,8 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
 
   if ($DryRun) {
     Write-Host "DRYRUN: would create registry key $fullRegPath"
+    if ($Locale) { Write-Host "DRYRUN:   Locale = $Locale" }
+    if ($Layouts -and $Layouts.Count -gt 0) { Write-Host "DRYRUN:   Layouts filter = $($Layouts -join ',')" }
     if ($layoutText) { Write-Host "DRYRUN:   Layout Text = $layoutText" }
     if ($entry.file) { Write-Host "DRYRUN:   Layout File = $($entry.file)" }
     if ($entry.layout_id) { Write-Host "DRYRUN:   Layout Id = $($entry.layout_id)" }

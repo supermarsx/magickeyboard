@@ -31,12 +31,18 @@ setlocal enabledelayedexpansion
 rem --- parse arguments ---
 set "MODE=INSTALL"
 set "MAGIC_SILENT_FLAG="
+set "MAGIC_DRYRUN_FLAG="
+set "MAGIC_LOCALE_FLAG="
+set "MAGIC_LAYOUTS_FLAG="
+set "PASS_ARGS="
 set "LOGFILE=%TEMP%\magickeyboard_install.log"
 set "LOG_RETENTION_DAYS=7"
 
 :arg_loop
 if "%~1"=="" goto arg_done
   set "arg=%~1"
+  rem preserve all args for passthrough to inner installer
+  if defined PASS_ARGS ( set "PASS_ARGS=%PASS_ARGS% %arg%" ) else ( set "PASS_ARGS=%arg%" )
   set "arg_upper=!arg:~0,6!"
   if /I "!arg:~0,6!"=="/LOGR=" (
     set "LOG_RETENTION_DAYS=%arg:~6%"
@@ -51,9 +57,11 @@ if "%~1"=="" goto arg_done
   if /I "%arg%"=="/SILENT" set "MAGIC_SILENT_FLAG=/SILENT" & shift & goto arg_loop
   if /I "%arg%"=="/S" set "MAGIC_SILENT_FLAG=/SILENT" & shift & goto arg_loop
   if /I "%arg%"=="/DRYRUN" set "MAGIC_DRYRUN_FLAG=/DRYRUN" & shift & goto arg_loop
+  if /I "%arg:~0,8%"=="/LOCALE=" set "MAGIC_LOCALE_FLAG=%arg:~8%" & shift & goto arg_loop
+  if /I "%arg:~0,9%"=="/LAYOUTS=" set "MAGIC_LAYOUTS_FLAG=%arg:~9%" & shift & goto arg_loop
   if /I "%arg%"=="/UNINSTALL" set "MODE=UNINSTALL" & shift & goto arg_loop
   if /I "%arg%"=="/U" set "MODE=UNINSTALL" & shift & goto arg_loop
-  rem unknown arg -> ignore
+  rem unknown arg preserved in PASS_ARGS
   shift & goto arg_loop
 :arg_done
 
@@ -108,7 +116,8 @@ if /I "%MODE%"=="INSTALL" (
   echo Performing install...>> "%LOGFILE%" 2>&1
   rem Call the original installer. It will check elevation, but we're elevated.
   pushd "%~dp0"
-  call "%~dp0install_keyboard_layouts.bat" >> "%LOGFILE%" 2>&1
+  rem forward all original args to the inner installer
+  call "%~dp0install_keyboard_layouts.bat" %PASS_ARGS% >> "%LOGFILE%" 2>&1
   popd
   set "RESULT=%ERRORLEVEL%"
   if %RESULT% neq 0 (
@@ -125,7 +134,7 @@ if /I "%MODE%"=="INSTALL" (
 if /I "%MODE%"=="UNINSTALL" (
   echo Performing uninstall...>> "%LOGFILE%" 2>&1
   pushd "%~dp0"
-  call "%~dp0uninstall_keyboard_layouts.bat" >> "%LOGFILE%" 2>&1
+  call "%~dp0uninstall_keyboard_layouts.bat" %PASS_ARGS% >> "%LOGFILE%" 2>&1
   popd
   set "RESULT=%ERRORLEVEL%"
   if %RESULT% neq 0 (
