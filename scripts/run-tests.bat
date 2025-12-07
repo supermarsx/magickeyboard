@@ -49,6 +49,12 @@ if %FAILED%==1 (
 echo [test] All tests passed
 endlocal
 
+REM --- matrix test ---
+echo.
+echo [test] Running matrix coverage test (Windows)
+scripts\test-matrix.bat
+
+
 REM --- translations test ---
 echo.
 echo [test] Running translations test (Windows)

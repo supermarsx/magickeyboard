@@ -66,6 +66,11 @@ chmod +x "$root_dir/scripts/test-translations.sh"
 "$root_dir/scripts/test-translations.sh"
 
 echo
+echo "[test] Running matrix coverage tests (POSIX)"
+chmod +x "$root_dir/scripts/test-matrix.sh"
+"$root_dir/scripts/test-matrix.sh"
+
+echo
 echo "[test] Running smoke dry-run test for Linux (best-effort)"
 if [ -f "All Keyboard Layouts (1.0.3.40)/install_keyboard_layouts.bat" ]; then
   echo "NOTE: We cannot execute .bat files on POSIX as a real run — use Windows runner for full execution tests."
