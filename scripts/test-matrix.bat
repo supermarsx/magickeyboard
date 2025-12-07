@@ -2,6 +2,9 @@
 chcp 65001 >nul
 echo.
 echo [test-matrix] Verifying layouts.json matrix matches install_filelist.txt and required properties (Windows)
+echo Purpose: Ensure layouts.json is in sync with install_filelist.txt and that each
+echo          matrix entry contains required properties (file and reg_key). This
+echo          prevents mismatch between the registry mapping and the file list.
 
 setlocal ENABLEDELAYEDEXPANSION
 set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"

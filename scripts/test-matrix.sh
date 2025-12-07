@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# test-matrix.sh
+# Purpose: verify the layouts.json matrix contains entries for all files in
+# install_filelist.txt and that each layout entry contains at least the
+# "file" and "reg_key" properties. This prevents divergence between the
+# installer matrix and the file list used for packaging and checksums.
+
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 

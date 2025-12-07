@@ -2,6 +2,8 @@
 chcp 65001 >nul
 echo.
 echo [test-translations] Verifying translations.json and get_translation.ps1 behaviour (Windows)
+echo Purpose: Ensure translations.json contains the REQUIRED_LOCALES for each layout
+echo          and that translation values are non-empty and not placeholders.
 
 setlocal ENABLEDELAYEDEXPANSION
 set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"

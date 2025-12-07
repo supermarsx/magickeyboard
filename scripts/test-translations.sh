@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# test-translations.sh
+# Purpose: ensure translations.json provides the required locales for every layout in
+# All Keyboard Layouts (1.0.3.40)/install_filelist.txt. Checks that each locale
+# value is present, non-empty, and not a placeholder equal to the key name.
+# This script is POSIX-friendly and intended for CI.
+
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 

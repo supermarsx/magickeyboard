@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# run-tests.sh
+# Purpose: Run the project's packaging and validation tests for the "All Keyboard Layouts"
+# collection. This includes file existence checks, checksum verification, translation
+# coverage tests and the new layouts.json -> install_filelist consistency test.
+
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 
