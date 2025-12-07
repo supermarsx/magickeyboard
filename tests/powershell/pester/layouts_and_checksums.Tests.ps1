@@ -22,6 +22,8 @@ function Find-RepoRoot {
 
 Describe 'Layouts JSON and checksums' {
     BeforeAll {
+        $RepoRoot = Find-RepoRoot
+        $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
         $matrix = Get-Content -Raw -Path (Join-Path $LayoutDir 'layouts.json') | ConvertFrom-Json
         $trans = Get-Content -Raw -Path (Join-Path $LayoutDir 'translations.json') | ConvertFrom-Json
         $filelist = (Get-Content -Path (Join-Path $LayoutDir 'install_filelist.txt') -ErrorAction Stop) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }

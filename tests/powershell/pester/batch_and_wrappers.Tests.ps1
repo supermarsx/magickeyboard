@@ -24,6 +24,8 @@ $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
 
 Describe 'Batch/Wrapper script content tests' {
     BeforeAll {
+        $RepoRoot = Find-RepoRoot
+        $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
         $install = Join-Path $LayoutDir 'install_keyboard_layouts.bat'
         $uninstall = Join-Path $LayoutDir 'uninstall_keyboard_layouts.bat'
         $installElev = Join-Path $LayoutDir 'install_keyboard_layouts_elevated.bat'
