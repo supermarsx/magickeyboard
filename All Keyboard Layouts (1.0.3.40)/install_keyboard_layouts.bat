@@ -67,66 +67,45 @@ if not defined MAGIC_SILENT if "%DRYRUN%"=="0" (
   echo.
   choice /M "Do you want to continue? (Y/N)" >nul
   if errorlevel 2 (
-    echo Install aborted by user
-    exit /b 0
-  )
-)
-REM Helper function: retrieve a translated layout text string
-:get_layout_text
-rem Usage: call :get_layout_text <jsonKey> <EnvVarName>
-setlocal enabledelayedexpansion
-set "JSONKEY=%~1"
-set "ENVNAME=%~2"
-for /F "usebackq delims=" %%L in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0get_translation.ps1" -Key "%JSONKEY%" -File "%~dp0translations.json" 2^>^&1`) do (
-  endlocal & set "%ENVNAME%=%%L"
-)
-if not defined %ENVNAME% (
-  echo ERROR: Failed to determine translation for %JSONKEY%
-  exit /b 8
-)
-goto :eof
-REM Belgian Layout
-call :get_layout_text BelgiumA LAYOUT_TEXT
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would add registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000813 with Layout Text="%LAYOUT_TEXT%"
-  echo DRYRUN: would set Layout File=BelgiumA.dll, Layout Id=00cd, Layout Component ID=D70C1682E8F24ED4B5B70AAD37B1BA42
-) else (
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000813" /v "Layout Text" /t REG_SZ /d "%LAYOUT_TEXT%" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000813" /v "Layout File" /t REG_SZ /d "BelgiumA.dll" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000813" /v "Layout Id" /t REG_SZ /d "00cd" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000813" /v "Layout Component ID" /t REG_SZ /d "D70C1682E8F24ED4B5B70AAD37B1BA42" /f >nul 2>&1
-)
+    echo Creating Registry keys (using layouts.json matrix)
 
-REM British Layout
-call :get_layout_text BritishA LAYOUT_TEXT
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would add registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809 with Layout Text="%LAYOUT_TEXT%"
-  echo DRYRUN: would set Layout File=BritishA.dll, Layout Id=00c0, Layout Component ID=1A4D378083AD454BB4FE02F208614EB6
-) else (
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /v "Layout Text" /t REG_SZ /d "%LAYOUT_TEXT%" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /v "Layout File" /t REG_SZ /d "BritishA.dll" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /v "Layout Id" /t REG_SZ /d "00c0" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /v "Layout Component ID" /t REG_SZ /d "1A4D378083AD454BB4FE02F208614EB6" /f >nul 2>&1
-)
+    REM Detect dry-run mode (set by elevated wrapper or caller via MAGIC_DRYRUN)
+    set "DRYRUN=0"
+    if defined MAGIC_DRYRUN set "DRYRUN=1"
 
-REM Canadian Layout
-call :get_layout_text CanadaA LAYOUT_TEXT
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would add registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000c0c with Layout Text="%LAYOUT_TEXT%"
-  echo DRYRUN: would set Layout File=CanadaA.dll, Layout Id=00ca, Layout Component ID=517A729DDEC543E3A7F392E3F130C25F
-) else (
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000c0c" /v "Layout Text" /t REG_SZ /d "%LAYOUT_TEXT%" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000c0c" /v "Layout File" /t REG_SZ /d "CanadaA.dll" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000c0c" /v "Layout Id" /t REG_SZ /d "00ca" /f >nul 2>&1
-  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000c0c" /v "Layout Component ID" /t REG_SZ /d "517A729DDEC543E3A7F392E3F130C25F" /f >nul 2>&1
-)
+    REM If not running silently and not a dry-run, warn user about System32 & HKLM modification
+    if not defined MAGIC_SILENT if "%DRYRUN%"=="0" (
+      echo.
+      echo ================================================================
+      echo WARNING: This script will modify C:\Windows\System32 and HKLM registry keys.
+      echo This is a potentially dangerous operation. Make sure you have verified the provided DLLs and their checksums.
+      echo ================================================================
+      echo.
+      choice /M "Do you want to continue? (Y/N)" >nul
+      if errorlevel 2 (
+        echo Install aborted by user
+        exit /b 0
+      )
+    )
 
-REM Danish Layout
-call :get_layout_text DanishA LAYOUT_TEXT
-if "%DRYRUN%"=="1" (
-  echo DRYRUN: would add registry key HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000406 with Layout Text="%LAYOUT_TEXT%"
-  echo DRYRUN: would set Layout File=DanishA.dll, Layout Id=00cc, Layout Component ID=C3996498F423440FB9CE2732A821E7D9
-) else (
+    REM Use the installer helper to apply registry changes from layouts.json (handles translations)
+    if "%DRYRUN%"=="1" (
+      powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_registry_from_matrix.ps1" -DryRun > "%TEMP%\magickb-registry-dryrun.log" 2>&1
+      if errorlevel 1 (
+        echo ERROR: registry dry-run failed - see %TEMP%\magickb-registry-dryrun.log
+        exit /b 6
+      ) else (
+        type "%TEMP%\magickb-registry-dryrun.log"
+      )
+    ) else (
+      powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_registry_from_matrix.ps1" > "%TEMP%\magickb-registry.log" 2>&1
+      if errorlevel 1 (
+        echo ERROR: registry update failed - see %TEMP%\magickb-registry.log
+        exit /b 6
+      ) else (
+        type "%TEMP%\magickb-registry.log"
+      )
+    )
   reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000406" /v "Layout Text" /t REG_SZ /d "%LAYOUT_TEXT%" /f >nul 2>&1
   reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000406" /v "Layout File" /t REG_SZ /d "DanishA.dll" /f >nul 2>&1
   reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000406" /v "Layout Id" /t REG_SZ /d "00cc" /f >nul 2>&1
