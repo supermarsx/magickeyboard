@@ -9,7 +9,7 @@ REM   This helps avoid accidental formatting changes and ensures consistent diff
 setlocal ENABLEDELAYEDEXPANSION
 set "FAIL=0"
 
-for /R "..\.." %%F in (*.bat) do (
+for /R "." %%F in (*.bat) do (
   if exist "%%~fF" (
     echo Checking %%~nxF
     rem trailing spaces check

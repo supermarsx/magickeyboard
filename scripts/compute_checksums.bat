@@ -7,7 +7,7 @@ REM   Generate install_checksums.txt (SHA256) for the files listed in install_fi
 REM   This is used to validate files before copying to System32 during installation.
 
 setlocal ENABLEDELAYEDEXPANSION
-set "ROOT=%~dp0..\..\All Keyboard Layouts (1.0.3.40)"
+set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"
 if not exist "%ROOT%\layouts.json" (
   echo ERROR: layouts.json not found; please use layouts.json as the authoritative source for file/checksum info
   exit /b 2
