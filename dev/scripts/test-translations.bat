@@ -6,7 +6,7 @@ echo Purpose: Ensure translations.json contains the REQUIRED_LOCALES for each la
 echo          and that translation values are non-empty and not placeholders.
 
 setlocal ENABLEDELAYEDEXPANSION
-set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"
+set "ROOT=%~dp0..\..\All Keyboard Layouts (1.0.3.40)"
 
 if not exist "%ROOT%\install_filelist.txt" (
   echo ERROR: install_filelist.txt missing

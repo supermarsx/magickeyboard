@@ -5,7 +5,7 @@ echo [test-matrix] Verifying layouts.json matrix and file coverage (Windows)
 echo Purpose: Ensure layouts.json contains required metadata and referenced files exist.
 
 setlocal ENABLEDELAYEDEXPANSION
-set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"
+set "ROOT=%~dp0..\..\All Keyboard Layouts (1.0.3.40)"
 
 if not exist "%ROOT%\layouts.json" (
   echo ERROR: layouts.json missing
