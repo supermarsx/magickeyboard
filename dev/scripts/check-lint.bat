@@ -6,7 +6,7 @@ echo [lint] Checking batch header docs and harmful commands (Windows)
 setlocal ENABLEDELAYEDEXPANSION
 set "FAIL=0"
 
-for %%F in ("..\All Keyboard Layouts (1.0.3.40)\*.bat") do (
+for %%F in ("..\..\All Keyboard Layouts (1.0.3.40)\*.bat") do (
   echo Checking %%~nxF ...
   findstr /I /C:"Purpose:" "%%~fF" >nul
   if errorlevel 1 (

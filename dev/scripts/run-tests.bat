@@ -8,7 +8,7 @@ REM   matrix integrity checks, and a dry-run using the elevated wrappers and
 REM   PowerShell helpers where available.
 
 setlocal ENABLEDELAYEDEXPANSION
-set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"
+set "ROOT=%~dp0..\..\All Keyboard Layouts (1.0.3.40)"
 
 rem install_filelist.txt and install_checksums.txt are deprecated — layouts.json is the canonical source of files and checksums
 if not exist "%ROOT%\layouts.json" (
