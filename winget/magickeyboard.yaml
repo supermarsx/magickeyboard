@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.4.0.schema.json
+
+PackageIdentifier: supermarsx.magickeyboard
+PackageVersion: 1.0.3.40
+MinimumOSVersion: 10.0.0.0
+InstallerLocale: en-US
+InstallerType: zip
+NestedInstallerType: script
+NestedInstallerFiles:
+- RelativeFilePath: 'All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts.bat'
+InstallerUrl: https://github.com/supermarsx/magickeyboard/archive/refs/heads/main.zip
+InstallerSha256: <SHA256_OF_ZIP>
+InstallModes:
+- interactive
+- silent
+- silentWithProgress
+InstallerSwitches:
+  Silent: /S
+  SilentWithProgress: /S
+UpgradeBehavior: install
+ReleaseDate: 2026-01-02
+AppsAndFeaturesEntries:
+- DisplayName: Apple Magic Keyboard Layouts
+  Publisher: supermarsx
+  ProductCode: magickeyboard
+ElevationRequirement: elevatesSelf
+InstallationNotes: |
+  This package installs Apple keyboard layouts for Windows.
+  Run the installer with /S for silent installation.
+Uninstallers:
+- InstallerType: zip
+  NestedInstallerType: script
+  NestedInstallerFiles:
+  - RelativeFilePath: 'All Keyboard Layouts (1.0.3.40)\uninstall_keyboard_layouts.bat'
+  InstallerUrl: https://github.com/supermarsx/magickeyboard/archive/refs/heads/main.zip
+  InstallerSha256: <SHA256_OF_ZIP>
+  InstallerSwitches:
+    Silent: /S
+    SilentWithProgress: /S
+  ElevationRequirement: elevatesSelf

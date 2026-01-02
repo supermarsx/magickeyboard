@@ -89,6 +89,7 @@ fi
 
 echo
 echo "[test] Running unit tests in tests/posix (POSIX)"
+chmod +x "$root_dir/scripts/get_system_locale.sh" || true
 if [ -x "$root_dir/tests/posix/test_get_system_locale.sh" ]; then
   "$root_dir/tests/posix/test_get_system_locale.sh"
 else

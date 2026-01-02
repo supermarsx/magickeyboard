@@ -31,6 +31,9 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
   - [Automatically install layouts](#automatically-install-layouts)
   - [Manually install layouts](#manually-install-layouts)
   - [Uninstall layouts](#uninstall-layouts)
+- [**Experimental Installation Methods**](#experimental-installation-methods)
+  - [Scoop](#scoop)
+  - [Winget](#winget)
 - [**Layout topics**](#layout-topics)
   - [Layout languages](#layout-languages)
   - [Translate layout names](#translate-layout-names)
@@ -268,6 +271,64 @@ To **uninstall all keyboard layouts** follow these steps:
 2. **Run** `uninstall_keyboard_layouts.bat` batch file with **administrator privileges**.
 
 All Apple keyboard layouts should be gone.
+
+
+## Experimental Installation Methods
+
+**Warning:** These methods are experimental and may not work as expected. Use at your own risk.
+
+### Scoop
+
+[Scoop](https://scoop.sh/) is a command-line installer for Windows.
+
+To install using Scoop:
+
+1. Add this repository as a bucket:
+   ```
+   scoop bucket add magickeyboard https://github.com/supermarsx/magickeyboard.git
+   ```
+2. Install the package:
+   ```
+   scoop install magickeyboard
+   ```
+
+The package will download the repository, extract it, and run the installation script.
+
+To uninstall:
+```
+scoop uninstall magickeyboard
+```
+
+**Note:** If you prefer not to add the bucket, you can install manually using the manifest from the `bucket/` directory:
+
+1. Download the manifest file:
+   ```
+   powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/supermarsx/magickeyboard/main/bucket/magickeyboard.json' -OutFile 'magickeyboard.json'"
+   ```
+2. Run: `scoop install magickeyboard.json`
+
+### Winget
+
+[WinGet](https://docs.microsoft.com/en-us/windows/package-manager/) is the Windows Package Manager.
+
+**Note:** WinGet does not support adding custom git-based sources like Scoop. For custom sources, a REST API is required, which this repository does not provide. Use the local manifest method below.
+
+To install using WinGet with a local manifest:
+
+1. Download the manifest file:
+   ```
+   powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/supermarsx/magickeyboard/main/winget/magickeyboard.yaml' -OutFile 'magickeyboard.yaml'"
+   ```
+2. Run: `winget install --manifest magickeyboard.yaml`
+
+The package will download the repository, extract it, and run the installation script.
+
+To uninstall:
+```
+winget uninstall supermarsx.magickeyboard
+```
+
+**Note:** If the package were available in the WinGet Community Repository, you could use: `winget install supermarsx.magickeyboard`
 
 
 ## Layout topics
