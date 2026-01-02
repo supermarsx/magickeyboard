@@ -14,8 +14,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run lint checks
         run: |
-          chmod +x dev/scripts/check-lint.sh
-          dev/scripts/check-lint.sh
+          chmod +x scripts/check-lint.sh
+          scripts/check-lint.sh
 
   format:
     runs-on: ubuntu-latest
@@ -23,8 +23,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run format checks
         run: |
-          chmod +x dev/scripts/check-format.sh
-          dev/scripts/check-format.sh
+          chmod +x scripts/check-format.sh
+          scripts/check-format.sh
 
   type:
     runs-on: ubuntu-latest
@@ -41,12 +41,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run tests
         run: |
-          chmod +x dev/scripts/run-tests.sh
-          dev/scripts/run-tests.sh
+          chmod +x scripts/run-tests.sh
+          scripts/run-tests.sh
       - name: Run translation tests (POSIX)
         run: |
-          chmod +x dev/scripts/test-translations.sh
-          dev/scripts/test-translations.sh
+          chmod +x scripts/test-translations.sh
+          scripts/test-translations.sh
 
   dryrun:
     runs-on: windows-latest
@@ -58,11 +58,11 @@ jobs:
         run: |
           cd "%GITHUB_WORKSPACE%"
           echo Running Windows lint/format/tests
-          dev\scripts\check-lint.bat
-          dev\scripts\check-format.bat
-          dev\scripts\compute_checksums.bat
-          dev\scripts\run-tests.bat
-          dev\scripts\test-translations.bat
+          scripts\check-lint.bat
+          scripts\check-format.bat
+          scripts\compute_checksums.bat
+          scripts\run-tests.bat
+          scripts\test-translations.bat
       - name: Verify install file list (Windows)
         shell: cmd
         run: |
@@ -82,8 +82,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run packaging
         run: |
-          chmod +x dev/scripts/package_layouts.sh
-          dev/scripts/package_layouts.sh "$GITHUB_RUN_ID"
+          chmod +x scripts/package_layouts.sh
+          scripts/package_layouts.sh "$GITHUB_RUN_ID"
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
