@@ -7,7 +7,9 @@ REM   Execute the Windows test suite: file/checksum validation, translations tes
 REM   matrix integrity checks, and a dry-run using the elevated wrappers and
 REM   PowerShell helpers where available.
 
-rem setlocal ENABLEDELAYEDEXPANSION
+set "MAGIC_DRYRUN=1"
+set "MAGIC_SILENT=1"
+setlocal ENABLEDELAYEDEXPANSION
 set "ROOT=%~dp0..\All Keyboard Layouts (1.0.3.40)"
 echo ROOT=%ROOT%
 
@@ -23,7 +25,7 @@ echo After if
 echo checksum validation removed as deprecated
 
 echo [test] All tests passed
-rem endlocal
+endlocal
 
 REM --- matrix test ---
 echo.
@@ -39,8 +41,6 @@ test-translations.bat
 REM --- smoke test (dry-run) ---
 echo.
 echo [test] Running dry-run smoke test (simulated install)
-set "MAGIC_DRYRUN=1"
-set "MAGIC_SILENT=1"
 call "%~dp0..\All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts.bat"
 if errorlevel 1 (
   echo [test] Dry-run install returned error: %ERRORLEVEL%
