@@ -27,19 +27,7 @@ REM   - The script silences output (redirects to nul). To debug run commands
 REM     manually or remove ">nul 2>&1" redirects.
 REM ---------------------------------------------------------------------------
 
-REM If DRYRUN is active, skip the elevation check so the script can be simulated on non-elevated machines
-if defined MAGIC_DRYRUN (
-  echo DRYRUN: skipping elevation check (no admin required in simulation mode)
-) else (
-  net session >nul 2>&1
-  if %errorlevel% neq 0 (
-    echo ERROR: Administrator privileges required. Right-click and choose "Run as Administrator".
-    echo Exiting...
-    echo.
-    pause
-    exit /b 1
-  )
-)
+rem elevation check moved after parse_args
 
 echo ================================================================
 echo Installing Apple keyboard layouts — Magic Keyboard collection
@@ -50,6 +38,8 @@ rem Centralized argument parsing — use the shared helper so flags are consiste
 call "%~dp0parse_args.bat" %*
 
 rem parse_args.bat sets: PASS_ARGS, MAGIC_SILENT, MAGIC_DRYRUN, MAGIC_LOCALE, MAGIC_LAYOUTS, MODE
+
+REM elevation check removed for dry-run compatibility
 
 REM Count files to process
 set "TOTAL=0"
