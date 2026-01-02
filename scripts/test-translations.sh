@@ -7,7 +7,7 @@ set -euo pipefail
 # value is present, non-empty, and not a placeholder equal to the key name.
 # This script is POSIX-friendly and intended for CI.
 
-root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
+root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 
 echo "[test-translations] Verifying translations.json coverage for entries in layouts.json"

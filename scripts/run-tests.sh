@@ -6,7 +6,7 @@ set -euo pipefail
 # collection. This includes file existence checks, checksum verification, translation
 # coverage tests and the new layouts.json -> install_filelist consistency test.
 
-root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
+root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 layout_dir="$root_dir/All Keyboard Layouts (1.0.3.40)"
 
 echo "Running tests for layout packaging and checksums (layouts.json + embedded sha256)"
