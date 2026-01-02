@@ -1,0 +1,2 @@
+$root = 'All Keyboard Layouts (1.0.3.40)'
+try { $j = Get-Content -Raw -Path "$root\layouts.json" | ConvertFrom-Json; Write-Host "Keys: $($j.PSObject.Properties.Name)"; foreach ($k in $j.PSObject.Properties.Name) { Write-Host "k: $k"; $entry = $j[$k]; Write-Host "j[k]: $entry"; $entry2 = $j.$k; Write-Host "j.k: $entry2"; if (-not $entry.file) { Write-Host 'MISSING-FILEPROP:' $k; exit 1 }; if (-not (Test-Path (Join-Path $root $entry.file))) { Write-Host 'MISSING-FILE:' $entry.file; exit 2 } }; exit 0 } catch { Write-Host 'CATCH:' $_.Exception.Message; exit 3 }

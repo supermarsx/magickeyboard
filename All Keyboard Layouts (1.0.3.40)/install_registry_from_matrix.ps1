@@ -58,7 +58,8 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
       # get_translation.ps1 prints the string — trim it
       if ($LASTEXITCODE -ne 0) { $layoutText = $null }
       $layoutText = $layoutText -as [string]
-    } catch {
+    }
+    catch {
       $layoutText = $null
     }
   }
@@ -69,15 +70,17 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
       $t = Get-Content -Raw -Path $TranslationsPath | ConvertFrom-Json
       if ($t.$key -and $t.$key.en) { $layoutText = $t.$key.en }
       else { $layoutText = $key }
-    } catch { $layoutText = $key }
+    }
+    catch { $layoutText = $key }
   }
 
   # prefer explicit reg_path in matrix; otherwise construct from reg_key
   if ($entry.PSObject.Properties.Name -contains 'reg_path' -and $entry.reg_path) {
-    $fullRegPath = $entry.reg_path -replace '\\{2,}','\\'
+    $fullRegPath = $entry.reg_path -replace '\\{2,}', '\\'
     # normalize leading HKLM\ to HKLM:\ for the registry provider
-    if ($fullRegPath -like 'HKLM\\*') { $fullRegPath = $fullRegPath -replace '^HKLM\\','HKLM:\' }
-  } else {
+    if ($fullRegPath -like 'HKLM\\*') { $fullRegPath = $fullRegPath -replace '^HKLM\\', 'HKLM:\' }
+  }
+  else {
     $regKey = $entry.reg_key
     $fullRegPath = "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\$regKey"
   }
@@ -105,7 +108,8 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
     if ($entry.component_id) { New-ItemProperty -Path $fullRegPath -Name 'Layout Component ID' -Value $entry.component_id -PropertyType String -Force | Out-Null }
 
     Write-Host "OK: registry updated for $key -> $fullRegPath"
-  } catch {
+  }
+  catch {
     # Use Out-String to safely include the error object in the message on all platforms
     $errMsg = ($_ | Out-String).Trim()
     Write-Warning ("Failed to update registry for {0}: {1}" -f $key, $errMsg)
