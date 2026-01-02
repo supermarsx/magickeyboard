@@ -69,7 +69,7 @@ echo.
 echo [test] Running dry-run smoke test (simulated install)
 set "MAGIC_DRYRUN=1"
 set "MAGIC_SILENT=1"
-call "%~dp0..\All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts.bat"
+call "%~dp0..\..\All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts.bat"
 if errorlevel 1 (
   echo [test] Dry-run install returned error: %ERRORLEVEL%
   exit /b 10
@@ -78,7 +78,7 @@ echo [test] Dry-run simulated install executed successfully
 
 echo.
 echo [test] Dry-run via elevated wrapper (no UAC expected) — install_keyboard_layouts_elevated.bat /DRYRUN /SILENT
-powershell -NoProfile -Command "& { $p = Start-Process -FilePath '%~dp0..\All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts_elevated.bat' -ArgumentList '/DRYRUN','/SILENT' -NoNewWindow -PassThru -Wait; exit $p.ExitCode }"
+powershell -NoProfile -Command "& { $p = Start-Process -FilePath '%~dp0..\..\All Keyboard Layouts (1.0.3.40)\install_keyboard_layouts_elevated.bat' -ArgumentList '/DRYRUN','/SILENT' -NoNewWindow -PassThru -Wait; exit $p.ExitCode }"
 if errorlevel 1 (
   echo [test] elevated wrapper dry-run failed with exit code %ERRORLEVEL%
   exit /b 11
@@ -88,7 +88,7 @@ echo [test] Elevated wrapper dry-run OK
 REM --- PowerShell matrix dry-run (Windows) ---
 echo.
 echo [test] Running PowerShell matrix installer dry-run (Windows)
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\install_registry_from_matrix.ps1" -MatrixPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\layouts.json" -TranslationsPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\translations.json" -DryRun
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\..\All Keyboard Layouts (1.0.3.40)\install_registry_from_matrix.ps1" -MatrixPath "%~dp0..\..\All Keyboard Layouts (1.0.3.40)\layouts.json" -TranslationsPath "%~dp0..\..\All Keyboard Layouts (1.0.3.40)\translations.json" -DryRun
 if errorlevel 1 (
   echo [test] PowerShell matrix dry-run failed with exit code %ERRORLEVEL%
   exit /b 12
@@ -99,7 +99,7 @@ if errorlevel 1 (
   REM Uninstall matrix dry-run
   echo.
   echo [test] Running PowerShell uninstall matrix dry-run (Windows)
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\layouts.json" -DryRun
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\..\All Keyboard Layouts (1.0.3.40)\uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0..\..\All Keyboard Layouts (1.0.3.40)\layouts.json" -DryRun
   if errorlevel 1 (
     echo [test] PowerShell uninstall dry-run failed with exit code %ERRORLEVEL%
     exit /b 13
