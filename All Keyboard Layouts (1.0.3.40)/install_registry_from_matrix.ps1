@@ -41,7 +41,7 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
   # If -Layouts supplied, only process listed layout keys
   if ($Layouts -and $Layouts.Count -gt 0) {
     if ($Layouts -notcontains $key) {
-      if ($DryRun) { Write-Host "DRYRUN: skipping $key (not listed in -Layouts)" }
+      if ($DryRun) { Write-Output "DRYRUN: skipping $key (not listed in -Layouts)" }
       continue
     }
   }
@@ -83,13 +83,13 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
   }
 
   if ($DryRun) {
-    Write-Host "DRYRUN: would create registry key $fullRegPath"
-    if ($Locale) { Write-Host "DRYRUN:   Locale = $Locale" }
-    if ($Layouts -and $Layouts.Count -gt 0) { Write-Host "DRYRUN:   Layouts filter = $($Layouts -join ',')" }
-    if ($layoutText) { Write-Host "DRYRUN:   Layout Text = $layoutText" }
-    if ($entry.file) { Write-Host "DRYRUN:   Layout File = $($entry.file)" }
-    if ($entry.layout_id) { Write-Host "DRYRUN:   Layout Id = $($entry.layout_id)" }
-    if ($entry.component_id) { Write-Host "DRYRUN:   Layout Component ID = $($entry.component_id)" }
+    Write-Output "DRYRUN: would create registry key $fullRegPath"
+    if ($Locale) { Write-Output "DRYRUN:   Locale = $Locale" }
+    if ($Layouts -and $Layouts.Count -gt 0) { Write-Output "DRYRUN:   Layouts filter = $($Layouts -join ',')" }
+    if ($layoutText) { Write-Output "DRYRUN:   Layout Text = $layoutText" }
+    if ($entry.file) { Write-Output "DRYRUN:   Layout File = $($entry.file)" }
+    if ($entry.layout_id) { Write-Output "DRYRUN:   Layout Id = $($entry.layout_id)" }
+    if ($entry.component_id) { Write-Output "DRYRUN:   Layout Component ID = $($entry.component_id)" }
     continue
   }
 

@@ -18,15 +18,13 @@ del /Q layouts.checksums.json >nul 2>&1
 echo { > layouts.checksums.json
 set first=1
 for %%F in (*.dll) do (
-  if "%%F"=="" (goto :cont2)
   for /f "tokens=* delims=" %%H in ('powershell -NoProfile -Command "(Get-FileHash -Algorithm SHA256 -LiteralPath '%%F').Hash"') do set "ACTUAL=%%H"
-  if %%first%%==1 (
+  if !first!==1 (
     set first=0
   ) else (
     echo ,>>layouts.checksums.json
   )
   echo   "%%F": "!ACTUAL!">>layouts.checksums.json
-:cont2
 )
 echo }>>layouts.checksums.json
 popd

@@ -13,8 +13,8 @@ for /R "." %%F in (*.bat) do (
   if exist "%%~fF" (
     echo Checking %%~nxF
     rem trailing spaces check
-    powershell -NoProfile -Command "(Get-Content -Raw -Path '%%~fF') -match '\s$'" >nul 2>&1
-    if not errorlevel 1 (
+    powershell -NoProfile -Command "if ((Get-Content -Path '%%~fF' | Where-Object { $_ -match '\s$' }).Count -gt 0) { exit 1 } else { exit 0 }" >nul 2>&1
+    if errorlevel 1 (
       echo ERROR: %%~nxF contains trailing whitespace
       set FAIL=1
     )

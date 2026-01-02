@@ -34,7 +34,7 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
   # If -Layouts supplied, only process listed layout keys
   if ($Layouts -and $Layouts.Count -gt 0) {
     if ($Layouts -notcontains $key) {
-      if ($DryRun) { Write-Host "DRYRUN: skipping $key (not listed in -Layouts)" }
+      if ($DryRun) { Write-Output "DRYRUN: skipping $key (not listed in -Layouts)" }
       continue
     }
   }
@@ -51,7 +51,7 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
   }
 
   if ($DryRun) {
-    Write-Host "DRYRUN: would delete registry key $fullRegPath"
+    Write-Output "DRYRUN: would delete registry key $fullRegPath"
     continue
   }
 
