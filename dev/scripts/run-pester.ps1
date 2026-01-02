@@ -1,5 +1,5 @@
 param(
-  [string] $PesterPath = "tests/powershell/pester"
+  [string] $PesterPath = "../../tests/powershell/pester"
 )
 
 Remove-Module Pester -ErrorAction SilentlyContinue

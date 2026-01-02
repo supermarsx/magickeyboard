@@ -5,8 +5,8 @@ Param(
 Write-Output "[package] Packaging All Keyboard Layouts (version: $Version)"
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$layouts = Join-Path $root '..\All Keyboard Layouts (1.0.3.40)'
-$out = Join-Path $root '..\dist'
+$layouts = Join-Path $root '..\..\All Keyboard Layouts (1.0.3.40)'
+$out = Join-Path $root '..\..\dist'
 if (-not (Test-Path $out)) { New-Item -ItemType Directory -Path $out | Out-Null }
 
 Push-Location $layouts
