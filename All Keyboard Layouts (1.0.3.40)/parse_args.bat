@@ -1,6 +1,6 @@
 @echo off
 rem parse_args.bat
-rem Shared argument parser for the Windows installer/uninstaller wrappers.
+rem Purpose: Shared argument parser for the Windows installer/uninstaller wrappers.
 rem Usage: call "%~dp0parse_args.bat" %*
 
 rem Clear any previously set flags to avoid leaking between calls
