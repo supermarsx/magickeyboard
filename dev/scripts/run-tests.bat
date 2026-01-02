@@ -56,13 +56,13 @@ endlocal
 REM --- matrix test ---
 echo.
 echo [test] Running matrix coverage test (Windows)
-scripts\test-matrix.bat
+test-matrix.bat
 
 
 REM --- translations test ---
 echo.
 echo [test] Running translations test (Windows)
-scripts\test-translations.bat
+test-translations.bat
 
 REM --- smoke test (dry-run) ---
 echo.
@@ -110,7 +110,7 @@ if errorlevel 1 (
   REM --- run Pester suite if pwsh available ---
   echo.
   echo [test] Running Pester tests (PowerShell)
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run-pester.ps1" -PesterPath "%~dp0..\tests\powershell\pester"
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run-pester.ps1" -PesterPath "%~dp0..\..\tests\powershell\pester"
   if errorlevel 1 (
     echo [test] Pester tests failed
     exit /b 20
