@@ -56,12 +56,23 @@ jobs:
       - name: Run packaging
         run: |
           chmod +x scripts/package_layouts.sh
-          scripts/package_layouts.sh "$GITHUB_RUN_ID"
+          scripts/package_layouts.sh "1.0.3.40"
+      - name: Create full repo zip
+        run: |
+          zip -r MagicKeyboard-all.zip . --exclude dist/
+      - name: Prepare release artifacts
+        run: |
+          cp All.Keyboard.Layouts.1.0.3.40.zip dist/ || true
+          cp MagicKeyboard-all.zip dist/ || true
+          cp magickeyboard1_AppleKeyboardInstaller64.exe dist/ || true
+          cp magickeyboard2_AppleKeyboardInstaller64.exe dist/ || true
+          cp unpacked_magickeyboard1_AppleKeyboardInstaller64.zip dist/ || true
+          cp unpacked_magickeyboard2_AppleKeyboardInstaller64.zip dist/ || true
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
           name: layouts-archive
-          path: dist/*.zip
+          path: dist/*
 
   release:
     runs-on: ubuntu-latest
