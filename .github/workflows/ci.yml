@@ -66,8 +66,6 @@ jobs:
           cp MagicKeyboard-all.zip dist/ || true
           cp magickeyboard1_AppleKeyboardInstaller64.exe dist/ || true
           cp magickeyboard2_AppleKeyboardInstaller64.exe dist/ || true
-          cp unpacked_magickeyboard1_AppleKeyboardInstaller64.zip dist/ || true
-          cp unpacked_magickeyboard2_AppleKeyboardInstaller64.zip dist/ || true
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
@@ -87,6 +85,6 @@ jobs:
           path: dist/
       - name: Create release
         run: |
-          gh release create "$GITHUB_RUN_ID" dist/*.zip --title "Release $GITHUB_RUN_ID" --notes "Automated release $GITHUB_RUN_ID"
+          gh release create "$GITHUB_RUN_ID" dist/* --title "Release $GITHUB_RUN_ID" --notes "Automated release $GITHUB_RUN_ID"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
