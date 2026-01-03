@@ -76,6 +76,6 @@ jobs:
           path: dist/
       - name: Create release
         run: |
-          gh release create "Release ${{ github.run_number }}" dist/*.zip --title "Release ${{ github.run_number }}" --notes "Automated release ${{ github.run_number }}"
+          gh release create "$GITHUB_RUN_ID" dist/*.zip --title "Release $GITHUB_RUN_ID" --notes "Automated release $GITHUB_RUN_ID"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
