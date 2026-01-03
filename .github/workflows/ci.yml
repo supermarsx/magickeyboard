@@ -59,7 +59,7 @@ jobs:
           scripts/package_layouts.sh "1.0.3.40"
       - name: Create full repo zip
         run: |
-          zip -r MagicKeyboard-all.zip . --exclude dist/
+          zip -r MagicKeyboard-all.zip . --exclude dist/ --exclude .git/ --exclude .github/ --exclude bucket/ --exclude winget/ --exclude tests/ --exclude .gitattributes --exclude .gitignore
       - name: Prepare release artifacts
         run: |
           cp All.Keyboard.Layouts.1.0.3.40.zip dist/ || true
