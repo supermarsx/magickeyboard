@@ -107,7 +107,7 @@ If can find more **downloadables** in the [**latest release page**](https://gith
 **Note:** Don't change files, installers, etc. specially if you don't know what you're doing, check the "[Screwed up badly?](#screwed-up-badly)" topic for more information. For most use cases just use the installers and you'll be fine. Major changes are needed only in specific use case scenarios.
 
 
-## Why did i make this?
+## Why did I make this?
 
 These packages are not readily available to end users and sometimes you'll not be able to find anywhere without downloading **bootcamp** from MacOS or `brigadier` for example. 
 
