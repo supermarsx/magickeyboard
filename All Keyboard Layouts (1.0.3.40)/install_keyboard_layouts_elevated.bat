@@ -13,6 +13,9 @@ REM       /SILENT    or /S  -> Run without interactive prompts (no pause)
 REM       /UNINSTALL or /U  -> Run uninstall flow instead of install
 REM       /LOG=<path>       -> Use custom logfile path; default is %TEMP%\magickeyboard_install.log
 REM       /DRYRUN            -> Simulate actions (no files copied and no registry writes). Useful for testing.
+REM       /RESTOREPOINT      -> Create a system restore point before changes (best-effort).
+REM       /REG_BACKUP[=<p>]  -> Backup relevant registry keys before changes.
+REM       /REG_RESTORE=<p>   -> Restore registry keys from a prior backup JSON and exit.
 REM
 REM Behavior:
 REM   - If not already running elevated the script will re-launch itself elevated
@@ -73,6 +76,33 @@ if defined MAGIC_DRYRUN (
 rem Helper to log
 set LOG_DATE=%DATE% %TIME%
 echo ----- %LOG_DATE% - %MODE% started ----->> "%LOGFILE%" 2>&1
+
+rem Optional one-shot registry restore mode.
+if defined MAGIC_REG_RESTORE (
+  if "%MAGIC_REG_RESTORE%"=="1" (
+    echo ERROR: /REG_RESTORE requires a file path. Example: /REG_RESTORE=C:\path\backup.json>> "%LOGFILE%" 2>&1
+    echo ERROR: /REG_RESTORE requires a file path. Example: /REG_RESTORE=C:\path\backup.json
+    exit /b 9
+  )
+  echo Restoring registry from backup: %MAGIC_REG_RESTORE%>> "%LOGFILE%" 2>&1
+  pushd "%~dp0"
+  if defined MAGIC_DRYRUN (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0restore_registry_backup.ps1" -BackupPath "%MAGIC_REG_RESTORE%" -DryRun >> "%LOGFILE%" 2>&1
+  ) else (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0restore_registry_backup.ps1" -BackupPath "%MAGIC_REG_RESTORE%" >> "%LOGFILE%" 2>&1
+  )
+  set "RESULT=%ERRORLEVEL%"
+  popd
+  if %RESULT% neq 0 (
+    echo ERROR: registry restore returned exit code %RESULT%>> "%LOGFILE%"
+    echo Registry restore failed (see logfile: %LOGFILE%)
+    exit /b %RESULT%
+  )
+  echo Registry restore completed successfully>> "%LOGFILE%"
+  if not defined MAGIC_SILENT pause
+  endlocal
+  exit /b 0
+)
 
 if /I "%MODE%"=="INSTALL" (
   echo Performing install...>> "%LOGFILE%" 2>&1

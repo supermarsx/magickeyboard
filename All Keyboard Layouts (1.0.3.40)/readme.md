@@ -37,6 +37,36 @@ install_keyboard_layouts_elevated.bat /SILENT
 install_keyboard_layouts_elevated.bat /UNINSTALL /SILENT
 ```
 
+Subset install / uninstall
+
+You can install or uninstall only a subset of layouts by passing a comma-separated list of layout keys from `layouts.json`:
+
+```bat
+install_keyboard_layouts_elevated.bat /LAYOUTS=GermanA,FrenchA
+install_keyboard_layouts_elevated.bat /UNINSTALL /LAYOUTS=GermanA,FrenchA
+```
+
+Safety switches (optional)
+
+- Create a system restore point before making changes (best-effort; may fail if System Protection is disabled):
+
+```bat
+install_keyboard_layouts_elevated.bat /RESTOREPOINT
+```
+
+- Backup the registry keys touched by `layouts.json` before making changes:
+
+```bat
+install_keyboard_layouts_elevated.bat /REG_BACKUP
+install_keyboard_layouts_elevated.bat /REG_BACKUP=C:\temp\magickb_backup.json
+```
+
+- Restore the registry keys from a prior backup JSON (does not install/uninstall; runs restore and exits):
+
+```bat
+install_keyboard_layouts_elevated.bat /REG_RESTORE=C:\temp\magickb_backup.json
+```
+
 Notes:
 - The wrapper uses the standard Windows UAC prompt — it cannot automatically bypass elevation without credentials.
 - The wrapper sets `MAGIC_SILENT` for called scripts so they run without an interactive pause.

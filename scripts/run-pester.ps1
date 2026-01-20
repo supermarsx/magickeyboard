@@ -44,5 +44,8 @@ try {
   }
 }
 
-# Invoke Pester using the modern -Script parameter to avoid legacy compatibility shim
-Invoke-Pester -Script $PesterPath -EnableExit
+# Invoke Pester using Pester 5 configuration (avoids deprecated legacy parameter sets)
+$config = New-PesterConfiguration
+$config.Run.Path = @($PesterPath)
+$config.Run.Exit = $true
+Invoke-Pester -Configuration $config

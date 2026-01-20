@@ -28,13 +28,13 @@ endlocal
 REM --- matrix test ---
 echo.
 echo [test] Running matrix coverage test (Windows)
-test-matrix.bat
+call "%~dp0test-matrix.bat"
 
 
 REM --- translations test ---
 echo.
 echo [test] Running translations test (Windows)
-test-translations.bat
+call "%~dp0test-translations.bat"
 
 REM --- PowerShell matrix dry-run (Windows) ---
 echo.

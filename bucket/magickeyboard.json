@@ -3,20 +3,18 @@
     "description": "Apple Magic Keyboard drivers and layouts for Windows",
     "homepage": "https://github.com/supermarsx/magickeyboard",
     "license": "MIT",
-    "url": "https://github.com/supermarsx/magickeyboard/archive/refs/heads/main.zip",
-    "hash": "<SHA256_OF_ZIP>",
-    "extract_dir": "magickeyboard-main",
+    "url": "https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip",
+    "hash": "80568EAC68A8E85583B8D9F0D9348274CAFD0178083C7201459196E41F06A8F0",
     "installer": {
-        "script": "Push-Location \"$dir\\All Keyboard Layouts (1.0.3.40)\"; & \"$dir\\All Keyboard Layouts (1.0.3.40)\\install_keyboard_layouts.bat\" /S; Pop-Location"
+        "script": "Push-Location \"$dir\"; & \"$dir\\install_keyboard_layouts_elevated.bat\" /SILENT; Pop-Location"
     },
     "uninstaller": {
-        "script": "Push-Location \"$dir\\All Keyboard Layouts (1.0.3.40)\"; & \"$dir\\All Keyboard Layouts (1.0.3.40)\\uninstall_keyboard_layouts.bat\" /S; Pop-Location"
+        "script": "Push-Location \"$dir\"; & \"$dir\\uninstall_keyboard_layouts_elevated.bat\" /UNINSTALL /SILENT; Pop-Location"
     },
     "checkver": {
         "github": "https://github.com/supermarsx/magickeyboard"
     },
     "autoupdate": {
-        "url": "https://github.com/supermarsx/magickeyboard/archive/refs/heads/main.zip",
-        "extract_dir": "magickeyboard-main"
+        "url": "https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip"
     }
 }

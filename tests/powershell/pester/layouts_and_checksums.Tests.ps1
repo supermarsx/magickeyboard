@@ -21,9 +21,30 @@ function Find-RepoRoot {
     throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found from starts: $($starts -join ', ')"
 }
 
-
 Describe 'Layouts JSON and checksums' {
     BeforeAll {
+        $GetSha256Hex = {
+            param([Parameter(Mandatory = $true)][string]$Path)
+
+            $cmd = Get-Command -Name Get-FileHash -ErrorAction SilentlyContinue
+            if ($cmd) {
+                return ((Get-FileHash -Path $Path -Algorithm SHA256).Hash).ToUpperInvariant()
+            }
+
+            $stream = [System.IO.File]::OpenRead($Path)
+            $sha256 = $null
+            try {
+                $sha256 = [System.Security.Cryptography.SHA256]::Create()
+                $hashBytes = $sha256.ComputeHash($stream)
+            }
+            finally {
+                if ($stream) { $stream.Dispose() }
+                if ($sha256) { $sha256.Dispose() }
+            }
+
+            return ( -join ($hashBytes | ForEach-Object { $_.ToString('x2') }) ).ToUpperInvariant()
+        }
+
         $starts = @()
         if ($PSCommandPath) { $starts += (Split-Path -Parent $PSCommandPath) }
         if ($PSScriptRoot) { $starts += $PSScriptRoot }
@@ -75,8 +96,8 @@ Describe 'Layouts JSON and checksums' {
             $expected = $p.Value.sha256
             $path = Join-Path $LayoutDir $fname
             Test-Path $path | Should -BeTrue -Because "file $fname must exist for hashing"
-            $actual = (Get-FileHash -Path $path -Algorithm SHA256).Hash
-            $actual | Should -Be $expected -Because "sha256 for $fname must match the embedded value in layouts.json"
+            $actual = & $GetSha256Hex $path
+            $actual | Should -Be ($expected.ToUpperInvariant()) -Because "sha256 for $fname must match the embedded value in layouts.json"
         }
     }
 
@@ -93,9 +114,9 @@ Describe 'Layouts JSON and checksums' {
 
             $entry = $orig.$k0
             $path = Join-Path $LayoutDir $entry.file
-            $actual = (Get-FileHash -Path $path -Algorithm SHA256).Hash
+            $actual = & $GetSha256Hex $path
             # assert the tampered sha does not match the real hash
-            $actual | Should -Not -Be $entry.sha256
+            $actual | Should -Not -Be ($entry.sha256.ToUpperInvariant())
             Remove-Item -Path $tmp -Force
         }
     }

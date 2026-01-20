@@ -9,6 +9,9 @@ set "MAGIC_SILENT="
 set "MAGIC_DRYRUN="
 set "MAGIC_LOCALE="
 set "MAGIC_LAYOUTS="
+set "MAGIC_RESTOREPOINT="
+set "MAGIC_REG_BACKUP="
+set "MAGIC_REG_RESTORE="
 set "MODE=INSTALL"
 set "LOGFILE=%TEMP%\magickeyboard_install.log"
 set "LOG_RETENTION_DAYS=7"
@@ -38,11 +41,30 @@ if "%~1"=="" goto arg_done
   if /I "%arg%"=="/DRYRUN" (
     set "MAGIC_DRYRUN=1" & shift & goto arg_loop
   )
+  if /I "%arg%"=="/RESTOREPOINT" (
+    set "MAGIC_RESTOREPOINT=1" & shift & goto arg_loop
+  )
+  if /I "%arg%"=="/RP" (
+    set "MAGIC_RESTOREPOINT=1" & shift & goto arg_loop
+  )
   if /I "%arg:~0,8%"=="/LOCALE=" (
     set "MAGIC_LOCALE=%arg:~8%" & shift & goto arg_loop
   )
   if /I "%arg:~0,9%"=="/LAYOUTS=" (
     set "MAGIC_LAYOUTS=%arg:~9%" & shift & goto arg_loop
+  )
+  if /I "%arg%"=="/REG_BACKUP" (
+    rem Flag only; caller may choose a default path
+    set "MAGIC_REG_BACKUP=1" & shift & goto arg_loop
+  )
+  if /I "%arg:~0,12%"=="/REG_BACKUP=" (
+    set "MAGIC_REG_BACKUP=%arg:~12%" & shift & goto arg_loop
+  )
+  if /I "%arg%"=="/REG_RESTORE" (
+    set "MAGIC_REG_RESTORE=1" & shift & goto arg_loop
+  )
+  if /I "%arg:~0,13%"=="/REG_RESTORE=" (
+    set "MAGIC_REG_RESTORE=%arg:~13%" & shift & goto arg_loop
   )
   if /I "%arg%"=="/UNINSTALL" (
     set "MODE=UNINSTALL" & shift & goto arg_loop

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/supermarsx/magickeyboard/schemas/layouts.schema.json",
+  "title": "MagicKeyboard layouts.json",
+  "type": "object",
+  "description": "Mapping of layout keys to registry/file metadata for Apple keyboard layouts on Windows.",
+  "propertyNames": {
+    "type": "string",
+    "pattern": "^[A-Za-z0-9]+$"
+  },
+  "additionalProperties": {
+    "type": "object",
+    "required": ["file"],
+    "properties": {
+      "file": {
+        "type": "string",
+        "pattern": "^.+\\.dll$"
+      },
+      "reg_key": {
+        "type": "string",
+        "pattern": "^[0-9A-Fa-f]{8}$"
+      },
+      "reg_path": {
+        "type": "string",
+        "pattern": "^HKLM\\\\SYSTEM\\\\CurrentControlSet\\\\Control\\\\Keyboard Layouts\\\\[0-9A-Fa-f]{8}$"
+      },
+      "layout_id": {
+        "type": "string",
+        "pattern": "^[0-9A-Fa-f]{4}$"
+      },
+      "component_id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[0-9A-Fa-f]{64}$"
+      }
+    },
+    "additionalProperties": false,
+    "anyOf": [
+      { "required": ["reg_key"] },
+      { "required": ["reg_path"] }
+    ]
+  }
+}

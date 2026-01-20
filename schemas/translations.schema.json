@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/supermarsx/magickeyboard/schemas/translations.schema.json",
+  "title": "MagicKeyboard translations.json",
+  "type": "object",
+  "description": "Mapping of layout keys to localized display names.",
+  "propertyNames": {
+    "type": "string",
+    "pattern": "^[A-Za-z0-9]+$"
+  },
+  "additionalProperties": {
+    "type": "object",
+    "description": "Locale -> translated string.",
+    "propertyNames": {
+      "type": "string",
+      "pattern": "^[A-Za-z]{2,3}(-[A-Za-z]{2,4})?$"
+    },
+    "additionalProperties": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
