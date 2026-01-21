@@ -1,148 +1,270 @@
 # All Keyboard Layouts (1.0.3.40)
 
-This folder contains the Windows batch installer and uninstaller for Apple-style keyboard layouts and the associated layout DLL files.
+This folder contains the MagicKeyboard installer for Apple-style keyboard layouts on Windows, along with the associated layout DLL files.
+
+## Quick Start
+
+### Interactive Mode (TUI)
+
+Double-click `MagicKeyboard.bat` or run:
+
+```powershell
+.\MagicKeyboard.ps1
+```
+
+This launches an interactive menu where you can install, uninstall, backup, restore, or view layouts.
+
+### Command Line
+
+```powershell
+# Install all layouts
+.\MagicKeyboard.ps1 -Action Install
+
+# Uninstall all layouts  
+.\MagicKeyboard.ps1 -Action Uninstall
+
+# List available layouts
+.\MagicKeyboard.ps1 -Action List
+```
 
 ## Files
 
-- `install_keyboard_layouts.bat` — Adds registry entries for each layout and copies the DLLs listed in `install_filelist.txt` to `C:\Windows\System32`. Requires Administrator privileges.
-- `uninstall_keyboard_layouts.bat` — Deletes the registry keys and removes the DLLs from `C:\Windows\System32` (based on `install_filelist.txt`). Requires Administrator privileges.
-- `install_filelist.txt` — List of layout DLL filenames to copy/delete.
+| File | Description |
+|------|-------------|
+| `MagicKeyboard.ps1` | Main PowerShell installer with TUI and CLI support |
+| `MagicKeyboard.bat` | Simple launcher for the PowerShell script |
+| `layouts.json` | Layout definitions (registry keys, DLL filenames, IDs) |
+| `translations.json` | Localized layout names for different languages |
+| `install_filelist.txt` | List of DLL files to install |
+| `install_checksums.txt` | SHA256 checksums for DLL verification |
+| `layouts.checksums.json` | JSON checksums for data files |
+| `*.dll` | Apple keyboard layout DLL files |
 
-## Usage
+## Actions
 
-1. Right-click `install_keyboard_layouts.bat` and select **Run as administrator**. The installer will add registry keys and copy DLLs into System32.
-2. To uninstall, right-click `uninstall_keyboard_layouts.bat` and select **Run as administrator**.
+| Action | Description |
+|--------|-------------|
+| `Install` | Install keyboard layouts (registry + DLLs to System32) |
+| `Uninstall` | Remove keyboard layouts (registry + DLLs from System32) |
+| `List` | Show all layouts with installation status |
+| `Backup` | Save current registry state to JSON file |
+| `Restore` | Restore registry from a backup file |
+| `Help` | Display help information |
 
-## Automated / Self‑Elevating Installer (added)
+## Command Line Options
 
-This release includes `install_keyboard_layouts_elevated.bat` — a self‑elevating wrapper that automates elevation (UAC) and can run interactively or silently.
+### Basic Options
 
-Examples (from the `All Keyboard Layouts (1.0.3.40)` directory):
+| Option | Description |
+|--------|-------------|
+| `-Action <action>` | Action to perform: Install, Uninstall, List, Backup, Restore, Help |
+| `-Layouts <keys>` | Comma-separated layout keys to process (e.g., `"GermanA,FrenchA"`) |
+| `-Help`, `-h`, `-?` | Show help message |
 
-- Interactive install (UAC dialog will appear):
+### Localization Options
 
-```bat
-install_keyboard_layouts_elevated.bat
-```
+| Option | Description |
+|--------|-------------|
+| `-Locale <locale>` | Override OS locale for display names (e.g., `de-DE`, `fr-FR`) |
+| `-TranslationsFile <path>` | Use a custom translations JSON file |
 
-- Silent (unattended) install — does not pause and writes a log to `%TEMP%\magickeyboard_install.log`:
+### Output Control
 
-```bat
-install_keyboard_layouts_elevated.bat /SILENT
-```
+| Option | Description |
+|--------|-------------|
+| `-Silent` | Suppress progress bars and interactive prompts |
+| `-Quiet`, `-q` | Fully silent mode - no output at all (check exit code) |
+| `-ShowDetails`, `-v` | Show detailed progress (checksums, paths, verification) |
+| `-NoLogo` | Suppress the logo banner |
 
-- Silent uninstall:
+### Safety Options
 
-```bat
-install_keyboard_layouts_elevated.bat /UNINSTALL /SILENT
-```
+| Option | Description |
+|--------|-------------|
+| `-DryRun` | Simulate operations without making any changes |
+| `-CreateRestorePoint` | Create Windows restore point before changes |
+| `-BackupPath <path>` | Path for backup/restore operations |
 
-Subset install / uninstall
+## Examples
 
-You can install or uninstall only a subset of layouts by passing a comma-separated list of layout keys from `layouts.json`:
-
-```bat
-install_keyboard_layouts_elevated.bat /LAYOUTS=GermanA,FrenchA
-install_keyboard_layouts_elevated.bat /UNINSTALL /LAYOUTS=GermanA,FrenchA
-```
-
-Safety switches (optional)
-
-- Create a system restore point before making changes (best-effort; may fail if System Protection is disabled):
-
-```bat
-install_keyboard_layouts_elevated.bat /RESTOREPOINT
-```
-
-- Backup the registry keys touched by `layouts.json` before making changes:
-
-```bat
-install_keyboard_layouts_elevated.bat /REG_BACKUP
-install_keyboard_layouts_elevated.bat /REG_BACKUP=C:\temp\magickb_backup.json
-```
-
-- Restore the registry keys from a prior backup JSON (does not install/uninstall; runs restore and exits):
-
-```bat
-install_keyboard_layouts_elevated.bat /REG_RESTORE=C:\temp\magickb_backup.json
-```
-
-Notes:
-- The wrapper uses the standard Windows UAC prompt — it cannot automatically bypass elevation without credentials.
-- The wrapper sets `MAGIC_SILENT` for called scripts so they run without an interactive pause.
-
-Locale-aware layout titles
-
-The installer now detects the system UI locale and will set the `Layout Text` registry value using a translations file (`translations.json`) shipped with this folder. Translations are looked up by layout key (matching the DLL filename, without extension) and the system UI locale (for example: `fr-FR`, `de-DE`, `es-ES`). If a translated name is not available for the current locale the installer falls back to English (`en`).
-
-PowerShell helper `get_translation.ps1` is used internally by `install_keyboard_layouts.bat` to fetch the most appropriate translated string and write it to the registry.
-
-If you want to add or improve translations, edit `translations.json` and use `scripts/compute_checksums.bat` or `scripts/compute_checksums.sh` to refresh tests.
-
-Security & verification (added):
-
-- A checksum manifest `install_checksums.txt` is included — the installer will require this file and verify the SHA256 checksum for every DLL before copying to `C:\Windows\System32`.
-- The installer also performs an Authenticode signature check (via PowerShell) and will refuse to copy unsigned or invalid packages.
- - A checksum manifest `install_checksums.txt` is included — the installer requires this file and verifies the SHA256 checksum for every DLL before copying to `C:\Windows\System32`.
- - The installer also performs an Authenticode signature check (via PowerShell). Signature failures now produce a WARNING but the installer will continue (it will still respect checksum mismatches which remain fatal). You can use `/DRYRUN` to simulate installs without copying files and to validate checks locally.
-
-Log rotation & retention:
-
-- The elevated installer rotates the main logfile (`%TEMP%\magickeyboard_install.log`) when it starts and keeps archived logs for a configurable retention period (default 7 days). Use `/LOG=<path>` and `/LOGR=<days>` to customize.
- - The elevated installer rotates the main logfile (`%TEMP%\magickeyboard_install.log`) when it starts and keeps archived logs for a configurable retention period (default 7 days). Use `/LOG=<path>` and `/LOGR=<days>` to customize.
- - Use `/DRYRUN` to simulate an install/uninstall. DRYRUN will skip registry writes and file copies so you can safely test the process or run CI checks without elevated privileges.
-
-Release creation
-
-- A helper script `scripts/create-release.sh <n>` will package the layouts and create a git tag named `Release-<n>` and, if the `gh` CLI is available and authenticated, create a GitHub release and upload the generated archive. To create "Release 2":
-
-```bash
-scripts/create-release.sh 2
-```
-
-Windows (PowerShell) usage
+### Installation
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\create-release.ps1 -ReleaseNumber 2
+# Install all layouts (will prompt for elevation)
+.\MagicKeyboard.ps1 -Action Install
+
+# Install specific layouts only
+.\MagicKeyboard.ps1 -Action Install -Layouts "GermanA,FrenchA,SpanishA"
+
+# Install with detailed progress
+.\MagicKeyboard.ps1 -Action Install -ShowDetails
+
+# Dry-run to preview changes
+.\MagicKeyboard.ps1 -Action Install -DryRun
+
+# Dry-run with verbose output
+.\MagicKeyboard.ps1 -Action Install -DryRun -ShowDetails
+
+# Silent install with system restore point
+.\MagicKeyboard.ps1 -Action Install -Silent -CreateRestorePoint
+
+# Fully silent install (for automation)
+.\MagicKeyboard.ps1 -Action Install -Quiet
 ```
 
-This will create an archive under `dist/`, tag the repo as `Release-2`, and attempt to create a GitHub release if the `gh` CLI is present and authenticated.
+### Uninstallation
 
-The script uses `scripts/package_layouts.sh` to create an archive under `dist/` and then tags the repo with `Release-2` (and pushes tags if a remote is present). If you want the release published to GitHub, install and authenticate the `gh` CLI before running the script.
+```powershell
+# Uninstall all layouts
+.\MagicKeyboard.ps1 -Action Uninstall
 
-Utility scripts (added):
+# Uninstall specific layouts
+.\MagicKeyboard.ps1 -Action Uninstall -Layouts "GermanA,FrenchA"
 
-- `verify_install_filelist.bat` — quick check to ensure all files listed in `install_filelist.txt` are present.
-
-Friendly installer messages & dry-run
-
-- Installer and uninstaller now include clear, friendly start banners, progress messages and a final summary. These are safe to inspect in `/DRYRUN` mode where no writes are performed.
-- `install_checksums.txt` — SHA256 checksums for the layout DLLs (used by the installer for verification).
-- `install_keyboard_layouts_elevated.bat` — self-elevating installer (documented above)
-- `uninstall_keyboard_layouts_elevated.bat` — helper wrapper that elevates and uninstalls
-- `verify_install_filelist.bat` — verify presence of files before attempting an install
-
-Maintenance scripts:
-
-- `scripts/compute_checksums.sh` — recompute `install_checksums.txt` from files listed in `install_filelist.txt` (useful when updating DLLs)
-- `scripts/package_layouts.sh` — create a distributable zip from this folder (also generates checksums if missing)
-- `scripts/verify_install_filelist.bat` — alias for verifying the filelist
-
-## Safety & Troubleshooting
-
-- Always verify DLLs before copying to System32. Replacing System files can break the system.
-- If you experience issues adding layouts, run the scripts manually and remove the `>nul 2>&1` redirects to see full error messages.
-- Use `regedit` to inspect `HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts` if entries do not appear.
-
-### Quick verification before install
-
-You can verify that every DLL listed in `install_filelist.txt` is present with the bundled helper:
-
-```bat
-verify_install_filelist.bat
+# Preview uninstall
+.\MagicKeyboard.ps1 -Action Uninstall -DryRun
 ```
 
-This returns exit code 0 if all files are present, or non-zero when missing files are detected.
+### Listing Layouts
+
+```powershell
+# List layouts (uses OS language)
+.\MagicKeyboard.ps1 -Action List
+
+# List with German translations
+.\MagicKeyboard.ps1 -Action List -Locale de-DE
+
+# List with French translations
+.\MagicKeyboard.ps1 -Action List -Locale fr-FR
+```
+
+### Backup & Restore
+
+```powershell
+# Backup registry to default location (%TEMP%)
+.\MagicKeyboard.ps1 -Action Backup
+
+# Backup to specific file
+.\MagicKeyboard.ps1 -Action Backup -BackupPath "C:\Backups\keyboard_backup.json"
+
+# Restore from backup
+.\MagicKeyboard.ps1 -Action Restore -BackupPath "C:\Backups\keyboard_backup.json"
+```
+
+### Automation Examples
+
+```powershell
+# Silent install for deployment scripts
+.\MagicKeyboard.ps1 -Action Install -Quiet
+if ($LASTEXITCODE -eq 0) { Write-Host "Success" } else { Write-Host "Failed" }
+
+# CI/CD dry-run validation
+.\MagicKeyboard.ps1 -Action Install -DryRun -Quiet
+```
+
+## Available Layout Keys
+
+| Key | Layout |
+|-----|--------|
+| `BelgiumA` | Belgian (Apple) |
+| `BritishA` | British (Apple) |
+| `CanadaA` | Canadian (Apple) |
+| `ChinaSA` | Chinese Simplified (Apple) |
+| `ChinaTA` | Chinese Traditional (Apple) |
+| `CzechA` | Czech (Apple) |
+| `DanishA` | Danish (Apple) |
+| `DutchA` | Dutch (Apple) |
+| `FinnishA` | Finnish (Apple) |
+| `FrenchA` | French (Apple) |
+| `GermanA` | German (Apple) |
+| `HungaryA` | Hungarian (Apple) |
+| `IntlEngA` | International English (Apple) |
+| `ItalianA` | Italian (Apple) |
+| `NorwayA` | Norwegian (Apple) |
+| `PolishA` | Polish (Apple) |
+| `PortuguA` | Portuguese (Apple) |
+| `RussianA` | Russian (Apple) |
+| `SpanishA` | Spanish (Apple) |
+| `SwedishA` | Swedish (Apple) |
+| `SwissA` | Swiss (Apple) |
+| `TurkeyA` | Turkish (Apple) |
+| `TurkeyQA` | Turkish Q (Apple) |
+| `USA` | US (Apple) |
+
+Use `-Action List` to see layouts with localized names in your language.
+
+## Auto-Elevation
+
+The installer automatically requests Administrator privileges when needed. Actions that modify the system (Install, Uninstall, Restore) will trigger a UAC prompt if not already running elevated.
+
+All command-line options are preserved when elevating, so you can run:
+
+```powershell
+.\MagicKeyboard.ps1 -Action Install -Layouts "GermanA" -ShowDetails
+```
+
+...and the elevated process will use the same options.
+
+## Security & Verification
+
+The installer performs security checks before copying files:
+
+1. **Checksum Verification**: SHA256 checksums from `install_checksums.txt` are verified for each DLL
+2. **Authenticode Signature**: Digital signatures are checked (warnings shown for unsigned files)
+
+These checks run automatically. Use `-ShowDetails` to see verification status for each file.
+
+## Output Modes
+
+| Mode | Progress Bars | Status Messages | Details |
+|------|---------------|-----------------|---------|
+| Default | ✓ | ✓ | ✗ |
+| `-ShowDetails` | ✓ | ✓ | ✓ |
+| `-Silent` | ✗ | ✓ | ✗ |
+| `-Quiet` | ✗ | ✗ | ✗ |
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success |
+| `1` | Error occurred |
+
+## Localization
+
+The installer automatically detects your Windows UI language and displays layout names in your language (if translations are available in `translations.json`).
+
+Supported languages include: English, German, French, Spanish, Italian, Portuguese, Dutch, Polish, Czech, Hungarian, Danish, Finnish, Norwegian, Swedish, Russian, Turkish, Chinese (Simplified & Traditional), and more.
+
+To override the detected locale:
+
+```powershell
+.\MagicKeyboard.ps1 -Action List -Locale ja-JP
+```
+
+## Troubleshooting
+
+### Layouts not appearing after install
+
+1. Log out and log back in, or restart Windows
+2. Check registry: `HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts`
+3. Verify DLLs exist in `C:\Windows\System32`
+
+### Permission denied errors
+
+Run the script as Administrator or let auto-elevation handle it.
+
+### Checksum verification failed
+
+The DLL file may be corrupted. Re-download the package or regenerate checksums with:
+
+```bash
+scripts/compute_checksums.bat
+```
+
+## Legacy Scripts
+
+Previous versions used separate batch files. These have been moved to `legacy_scripts/` for reference but are no longer needed. Use `MagicKeyboard.ps1` instead.
 
 ## License & Support
 
