@@ -1288,7 +1288,8 @@ function Main {
                     Write-Error "-Key parameter is required for GetTranslation action"
                     $script:MainExitCode = 1
                     return
-                } else {
+                }
+                else {
                     $translations = Get-Translations
                     $translatedName = Get-TranslatedName -Key $Key -Translations $translations -RequestedLocale $Locale
                     Write-Output $translatedName

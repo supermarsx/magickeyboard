@@ -86,7 +86,7 @@ Your keyboard and respective layouts should be working.
 
 To **install keyboard layouts** follow these steps:
 
-1. [**Download** all keyboard layouts folder](https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip);
+1. [**Download** all keyboard layouts folder](https://github.com/supermarsx/magickeyboard/releases/latest/download/All.Keyboard.Layouts.1.0.3.40.zip);
 2. **Run** `MagicKeyboard.bat`.
 
 Your keyboard layouts should be working as intended. 
@@ -127,7 +127,7 @@ I needed an easy way to use Apples keyboard without getting all the bloat along 
 
 | Languages | Filename                                                                                                                               |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| All       | [All.Keyboard.Layouts.1.0.3.40.zip](https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip) |
+| All       | [All.Keyboard.Layouts.1.0.3.40.zip](https://github.com/supermarsx/magickeyboard/releases/latest/download/All.Keyboard.Layouts.1.0.3.40.zip) |
 
 **Specific layout files, inside `All Keyboard Layouts` folder**
 
