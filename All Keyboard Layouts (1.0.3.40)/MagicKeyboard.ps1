@@ -15,7 +15,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('Install', 'Uninstall', 'Backup', 'Restore', 'List', 'GetTranslation', 'Help', 'Menu', '')]
+    [ValidateSet('Install', 'Uninstall', 'Reinstall', 'Backup', 'Restore', 'List', 'GetTranslation', 'Help', 'Menu', '')]
     [string]$Action = '',
 
     [string]$Layouts,
@@ -835,11 +835,12 @@ function Show-MainMenu {
     
     Write-MenuOption -Key '1' -Description "Install keyboard layouts$elevationNote"
     Write-MenuOption -Key '2' -Description "Uninstall keyboard layouts$elevationNote"
-    Write-MenuOption -Key '3' -Description "Backup current registry entries"
-    Write-MenuOption -Key '4' -Description "Restore registry from backup$elevationNote"
-    Write-MenuOption -Key '5' -Description "View installed layouts"
-    Write-MenuOption -Key '6' -Description "Dry-run install (simulation)"
-    Write-MenuOption -Key '7' -Description "Dry-run uninstall (simulation)"
+    Write-MenuOption -Key '3' -Description "Reinstall keyboard layouts$elevationNote"
+    Write-MenuOption -Key '4' -Description "Backup current registry entries"
+    Write-MenuOption -Key '5' -Description "Restore registry from backup$elevationNote"
+    Write-MenuOption -Key '6' -Description "View installed layouts"
+    Write-MenuOption -Key '7' -Description "Dry-run install (simulation)"
+    Write-MenuOption -Key '8' -Description "Dry-run uninstall (simulation)"
     Write-Host ""
     Write-MenuOption -Key 'Q' -Description "Quit"
     
@@ -955,6 +956,80 @@ function Invoke-UninstallAction {
     }
     catch {
         Write-Status "Uninstall failed: $_" -Type Error
+        return 1
+    }
+}
+
+function Invoke-ReinstallAction {
+    param(
+        [string[]]$LayoutFilter,
+        [switch]$DryRunMode
+    )
+    
+    $dryLabel = if ($DryRunMode) { " (DRY RUN)" } else { "" }
+    Write-Header "Reinstalling Layouts$dryLabel"
+    
+    if (-not $DryRunMode -and -not (Test-IsElevated)) {
+        Write-Status "Requesting elevation..." -Type Info
+        $elevArgs = @('-Action', 'Reinstall')
+        if ($LayoutFilter) { $elevArgs += @('-Layouts', ($LayoutFilter -join ',')) }
+        if ($Locale) { $elevArgs += @('-Locale', $Locale) }
+        if ($CreateRestorePoint) { $elevArgs += '-CreateRestorePoint' }
+        if ($Silent) { $elevArgs += '-Silent' }
+        if ($Quiet) { $elevArgs += '-Quiet' }
+        if ($ShowDetails) { $elevArgs += '-ShowDetails' }
+        $elevArgs += '-NoLogo'
+        
+        $exitCode = Invoke-Elevate -Arguments $elevArgs
+        return $exitCode
+    }
+    
+    if (-not $DryRunMode -and -not $Silent) {
+        Write-Host ""
+        Write-ColorText "  This will uninstall and reinstall the selected keyboard layouts." -Color $script:Colors.Info
+        if (-not (Read-YesNo -Prompt 'Are you sure you want to continue?')) {
+            Write-Status "Reinstall cancelled by user" -Type Info
+            return 0
+        }
+    }
+    
+    try {
+        $matrix = Get-LayoutMatrix
+        $translations = Get-Translations
+        
+        if ($CreateRestorePoint -and -not $DryRunMode) {
+            Write-Status "Creating system restore point..." -Type Info
+            New-SystemRestorePoint -Description 'MagicKeyboard layouts reinstall'
+        }
+        
+        # Step 1: Uninstall
+        Write-Header "Step 1: Removing existing layouts$dryLabel"
+        
+        Write-Status "Removing registry entries..." -Type Info
+        $regRemoved = Uninstall-RegistryEntries -Matrix $matrix -LayoutFilter $LayoutFilter -DryRunMode:$DryRunMode
+        
+        Write-Status "Deleting layout files from System32..." -Type Info
+        $files = Get-FilesToProcess -Matrix $matrix -LayoutFilter $LayoutFilter
+        $filesRemoved = Uninstall-LayoutFiles -Files $files -DryRunMode:$DryRunMode
+        
+        # Step 2: Install
+        Write-Header "Step 2: Installing layouts$dryLabel"
+        
+        Write-Status "Installing registry entries..." -Type Info
+        $regInstalled = Install-RegistryEntries -Matrix $matrix -Translations $translations -LayoutFilter $LayoutFilter -DryRunMode:$DryRunMode
+        
+        Write-Status "Copying layout files to System32..." -Type Info
+        $filesInstalled = Install-LayoutFiles -Files $files -DryRunMode:$DryRunMode
+        
+        Write-Host ""
+        Write-Header "Reinstall Complete$dryLabel"
+        Write-Status "Registry entries: $regRemoved removed, $regInstalled installed" -Type Success
+        Write-Status "Files: $filesRemoved removed, $filesInstalled installed" -Type Success
+        
+        return 0
+    }
+    catch {
+        Write-Status "Reinstall failed: $_" -Type Error
         return 1
     }
 }
@@ -1083,14 +1158,19 @@ ACTIONS:
     (none)      Launch interactive TUI menu
     Install     Install keyboard layouts (requires elevation)
     Uninstall   Uninstall keyboard layouts (requires elevation)
+    Reinstall   Uninstall then reinstall layouts (requires elevation)
     List        List all available layouts and their installation status
     Backup      Backup current registry entries to JSON file
     Restore     Restore registry from a backup file (requires elevation)
+    GetTranslation  Get translated layout name for a specific key
     Help        Show this help message
 
 OPTIONS:
     -Layouts <keys>       Comma-separated layout keys to process
                           Example: -Layouts "GermanA,FrenchA,SpanishA"
+
+    -Key <key>            Layout key for GetTranslation action
+                          Example: -Key BelgiumA
 
     -Locale <locale>      Override OS locale for display names
                           Example: -Locale de-DE
@@ -1182,6 +1262,7 @@ function Main {
         $result = switch ($Action) {
             'Install' { Invoke-InstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
             'Uninstall' { Invoke-UninstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
+            'Reinstall' { Invoke-ReinstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
             'Backup' { Invoke-BackupAction }
             'Restore' { Invoke-RestoreAction }
             'List' { 
@@ -1225,11 +1306,15 @@ function Main {
                 Show-PausePrompt
             }
             '3' {
+                $null = Invoke-ReinstallAction -DryRunMode:$false
+                Show-PausePrompt
+            }
+            '4' {
                 Write-Logo
                 $null = Invoke-BackupAction
                 Show-PausePrompt
             }
-            '4' {
+            '5' {
                 Write-Logo
                 Write-Header "Restore from Backup"
                 Write-ColorText "  Enter backup file path: " -Color $script:Colors.Menu -NoNewline
@@ -1243,17 +1328,17 @@ function Main {
                 }
                 Show-PausePrompt
             }
-            '5' {
+            '6' {
                 Write-Logo
                 Show-InstalledLayouts
                 Show-PausePrompt
             }
-            '6' {
+            '7' {
                 Write-Logo
                 $null = Invoke-InstallAction -DryRunMode:$true
                 Show-PausePrompt
             }
-            '7' {
+            '8' {
                 Write-Logo
                 $null = Invoke-UninstallAction -DryRunMode:$true
                 Show-PausePrompt

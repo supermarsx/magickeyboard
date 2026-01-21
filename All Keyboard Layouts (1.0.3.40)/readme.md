@@ -48,6 +48,7 @@ This launches an interactive menu where you can install, uninstall, backup, rest
 |--------|-------------|
 | `Install` | Install keyboard layouts (registry + DLLs to System32) |
 | `Uninstall` | Remove keyboard layouts (registry + DLLs from System32) |
+| `Reinstall` | Uninstall then reinstall layouts (refreshes registry and files) |
 | `List` | Show all layouts with installation status |
 | `Backup` | Save current registry state to JSON file |
 | `Restore` | Restore registry from a backup file |
@@ -60,7 +61,7 @@ This launches an interactive menu where you can install, uninstall, backup, rest
 
 | Option | Description |
 |--------|-------------|
-| `-Action <action>` | Action to perform: Install, Uninstall, List, Backup, Restore, GetTranslation, Help |
+| `-Action <action>` | Action to perform: Install, Uninstall, Reinstall, List, Backup, Restore, GetTranslation, Help |
 | `-Layouts <keys>` | Comma-separated layout keys to process (e.g., `"GermanA,FrenchA"`) |
 | `-Key <key>` | Layout key for GetTranslation action (e.g., `BelgiumA`) |
 | `-Help`, `-h`, `-?` | Show help message |
@@ -127,6 +128,19 @@ This launches an interactive menu where you can install, uninstall, backup, rest
 
 # Preview uninstall
 .\MagicKeyboard.ps1 -Action Uninstall -DryRun
+```
+
+### Reinstallation
+
+```powershell
+# Reinstall all layouts (uninstall + install)
+.\MagicKeyboard.ps1 -Action Reinstall
+
+# Reinstall specific layouts
+.\MagicKeyboard.ps1 -Action Reinstall -Layouts "GermanA,FrenchA"
+
+# Preview reinstall
+.\MagicKeyboard.ps1 -Action Reinstall -DryRun
 ```
 
 ### Listing Layouts
