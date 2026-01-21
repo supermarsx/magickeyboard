@@ -15,23 +15,26 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('Install', 'Uninstall', 'Backup', 'Restore', 'List', 'Menu', '')]
+    [ValidateSet('Install', 'Uninstall', 'Backup', 'Restore', 'List', 'Help', 'Menu', '')]
     [string]$Action = '',
 
     [string]$Layouts,
     [string]$Locale,
     [string]$BackupPath,
+    [string]$TranslationsFile,
     [switch]$DryRun,
     [switch]$Silent,
     [switch]$CreateRestorePoint,
-    [switch]$NoLogo
+    [switch]$NoLogo,
+    [Alias('h', '?')]
+    [switch]$Help
 )
 
 # Configuration
 $script:Version = '1.0.0'
 $script:ScriptDir = $PSScriptRoot
 $script:LayoutsJsonPath = Join-Path $script:ScriptDir 'layouts.json'
-$script:TranslationsJsonPath = Join-Path $script:ScriptDir 'translations.json'
+$script:TranslationsJsonPath = if ($TranslationsFile -and (Test-Path $TranslationsFile)) { $TranslationsFile } else { Join-Path $script:ScriptDir 'translations.json' }
 $script:FileListPath = Join-Path $script:ScriptDir 'install_filelist.txt'
 $script:ChecksumsPath = Join-Path $script:ScriptDir 'install_checksums.txt'
 $script:LogFile = Join-Path $env:TEMP 'magickeyboard.log'
@@ -39,14 +42,14 @@ $script:System32 = 'C:\Windows\System32'
 
 # TUI Colors
 $script:Colors = @{
-    Title      = 'Cyan'
-    Menu       = 'White'
-    Highlight  = 'Yellow'
-    Success    = 'Green'
-    Warning    = 'DarkYellow'
-    Error      = 'Red'
-    Info       = 'Gray'
-    Accent     = 'Magenta'
+    Title     = 'Cyan'
+    Menu      = 'White'
+    Highlight = 'Yellow'
+    Success   = 'Green'
+    Warning   = 'DarkYellow'
+    Error     = 'Red'
+    Info      = 'Gray'
+    Accent    = 'Magenta'
 }
 
 function Test-IsElevated {
@@ -91,7 +94,8 @@ function Write-ColorText {
     )
     if ($NoNewline) {
         Write-Host $Text -ForegroundColor $Color -NoNewline
-    } else {
+    }
+    else {
         Write-Host $Text -ForegroundColor $Color
     }
 }
@@ -141,16 +145,16 @@ function Write-Status {
         [string]$Type = 'Info'
     )
     $prefix = switch ($Type) {
-        'Info'    { '  [i] ' }
+        'Info' { '  [i] ' }
         'Success' { '  [+] ' }
         'Warning' { '  [!] ' }
-        'Error'   { '  [-] ' }
+        'Error' { '  [-] ' }
     }
     $color = switch ($Type) {
-        'Info'    { $script:Colors.Info }
+        'Info' { $script:Colors.Info }
         'Success' { $script:Colors.Success }
         'Warning' { $script:Colors.Warning }
-        'Error'   { $script:Colors.Error }
+        'Error' { $script:Colors.Error }
     }
     Write-ColorText "$prefix$Message" -Color $color
 }
@@ -225,7 +229,8 @@ function Get-TranslatedName {
         $lang = $parts[0].ToLower()
         $region = $parts[1].ToUpper()
         $loc = "$lang-$region"
-    } else {
+    }
+    else {
         $lang = $loc.ToLower()
     }
     
@@ -317,14 +322,17 @@ function New-RegistryBackup {
                     if ($item.PSObject.Properties.Name -contains $name) {
                         $present[$name] = $true
                         $values[$name] = $item.$name -as [string]
-                    } else {
+                    }
+                    else {
                         $present[$name] = $false
                     }
                 }
-            } else {
+            }
+            else {
                 foreach ($name in $propertyNames) { $present[$name] = $false }
             }
-        } catch {
+        }
+        catch {
             foreach ($name in $propertyNames) { 
                 if (-not $present.ContainsKey($name)) { $present[$name] = $false } 
             }
@@ -375,7 +383,8 @@ function Restore-RegistryBackup {
         if (-not $e.existed) {
             if ($DryRunMode) {
                 Write-Status "Would remove: $regPath (absent in backup)" -Type Info
-            } else {
+            }
+            else {
                 if (Test-Path $regPath) {
                     Remove-Item -Path $regPath -Recurse -Force
                     Write-Status "Removed: $regPath" -Type Success
@@ -407,13 +416,15 @@ function Restore-RegistryBackup {
                     $val = $e.values.$name
                 }
                 New-ItemProperty -Path $regPath -Name $name -Value ($val -as [string]) -PropertyType String -Force | Out-Null
-            } else {
+            }
+            else {
                 try {
                     $cur = Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue
                     if ($cur -and $cur.PSObject.Properties.Name -contains $name) {
                         Remove-ItemProperty -Path $regPath -Name $name -ErrorAction SilentlyContinue
                     }
-                } catch { }
+                }
+                catch { }
             }
         }
         
@@ -518,7 +529,8 @@ function Uninstall-RegistryEntries {
                 Remove-Item -Path $regPath -Recurse -Force -ErrorAction Stop
                 Write-Status "Removed: $regPath" -Type Success
                 $count++
-            } else {
+            }
+            else {
                 Write-Status "Not present: $regPath" -Type Info
             }
         }
@@ -545,10 +557,12 @@ function Get-FilesToProcess {
                 $files += $Matrix.$key.file
             }
         }
-    } else {
+    }
+    else {
         if (Test-Path $script:FileListPath) {
             $files = Get-Content -Path $script:FileListPath | Where-Object { $_.Trim() -ne '' }
-        } else {
+        }
+        else {
             foreach ($prop in $Matrix.PSObject.Properties) {
                 if ($prop.Value.file) {
                     $files += $prop.Value.file
@@ -587,7 +601,8 @@ function Install-LayoutFiles {
                 Write-Status "  Actual:   $actualHash" -Type Error
                 throw "Checksum verification failed for $file"
             }
-        } else {
+        }
+        else {
             Write-Status "No checksum entry for $file" -Type Warning
         }
         
@@ -596,13 +611,15 @@ function Install-LayoutFiles {
             if ($sig.Status -ne 'Valid') {
                 Write-Status "Signature not valid for $file (Status: $($sig.Status))" -Type Warning
             }
-        } catch {
+        }
+        catch {
             Write-Status "Could not verify signature for $file" -Type Warning
         }
         
         if ($DryRunMode) {
             Write-Status "Would copy: $file -> $script:System32" -Type Info
-        } else {
+        }
+        else {
             Copy-Item -Path $sourcePath -Destination $destPath -Force -ErrorAction Stop
             Write-Status "Copied: $file" -Type Success
         }
@@ -631,11 +648,13 @@ function Uninstall-LayoutFiles {
         
         if ($DryRunMode) {
             Write-Status "Would delete: $destPath" -Type Info
-        } else {
+        }
+        else {
             if (Test-Path $destPath) {
                 Remove-Item -Path $destPath -Force -ErrorAction SilentlyContinue
                 Write-Status "Deleted: $file" -Type Success
-            } else {
+            }
+            else {
                 Write-Status "Not found: $file" -Type Info
             }
         }
@@ -857,9 +876,10 @@ function Show-InstalledLayouts {
         $installed = @()
         $notInstalled = @()
         
-        # Show current locale being used for translations
+        # Show current locale and translations file being used
         $currentLocale = if ($Locale) { $Locale } else { (Get-UICulture).Name }
-        Write-ColorText "  Using locale: $currentLocale" -Color $script:Colors.Info
+        Write-ColorText "  Locale: $currentLocale" -Color $script:Colors.Info
+        Write-ColorText "  Translations: $($script:TranslationsJsonPath)" -Color $script:Colors.Info
         Write-Host ""
         
         foreach ($prop in $matrix.PSObject.Properties) {
@@ -874,7 +894,8 @@ function Show-InstalledLayouts {
             
             if ($regExists -and $dllExists) {
                 $installed += [pscustomobject]@{ Name = $name; Key = $key; File = $entry.file }
-            } else {
+            }
+            else {
                 $notInstalled += [pscustomobject]@{ Name = $name; Key = $key; File = $entry.file }
             }
         }
@@ -899,16 +920,107 @@ function Show-InstalledLayouts {
     }
 }
 
+function Show-Help {
+    $helpText = @"
+
+MagicKeyboard - Apple Keyboard Layouts Installer for Windows
+Version: $($script:Version)
+
+USAGE:
+    MagicKeyboard.ps1 [[-Action] <action>] [options]
+    MagicKeyboard.ps1 -Help
+
+ACTIONS:
+    (none)      Launch interactive TUI menu
+    Install     Install keyboard layouts (requires elevation)
+    Uninstall   Uninstall keyboard layouts (requires elevation)
+    List        List all available layouts and their installation status
+    Backup      Backup current registry entries to JSON file
+    Restore     Restore registry from a backup file (requires elevation)
+    Help        Show this help message
+
+OPTIONS:
+    -Layouts <keys>       Comma-separated layout keys to process
+                          Example: -Layouts "GermanA,FrenchA,SpanishA"
+
+    -Locale <locale>      Override OS locale for display names
+                          Example: -Locale de-DE
+
+    -TranslationsFile <path>  Use custom translations JSON file
+                          Example: -TranslationsFile "C:\my_translations.json"
+
+    -BackupPath <path>    Path for backup/restore operations
+                          Example: -BackupPath "C:\backup.json"
+
+    -DryRun               Simulate operations without making changes
+
+    -Silent               Run without interactive prompts
+
+    -CreateRestorePoint   Create Windows restore point before changes
+
+    -NoLogo               Suppress the logo banner
+
+    -Help, -h, -?         Show this help message
+
+EXAMPLES:
+    # Launch interactive menu
+    .\MagicKeyboard.ps1
+
+    # List available layouts (uses OS language)
+    .\MagicKeyboard.ps1 -Action List
+
+    # List layouts with German translations
+    .\MagicKeyboard.ps1 -Action List -Locale de-DE
+
+    # Install all layouts (will prompt for elevation)
+    .\MagicKeyboard.ps1 -Action Install
+
+    # Install specific layouts only
+    .\MagicKeyboard.ps1 -Action Install -Layouts "GermanA,FrenchA"
+
+    # Dry-run install (no changes made)
+    .\MagicKeyboard.ps1 -Action Install -DryRun
+
+    # Silent install with restore point
+    .\MagicKeyboard.ps1 -Action Install -Silent -CreateRestorePoint
+
+    # Backup registry before manual changes
+    .\MagicKeyboard.ps1 -Action Backup -BackupPath "C:\my_backup.json"
+
+    # Restore from backup
+    .\MagicKeyboard.ps1 -Action Restore -BackupPath "C:\my_backup.json"
+
+    # Uninstall all layouts
+    .\MagicKeyboard.ps1 -Action Uninstall
+
+LAYOUT KEYS:
+    BelgiumA, BritishA, CanadaA, ChinaSA, ChinaTA, CzechA, DanishA,
+    DutchA, FinnishA, FrenchA, GermanA, HungaryA, IntlEngA, ItalianA,
+    NorwayA, PolishA, PortuguA, RussianA, SpanishA, SwedishA, SwissA,
+    TurkeyA, TurkeyQA, USA
+
+    Use -Action List to see all layouts with translated names.
+
+"@
+    Write-Host $helpText
+}
+
 function Main {
+    # Handle help request
+    if ($Help -or $Action -eq 'Help') {
+        Show-Help
+        return 0
+    }
+    
     if ($Action -and $Action -ne 'Menu') {
         $layoutFilter = if ($Layouts) { $Layouts -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { $null }
         
         switch ($Action) {
-            'Install'   { return Invoke-InstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
+            'Install' { return Invoke-InstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
             'Uninstall' { return Invoke-UninstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
-            'Backup'    { return Invoke-BackupAction }
-            'Restore'   { return Invoke-RestoreAction }
-            'List'      { 
+            'Backup' { return Invoke-BackupAction }
+            'Restore' { return Invoke-RestoreAction }
+            'List' { 
                 if (-not $NoLogo) { Write-Logo }
                 Show-InstalledLayouts
                 return 0
@@ -941,7 +1053,8 @@ function Main {
                 if ($path -and (Test-Path $path)) {
                     $script:BackupPath = $path
                     $null = Invoke-RestoreAction
-                } else {
+                }
+                else {
                     Write-Status "Invalid path or file not found" -Type Error
                 }
                 Show-PausePrompt
