@@ -24,6 +24,8 @@ param(
     [string]$TranslationsFile,
     [switch]$DryRun,
     [switch]$Silent,
+    [Alias('q')]
+    [switch]$Quiet,
     [Alias('v')]
     [switch]$ShowDetails,
     [switch]$CreateRestorePoint,
@@ -94,6 +96,7 @@ function Write-ColorText {
         [string]$Color = 'White',
         [switch]$NoNewline
     )
+    if ($Quiet) { return }
     if ($NoNewline) {
         Write-Host $Text -ForegroundColor $Color -NoNewline
     }
@@ -103,7 +106,7 @@ function Write-ColorText {
 }
 
 function Write-Logo {
-    if ($NoLogo) { return }
+    if ($NoLogo -or $Quiet) { return }
     
     Clear-Host
     Write-Host ""
@@ -120,6 +123,7 @@ function Write-Logo {
 
 function Write-Header {
     param([string]$Title)
+    if ($Quiet) { return }
     $width = 65
     $line = '=' * $width
     
@@ -146,6 +150,7 @@ function Write-Status {
         [ValidateSet('Info', 'Success', 'Warning', 'Error')]
         [string]$Type = 'Info'
     )
+    if ($Quiet) { return }
     $prefix = switch ($Type) {
         'Info' { '  [i] ' }
         'Success' { '  [+] ' }
@@ -167,6 +172,7 @@ function Write-ProgressBar {
         [int]$Total,
         [string]$Activity = 'Processing'
     )
+    if ($Quiet) { return }
     $percent = if ($Total -gt 0) { [math]::Round(($Current / $Total) * 100) } else { 0 }
     $barLength = 40
     $filled = [math]::Round($barLength * $Current / [math]::Max(1, $Total))
@@ -449,7 +455,8 @@ function Install-RegistryEntries {
     $allKeys = @($Matrix.PSObject.Properties.Name)
     $keysToProcess = if ($LayoutFilter -and $LayoutFilter.Count -gt 0) {
         $allKeys | Where-Object { $LayoutFilter -contains $_ }
-    } else { $allKeys }
+    }
+    else { $allKeys }
     
     $total = @($keysToProcess).Count
     $count = 0
@@ -542,7 +549,8 @@ function Uninstall-RegistryEntries {
     $allKeys = @($Matrix.PSObject.Properties.Name)
     $keysToProcess = if ($LayoutFilter -and $LayoutFilter.Count -gt 0) {
         $allKeys | Where-Object { $LayoutFilter -contains $_ }
-    } else { $allKeys }
+    }
+    else { $allKeys }
     
     $total = @($keysToProcess).Count
     $count = 0
@@ -581,7 +589,8 @@ function Uninstall-RegistryEntries {
                 if ($ShowDetails) {
                     Write-Status "    Path: $regPath" -Type Info
                 }
-            } else {
+            }
+            else {
                 Write-Status "[$current/$total] Not present: $key" -Type Info
             }
             $count++
@@ -688,7 +697,8 @@ function Install-LayoutFiles {
                 throw "Checksum verification failed for $file"
             }
             $checksumOk = $true
-        } else {
+        }
+        else {
             if ($ShowDetails -and -not $Silent) {
                 Write-Host ""
                 Write-Status "[$installed/$total] No checksum entry for $file" -Type Warning
@@ -704,7 +714,8 @@ function Install-LayoutFiles {
                 Write-Host ""
                 Write-Status "[$installed/$total] Signature: $($sig.Status) for $file" -Type Warning
             }
-        } catch {
+        }
+        catch {
             if ($ShowDetails -and -not $Silent) {
                 Write-Host ""
                 Write-Status "[$installed/$total] Could not verify signature for $file" -Type Warning
@@ -722,7 +733,8 @@ function Install-LayoutFiles {
                 Write-Status "    Source: $sourcePath" -Type Info
                 Write-Status "    Dest:   $destPath" -Type Info
             }
-        } else {
+        }
+        else {
             if (-not $Silent) {
                 Write-ProgressBar -Current $installed -Total $total -Activity "Copying: $file"
             }
@@ -771,17 +783,20 @@ function Uninstall-LayoutFiles {
                     Write-Status "    Path: $destPath" -Type Info
                 }
                 $removed++
-            } else {
+            }
+            else {
                 Write-Status "[$current/$total] Not present: $file" -Type Info
                 $skipped++
             }
-        } else {
+        }
+        else {
             if ($exists) {
                 Remove-Item -Path $destPath -Force -ErrorAction SilentlyContinue
                 if (-not $Silent) { Write-Host "" }
                 Write-Status "[$current/$total] Deleted: $file" -Type Success
                 $removed++
-            } else {
+            }
+            else {
                 if (-not $Silent) { Write-Host "" }
                 Write-Status "[$current/$total] Skipped (not found): $file" -Type Info
                 $skipped++
@@ -1083,6 +1098,9 @@ OPTIONS:
 
     -Silent               Run without interactive prompts or progress bars
 
+    -Quiet, -q            Fully silent mode - suppress ALL output
+                          Only exit code indicates success (0) or failure (1)
+
     -ShowDetails, -v      Show detailed progress for each operation
                           Displays checksums, paths, and verification status
 
@@ -1119,6 +1137,9 @@ EXAMPLES:
 
     # Silent install with restore point
     .\MagicKeyboard.ps1 -Action Install -Silent -CreateRestorePoint
+
+    # Fully silent install (no output, check exit code)
+    .\MagicKeyboard.ps1 -Action Install -Quiet
 
     # Backup registry before manual changes
     .\MagicKeyboard.ps1 -Action Backup -BackupPath "C:\my_backup.json"
