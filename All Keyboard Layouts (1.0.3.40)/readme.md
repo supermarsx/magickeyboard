@@ -14,6 +14,8 @@ Double-click `MagicKeyboard.bat` or run:
 
 This launches an interactive menu where you can install, uninstall, backup, restore, or view layouts.
 
+![MagicKeyboard TUI](../assets/example-tui.png)
+
 ### Command Line
 
 ```powershell
@@ -49,6 +51,7 @@ This launches an interactive menu where you can install, uninstall, backup, rest
 | `List` | Show all layouts with installation status |
 | `Backup` | Save current registry state to JSON file |
 | `Restore` | Restore registry from a backup file |
+| `GetTranslation` | Get translated layout name for a specific key |
 | `Help` | Display help information |
 
 ## Command Line Options
@@ -57,8 +60,9 @@ This launches an interactive menu where you can install, uninstall, backup, rest
 
 | Option | Description |
 |--------|-------------|
-| `-Action <action>` | Action to perform: Install, Uninstall, List, Backup, Restore, Help |
+| `-Action <action>` | Action to perform: Install, Uninstall, List, Backup, Restore, GetTranslation, Help |
 | `-Layouts <keys>` | Comma-separated layout keys to process (e.g., `"GermanA,FrenchA"`) |
+| `-Key <key>` | Layout key for GetTranslation action (e.g., `BelgiumA`) |
 | `-Help`, `-h`, `-?` | Show help message |
 
 ### Localization Options
@@ -136,6 +140,18 @@ This launches an interactive menu where you can install, uninstall, backup, rest
 
 # List with French translations
 .\MagicKeyboard.ps1 -Action List -Locale fr-FR
+```
+
+### Getting Translated Names
+
+```powershell
+# Get translated name for a layout key
+.\MagicKeyboard.ps1 -Action GetTranslation -Key BelgiumA -Locale fr-FR
+# Output: Belge (Apple)
+
+# Use default system locale
+.\MagicKeyboard.ps1 -Action GetTranslation -Key GermanA
+# Output: German (Apple)  # or localized based on OS
 ```
 
 ### Backup & Restore

@@ -15,10 +15,11 @@
 [CmdletBinding()]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet('Install', 'Uninstall', 'Backup', 'Restore', 'List', 'Help', 'Menu', '')]
+    [ValidateSet('Install', 'Uninstall', 'Backup', 'Restore', 'List', 'GetTranslation', 'Help', 'Menu', '')]
     [string]$Action = '',
 
     [string]$Layouts,
+    [string]$Key,
     [string]$Locale,
     [string]$BackupPath,
     [string]$TranslationsFile,
@@ -1188,10 +1189,23 @@ function Main {
                 Show-InstalledLayouts
                 0
             }
+            'GetTranslation' {
+                if (-not $Key) {
+                    Write-Error "-Key parameter is required for GetTranslation action"
+                    $script:MainExitCode = 1
+                    return
+                } else {
+                    $translations = Get-Translations
+                    $translatedName = Get-TranslatedName -Key $Key -Translations $translations -RequestedLocale $Locale
+                    Write-Output $translatedName
+                    $script:MainExitCode = 0
+                    return
+                }
+            }
         }
         
-        # Press Enter prompt (unless Silent or Quiet)
-        if (-not $Silent -and -not $Quiet) {
+        # Press Enter prompt (unless Silent, Quiet, or GetTranslation action)
+        if (-not $Silent -and -not $Quiet -and $Action -ne 'GetTranslation') {
             Show-PausePrompt
         }
         
@@ -1254,4 +1268,7 @@ function Main {
     }
 }
 
-exit (Main)
+# Run main and capture exit code, but let output pass through
+$script:MainExitCode = 0
+Main | ForEach-Object { $_ }  # Pass through any output
+exit $script:MainExitCode

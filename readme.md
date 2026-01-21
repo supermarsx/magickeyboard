@@ -38,7 +38,7 @@ This is an alternative/mirror repository for the **Apple Magic Keyboard** 1 (rem
   - [Layout languages](#layout-languages)
   - [Translate layout names](#translate-layout-names)
 - [**Questions and problem resolution**](#questions-and-problem-resolution)
-  - [Layouts don't get installed if i run the batch file as an administrator](#layouts-dont-get-installed-if-i-run-the-batch-file-as-an-administrator)
+  - [Layouts don't get installed when running MagicKeyboard](#layouts-dont-get-installed-when-running-magickeyboard)
   - [Layout doesn't show up in keyboard layouts](#layout-doesnt-show-up-in-keyboard-layouts)
   - [I'm unable to bind, remap or reregister certain keys using x method](#im-unable-to-bind-remap-or-reregister-certain-keys-using-x-method)
   - [Are these files legit?](#are-these-files-legit)
@@ -75,10 +75,7 @@ To **install both driver and layouts** follow these steps:
 2. **Execute** the appropriate installer for your keyboard version/model:
    - `magickeyboard1_AppleKeyboardInstaller64.exe` for Magic Keyboard 1;
    - `magickeyboard2_AppleKeyboardInstaller64.exe` for Magic Keyboard 2 and 3.
-3. **Translate** keyboard layout names **(optional)**:
-   - **Read** [Layout languages](#layout-languages);
-   - **Refer** to [Translate layout names](#translate-layout-names).
-4. **Navigate** to `All Keyboard Layouts` folder and run `install_keyboard_layouts.bat` as an **administrator**.
+3. **Navigate** to `All Keyboard Layouts` folder and run `MagicKeyboard.bat`.
 
 Your keyboard and respective layouts should be working.
 
@@ -90,10 +87,7 @@ Your keyboard and respective layouts should be working.
 To **install keyboard layouts** follow these steps:
 
 1. [**Download** all keyboard layouts folder](https://github.com/supermarsx/magickeyboard/releases/download/1/All.Keyboard.Layouts.1.0.3.40.zip);
-2. **Translate** the keyboard layout name **(optional)**:
-   - **Read** [Layout languages](#layout-languages);
-   - **Refer** to [Translate layout names](#translate-layout-names).
-3. **Run** `install_keyboard_layouts.bat` as an administrator.
+2. **Run** `MagicKeyboard.bat`.
 
 Your keyboard layouts should be working as intended. 
 
@@ -139,8 +133,8 @@ I needed an easy way to use Apples keyboard without getting all the bloat along 
 
 | Filename                         | Description                                                                                                                                                                                                                |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `install_keyboard_layouts.bat`   | **Install** all Magic Keyboard layouts (needs to be ran as an administrator). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_keyboard_layouts.bat)     |
-| `uninstall_keyboard_layouts.bat` | **Uninstall** all Magic Keyboard layouts (needs to be ran as an administrator). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/uninstall_keyboard_layouts.bat) |
+| `MagicKeyboard.ps1`   | **Unified installer/uninstaller** with TUI and CLI support. [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/MagicKeyboard.ps1)     |
+| `MagicKeyboard.bat` | **Launcher** for MagicKeyboard.ps1 (double-click to run). [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/MagicKeyboard.bat) |
 | `install_filelist.txt`           | **List** of keyboard layout DLL  files to install or uninstall. [[Go to file]](https://github.com/supermarsx/magickeyboard/blob/main/All%20Keyboard%20Layouts%20(1.0.3.40)/install_filelist.txt)                             |
 | `*.dll`                          | Keyboard layout **DLL file** from Apple, list here: [Layout languages](#layout-languages).                                                                                                                                 |
 
@@ -171,25 +165,32 @@ If you still need to **manually install** the driver for some special reason you
 To **automatically install** all keyboard layouts you'll need:
 
 1. A **copy** of `All Keyboard Layouts` folder;
-2. **Translate** any layout names inside `install_keyboard_layouts.bat` **(optional)**;
-3. **Run** one of the installer options as an **administrator**:
+2. **Run** `MagicKeyboard.bat` (double-click) or use the command line:
 
-   - Interactive (will show UAC):
+   - Interactive TUI (will show menu and auto-elevate):
 
      ```bat
-     install_keyboard_layouts_elevated.bat
+     MagicKeyboard.bat
      ```
 
-   - Silent / unattended (no interactive pause, writes to `%TEMP%\magickeyboard_install.log`):
+     ![MagicKeyboard TUI](assets/example-tui.png)
 
-     ```bat
-     install_keyboard_layouts_elevated.bat /SILENT
+   - Command line install (will auto-elevate):
+
+     ```powershell
+     .\MagicKeyboard.ps1 -Action Install
      ```
 
-   - (Alternative) Run the original installer directly:
+   - Silent / unattended install:
 
-     ```bat
-     install_keyboard_layouts.bat  (right-click → Run as administrator)
+     ```powershell
+     .\MagicKeyboard.ps1 -Action Install -Quiet
+     ```
+
+   - Dry-run to preview changes:
+
+     ```powershell
+     .\MagicKeyboard.ps1 -Action Install -DryRun
      ```
 
 Your keyboard layouts will be ready to use.
@@ -197,8 +198,7 @@ Your keyboard layouts will be ready to use.
 ## Continuous Integration & maintenance
 
 - This repository includes a GitHub Actions workflow at `.github/workflows/ci.yml` which runs lightweight lint/format checks and tests, validates the file list on Windows runners, and packages the layout folder as a ZIP artifact.
-- Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests.
- - Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests. There are both POSIX (bash) and Windows (batch/PowerShell) helpers to support running checks and packaging on CI or developer machines. Windows-specific scripts include `scripts\check-lint.bat`, `scripts\check-format.bat`, `scripts\compute_checksums.bat`, `scripts\run-tests.bat`, and `scripts\package_layouts.ps1`.
+- Maintenance scripts are available in the `scripts/` directory for generating checksums, packaging releases, and running tests. There are both POSIX (bash) and Windows (batch/PowerShell) helpers to support running checks and packaging on CI or developer machines. Windows-specific scripts include `scripts\check-lint.bat`, `scripts\check-format.bat`, `scripts\compute_checksums.bat`, `scripts\run-tests.bat`, and `scripts\package_layouts.ps1`.
 
 **Developer & testing**
 
@@ -232,7 +232,14 @@ Installer UX and tests
 
 ### Locale-aware layout names
 
-The layout installer now supports translated `Layout Text` registry values. It detects the system UI locale and sets the translated layout name from `All Keyboard Layouts (1.0.3.40)/translations.json` using a small PowerShell helper (`get_translation.ps1`). The installer falls back to English where translations are missing. See the `All Keyboard Layouts` README for more details.
+The layout installer supports translated `Layout Text` registry values. It detects the system UI locale and sets the translated layout name from `All Keyboard Layouts (1.0.3.40)/translations.json`. The installer falls back to English where translations are missing. See the `All Keyboard Layouts` README for more details.
+
+To get a translated layout name programmatically:
+
+```powershell
+.\MagicKeyboard.ps1 -Action GetTranslation -Key 'BelgiumA' -Locale 'fr-FR'
+# Output: Belge (Apple)
+```
 
 Additional installer flags (PowerShell)
 
@@ -242,7 +249,7 @@ Additional installer flags (PowerShell)
 Example (dry-run, using PowerShell):
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File "./install_registry_from_matrix.ps1" -MatrixPath ".\layouts.json" -TranslationsPath ".\translations.json" -DryRun -Locale "fr-FR" -Layouts "BelgiumA,USA"
+pwsh -NoProfile -ExecutionPolicy Bypass -File "./MagicKeyboard.ps1" -Action Install -DryRun -Locale "fr-FR" -Layouts "BelgiumA,USA"
 ```
 
 This will simulate installing only the `BelgiumA` and `USA` layouts and show the resolved translations in French.
@@ -253,12 +260,12 @@ This will simulate installing only the `BelgiumA` and `USA` layouts and show the
 To **manually install** a keyboard layout using a DLL you'll need:
 
 - **Keyboard** layout DLL file (ex.: `BritishA.dll`);
-- **Regedit** add (`reg add`) instructions found inside `install_keyboard_layouts.bat`.
+- **Registry** information found in `layouts.json` or by running `MagicKeyboard.ps1 -Action List -ShowDetails`.
 
 Then you need to follow these steps:
 
 1. **Copy** DLL file to `system32` folder;
-2. **Add** the corresponding layout keys to the registry through the registry add (`reg add`) instructions using a an elevated command line (cmd) prompt.
+2. **Add** the corresponding layout keys to the registry through `reg add` commands using an elevated command line (cmd) prompt.
 
 Your layout will be ready for use.
 
@@ -268,7 +275,11 @@ Your layout will be ready for use.
 To **uninstall all keyboard layouts** follow these steps:
 
 1. **Navigate** to `All Keyboard Layouts`;
-2. **Run** `uninstall_keyboard_layouts.bat` batch file with **administrator privileges**.
+2. **Run** `MagicKeyboard.bat` and select **Uninstall** from the menu, or use command line:
+
+   ```powershell
+   .\MagicKeyboard.ps1 -Action Uninstall
+   ```
 
 All Apple keyboard layouts should be gone.
 
@@ -365,27 +376,30 @@ All keyboard layouts currently available:
 
 ### Translate layout names
 
-**Note:** You should only translate layout names if you're comfortable with **registry key instructions** and **batch files**, meaning you know what they do and/or what you're supposed to edit for them to work correctly.
+**Note:** You can customize layout display names using the translations system.
 
 To **translate layout names** do the following steps:
 
 1. **Navigate** to `All Keyboard Layouts folder`;
-2. **Open** `install_keyboard_layouts.bat` with your preferred editor;
-3. **Edit** on each **language section** on the line containing `/v "Layout Text"` (usually is the first of the section) the part where you see the **name of the layout** in this format `LANGUAGE NAME (Apple)` (example: `Belgian (Apple)`);
-4. **Save**.
+2. **Edit** `translations.json` to add your locale translations;
+3. **Run** `MagicKeyboard.ps1 -Action Install -Locale <your-locale>` to install with custom names.
 
-When you install/reinstall layout names should be corrected.
+Alternatively, use the `-TranslationsFile` parameter to specify a custom translations file.
+
+When you install/reinstall layout names will use your translations.
 
 
 ## Questions and problem resolution
 
-### Layouts don't get installed if i run the batch file as an administrator
+### Layouts don't get installed when running MagicKeyboard
 
 **You could try:**
 
-1. **Launch** a command line as an **administrator**;
+1. **Launch** PowerShell as an **administrator**;
 2. **Navigate** to the layout folder using `cd` and the respective folder path;
-3. **Execute** the batch file `.bat` from the command line.
+3. **Execute** `.\MagicKeyboard.ps1 -Action Install` from the elevated prompt.
+
+Note: MagicKeyboard.ps1 will automatically request elevation if needed.
 
 
 ### Layout doesn't show up in keyboard layouts
@@ -393,8 +407,9 @@ When you install/reinstall layout names should be corrected.
 **You could try:**
 
 - **Try to look for the english name** of the layout that's how the installation is set above like (**ex. "Belgian (Apple)"**);
-- **Change the registry** add (`reg add`) instructions for your keyboard layout to your preferred name in the line where `/v` is "Layout Text", after `/d` should be the layout name like (ex.: `reg add "HKLM\SYSTEM\CurrentControlSet\Control\Keyboard Layouts\a0000809" /v "Layout Text" /t REG_SZ /d "BRI'ISH (Apple)"`);
-- **Reinstall your keyboard layout** manually with the available instructions.
+- Use `MagicKeyboard.ps1 -Action List -ShowDetails` to see all layout information;
+- **Use translations** via `translations.json` or `-Locale` parameter to customize layout names;
+- **Reinstall your keyboard layout** using `MagicKeyboard.ps1 -Action Install`.
 
 
 ### I'm unable to bind, remap or reregister certain keys using x method
@@ -406,7 +421,7 @@ If you're trying to somehow **change certain key functions** from your keyboard,
 
 ### Are these files legit?
 
-They're **officially signed files from Apple** that you can check through the properties of each file, both DLL and executables. The only things that are **not official** are the **keyboard layout installer/uninstaller batch files** as well as the **file list** and the **old layout archive** containing a custom mapped pt-pt layout using the microsoft keyboard mapping tool thing many years ago.
+They're **officially signed files from Apple** that you can check through the properties of each file, both DLL and executables. The only things that are **not official** are the **keyboard layout installer scripts (MagicKeyboard.ps1/.bat)** as well as the **file list** and the **old layout archive** containing a custom mapped pt-pt layout using the microsoft keyboard mapping tool thing many years ago.
 
 
 ### Screwed up badly?

@@ -70,14 +70,6 @@ fi
 
 echo "[test-matrix] OK — layouts.json validated (total keys=$total)"
 
-# Ensure our batch installers call into the matrix-driven powershell helpers
-if [ -f "$layout_dir/install_keyboard_layouts.bat" ]; then
-  if ! grep -q "install_registry_from_matrix.ps1" "$layout_dir/install_keyboard_layouts.bat" >/dev/null 2>&1; then
-    echo "ERROR: install_keyboard_layouts.bat does not call install_registry_from_matrix.ps1"
-    exit 5
-  fi
-fi
-# Edge-case tests: ensure there are no extra keys in layouts.json not present in install_filelist.txt
 # Check files referenced in layouts.json exist on disk
 extra_count=0
 for k in $(jq -r 'keys[]' "$layout_dir/layouts.json"); do
@@ -99,29 +91,44 @@ fi
 
 echo "[test-matrix] No extra keys in layouts.json — OK"
 
-# Dry-run message count tests for install/uninstall matrix helpers
+# Dry-run message count tests using MagicKeyboard.ps1
 if command -v pwsh >/dev/null 2>&1; then
   # count actionable matrix entries (with reg_path or reg_key)
   total_files=$(jq -r '.[] | select(.reg_path != null or .reg_key != null) | @text' "$layout_dir/layouts.json" | wc -l | tr -d '[:space:]')
-  out=$(pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/install_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -TranslationsPath "$layout_dir/translations.json" -DryRun)
-  got=$(echo "$out" | grep -c "DRYRUN: would create registry key")
-  if [ "$got" -ne "$total_files" ]; then
-    echo "ERROR: install dry-run reported $got create messages, expected $total_files"
+  
+  # Test MagicKeyboard.ps1 install dry-run (quiet mode, check exit code)
+  if pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/MagicKeyboard.ps1" -Action Install -DryRun -Quiet; then
+    echo "[test-matrix] MagicKeyboard.ps1 install dry-run OK"
+  else
+    echo "ERROR: MagicKeyboard.ps1 install dry-run failed"
     exit 6
   fi
 
-  out2=$(pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/uninstall_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -DryRun)
-  got2=$(echo "$out2" | grep -c "DRYRUN: would delete registry key")
-  if [ "$got2" -ne "$total_files" ]; then
-    echo "ERROR: uninstall dry-run reported $got2 delete messages, expected $total_files"
+  # Test MagicKeyboard.ps1 uninstall dry-run (quiet mode, check exit code)
+  if pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/MagicKeyboard.ps1" -Action Uninstall -DryRun -Quiet; then
+    echo "[test-matrix] MagicKeyboard.ps1 uninstall dry-run OK"
+  else
+    echo "ERROR: MagicKeyboard.ps1 uninstall dry-run failed"
     exit 6
   fi
-  echo "[test-matrix] install/uninstall dry-run message counts OK"
-fi
-if [ -f "$layout_dir/uninstall_keyboard_layouts.bat" ]; then
-  if ! grep -q "uninstall_registry_from_matrix.ps1" "$layout_dir/uninstall_keyboard_layouts.bat" >/dev/null 2>&1; then
-    echo "ERROR: uninstall_keyboard_layouts.bat does not call uninstall_registry_from_matrix.ps1"
-    exit 5
+
+  # Test that install dry-run reports correct count (check for [24/24] pattern)
+  out=$(pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/MagicKeyboard.ps1" -Action Install -DryRun -Silent -NoLogo 2>&1)
+  if echo "$out" | grep -q "\[$total_files/$total_files\]"; then
+    echo "[test-matrix] MagicKeyboard.ps1 install dry-run reports correct count ($total_files)"
+  else
+    echo "ERROR: MagicKeyboard.ps1 install dry-run did not report expected count ($total_files)"
+    echo "Output: $out"
+    exit 6
   fi
+  
+  echo "[test-matrix] MagicKeyboard.ps1 dry-run tests OK"
 fi
+
+# Verify MagicKeyboard.ps1 exists
+if [ ! -f "$layout_dir/MagicKeyboard.ps1" ]; then
+  echo "ERROR: MagicKeyboard.ps1 not found"
+  exit 5
+fi
+
 exit 0

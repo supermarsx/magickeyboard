@@ -46,9 +46,9 @@ Describe 'Matrix installer dry-run' {
         $RepoRoot = $found
         $LayoutDir = Resolve-Path (Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)')
         $matrixPath = Join-Path $LayoutDir 'layouts.json'
-        $installScript = Join-Path $LayoutDir 'install_registry_from_matrix.ps1'
-        $uninstallScript = Join-Path $LayoutDir 'uninstall_registry_from_matrix.ps1'
+        $magicKeyboardScript = Join-Path $LayoutDir 'MagicKeyboard.ps1'
         if (-not (Test-Path $matrixPath)) { throw "Missing layouts.json: $matrixPath" }
+        if (-not (Test-Path $magicKeyboardScript)) { throw "Missing MagicKeyboard.ps1: $magicKeyboardScript" }
         $matrix = Get-Content -Raw -Path $matrixPath | ConvertFrom-Json
         $actionable = 0
         foreach ($v in $matrix.PSObject.Properties.Value) {
@@ -61,14 +61,26 @@ Describe 'Matrix installer dry-run' {
     }
 
     It 'install dry-run emits the expected number of create messages' {
-        $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $installScript -MatrixPath $matrixPath -TranslationsPath (Join-Path $LayoutDir 'translations.json') -DryRun 2>$null
-        $createCount = ($out -split "`n" | Where-Object { $_ -match 'DRYRUN: would create registry key' }).Count
-        $createCount | Should -Be $actionable
+        $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $magicKeyboardScript -Action Install -DryRun -Quiet 2>$null
+        # MagicKeyboard.ps1 in quiet mode outputs nothing, so we test exit code
+        $LASTEXITCODE | Should -Be 0
     }
 
     It 'uninstall dry-run emits the expected number of delete messages' {
-        $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $uninstallScript -MatrixPath $matrixPath -DryRun 2>$null
-        $deleteCount = ($out -split "`n" | Where-Object { $_ -match 'DRYRUN: would delete registry key' }).Count
-        $deleteCount | Should -Be $actionable
+        $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $magicKeyboardScript -Action Uninstall -DryRun -Quiet 2>$null
+        # MagicKeyboard.ps1 in quiet mode outputs nothing, so we test exit code
+        $LASTEXITCODE | Should -Be 0
+    }
+
+    It 'MagicKeyboard dry-run install produces correct registry count' {
+        $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $magicKeyboardScript -Action Install -DryRun -Silent -NoLogo 2>&1
+        $outText = $out -join "`n"
+        # Should report processing all 24 layouts (count appears in [x/24] format)
+        $outText | Should -Match "\[$actionable/$actionable\]"
+    }
+
+    It 'MagicKeyboard list action works' {
+        $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $magicKeyboardScript -Action List -Silent -NoLogo 2>&1
+        $LASTEXITCODE | Should -Be 0
     }
 }

@@ -23,7 +23,7 @@ function Find-RepoRoot {
 
 ## Don't resolve repo paths at parse time - compute in BeforeAll
 
-Describe 'Batch/Wrapper script content tests' {
+Describe 'MagicKeyboard installer tests' {
     BeforeAll {
         # Inline repo discovery to ensure the path is resolved during Pester discovery and execution
         $starts = @()
@@ -45,39 +45,61 @@ Describe 'Batch/Wrapper script content tests' {
         if (-not $found) { throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found" }
         $RepoRoot = $found
         $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
-        $install = Join-Path $LayoutDir 'install_keyboard_layouts.bat'
-        $uninstall = Join-Path $LayoutDir 'uninstall_keyboard_layouts.bat'
-        $installElev = Join-Path $LayoutDir 'install_keyboard_layouts_elevated.bat'
-        $uninstallElev = Join-Path $LayoutDir 'uninstall_keyboard_layouts_elevated.bat'
+        $magicKeyboard = Join-Path $LayoutDir 'MagicKeyboard.ps1'
+        $magicKeyboardBat = Join-Path $LayoutDir 'MagicKeyboard.bat'
     }
 
-    It 'batch files exist' {
-        Test-Path $install | Should -BeTrue
-        Test-Path $uninstall | Should -BeTrue
-        Test-Path $installElev | Should -BeTrue
-        Test-Path $uninstallElev | Should -BeTrue
+    It 'MagicKeyboard.ps1 exists' {
+        Test-Path $magicKeyboard | Should -BeTrue
     }
 
-    It 'main installers reference the matrix PowerShell helpers' {
-        $text = Get-Content -Path $install -Raw
-        $text | Should -Match 'install_registry_from_matrix.ps1' -Because "installer should call install_registry_from_matrix.ps1"
-        $text2 = Get-Content -Path $uninstall -Raw
-        $text2 | Should -Match 'uninstall_registry_from_matrix.ps1' -Because "uninstaller should call uninstall_registry_from_matrix.ps1"
+    It 'MagicKeyboard.bat launcher exists' {
+        Test-Path $magicKeyboardBat | Should -BeTrue
     }
 
-    It 'elevated wrappers forward dry-run/silent flags to the elevated relaunch' {
-        $i = Get-Content -Path $installElev -Raw
-        $i | Should -Match 'MAGIC_DRYRUN' -Because 'elevated installer should handle dry-run forwarding'
-        $i | Should -Match 'MAGIC_SILENT' -Because 'elevated installer should handle silent forwarding'
-
-        $u = Get-Content -Path $uninstallElev -Raw
-        # uninstall elevated wrapper delegates to the install_elevated launcher; ensure it either contains the flags or delegates
-        ($u -match 'MAGIC_DRYRUN' -or $u -match 'install_keyboard_layouts_elevated\.bat') | Should -BeTrue -Because 'uninstall wrapper should forward/relay flags to elevated installer'
-        ($u -match 'MAGIC_SILENT' -or $u -match 'install_keyboard_layouts_elevated\.bat') | Should -BeTrue -Because 'uninstall wrapper should forward/relay silent flags to elevated installer'
+    It 'MagicKeyboard.ps1 has valid PowerShell syntax' {
+        $errors = $null
+        $null = [System.Management.Automation.Language.Parser]::ParseFile($magicKeyboard, [ref]$null, [ref]$errors)
+        $errors.Count | Should -Be 0
     }
 
-    It 'batch installers contain safe confirmation for System32/HKLM edits (unless silent)' {
-        $b = Get-Content -Path $install -Raw
-        $b | Should -Match 'System32' -Because 'installer should warn about System32 changes where relevant'
+    It 'MagicKeyboard.bat calls MagicKeyboard.ps1' {
+        $text = Get-Content -Path $magicKeyboardBat -Raw
+        $text | Should -Match 'MagicKeyboard.ps1' -Because "launcher should call MagicKeyboard.ps1"
+    }
+
+    It 'MagicKeyboard.ps1 supports Install action' {
+        $text = Get-Content -Path $magicKeyboard -Raw
+        $text | Should -Match 'Install' -Because "script should support Install action"
+    }
+
+    It 'MagicKeyboard.ps1 supports Uninstall action' {
+        $text = Get-Content -Path $magicKeyboard -Raw
+        $text | Should -Match 'Uninstall' -Because "script should support Uninstall action"
+    }
+
+    It 'MagicKeyboard.ps1 supports DryRun parameter' {
+        $text = Get-Content -Path $magicKeyboard -Raw
+        $text | Should -Match '\$DryRun' -Because "script should support DryRun parameter"
+    }
+
+    It 'MagicKeyboard.ps1 supports Silent parameter' {
+        $text = Get-Content -Path $magicKeyboard -Raw
+        $text | Should -Match '\$Silent' -Because "script should support Silent parameter"
+    }
+
+    It 'MagicKeyboard.ps1 supports Quiet parameter' {
+        $text = Get-Content -Path $magicKeyboard -Raw
+        $text | Should -Match '\$Quiet' -Because "script should support Quiet parameter"
+    }
+
+    It 'MagicKeyboard.ps1 references System32 for DLL installation' {
+        $text = Get-Content -Path $magicKeyboard -Raw
+        $text | Should -Match 'System32' -Because "installer should reference System32 for DLL placement"
+    }
+
+    It 'MagicKeyboard.ps1 supports auto-elevation' {
+        $text = Get-Content -Path $magicKeyboard -Raw
+        $text | Should -Match 'RunAs' -Because "installer should support auto-elevation via RunAs"
     }
 }

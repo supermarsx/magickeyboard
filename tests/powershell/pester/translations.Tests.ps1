@@ -48,7 +48,9 @@ Describe 'Translations matrix' {
         $RepoRoot = $found
         $LayoutDir = Resolve-Path (Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)')
         $translations = Join-Path $LayoutDir 'translations.json'
+        $MagicKeyboard = Join-Path $LayoutDir 'MagicKeyboard.ps1'
         if (-not (Test-Path $translations)) { throw "translations.json not found at $translations" }
+        if (-not (Test-Path $MagicKeyboard)) { throw "MagicKeyboard.ps1 not found at $MagicKeyboard" }
         $json = Get-Content -Raw -Path $translations | ConvertFrom-Json
         $reqLocales = 'en','en-US','fr-FR','de-DE','es-ES','nl-NL','it-IT','pt-PT','pt-BR','ru-RU','zh-CN','zh-TW','pl-PL','sv-SE','fi-FI','nb-NO','cs-CZ','hu-HU','tr-TR','en-CA'
     }
@@ -66,12 +68,12 @@ Describe 'Translations matrix' {
 
     Context 'fallback and format checks' {
         It 'supports language-only fallback (en)' {
-            $out = & (Join-Path $LayoutDir 'get_translation.ps1') -Key 'BritishA' -File $translations -Locale 'en'
+            $out = & $MagicKeyboard -Action GetTranslation -Key 'BritishA' -Locale 'en' -NoLogo
             $out | Should -Be 'British (Apple)'
         }
 
         It 'supports regional/language normalization (en_US -> en-US)' {
-            $out = & (Join-Path $LayoutDir 'get_translation.ps1') -Key 'CanadaA' -File $translations -Locale 'en_US'
+            $out = & $MagicKeyboard -Action GetTranslation -Key 'CanadaA' -Locale 'en_US' -NoLogo
             $out | Should -Be 'Canadian (Apple)'
         }
     }

@@ -26,7 +26,7 @@ function Find-RepoRoot {
 ## Pester's discovery runspaces (which may not set PSScriptRoot/MyInvocation) don't end up
 ## with null/empty values.
 
-Describe 'get_translation.ps1 behavior' {
+Describe 'MagicKeyboard.ps1 GetTranslation action' {
     BeforeAll {
         # discover repository root from common start points (PSCommandPath, PSScriptRoot, CWD, or CI workspace)
         $starts = @()
@@ -50,29 +50,28 @@ Describe 'get_translation.ps1 behavior' {
         if (-not $found) { throw "Repository root containing 'All Keyboard Layouts (1.0.3.40)' not found" }
         $RepoRoot = $found
         $LayoutDir = Resolve-Path (Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)')
-        $translations = Join-Path $LayoutDir 'translations.json'
-        $gt = Join-Path $LayoutDir 'get_translation.ps1'
-        if (-not (Test-Path $gt)) { throw "get_translation.ps1 not found at $gt" }
-        $translationsJson = Get-Content -Raw -Path $translations | ConvertFrom-Json
+        $MagicKeyboard = Join-Path $LayoutDir 'MagicKeyboard.ps1'
+        if (-not (Test-Path $MagicKeyboard)) { throw "MagicKeyboard.ps1 not found at $MagicKeyboard" }
+        $translationsJson = Get-Content -Raw -Path (Join-Path $LayoutDir 'translations.json') | ConvertFrom-Json
     }
 
     It 'returns the French translation for BelgiumA when asked explicitly' {
-        $out = & $gt -Key 'BelgiumA' -File $translations -Locale 'fr-FR'
+        $out = & $MagicKeyboard -Action GetTranslation -Key 'BelgiumA' -Locale 'fr-FR' -NoLogo
         $out | Should -Be 'Belge (Apple)'
     }
 
     It 'supports language-only locales (en -> en-US equivalent)' {
-        $out = & $gt -Key 'BritishA' -File $translations -Locale 'en'
+        $out = & $MagicKeyboard -Action GetTranslation -Key 'BritishA' -Locale 'en' -NoLogo
         $out | Should -Be 'British (Apple)'
     }
 
     It 'normalizes underscored locales (en_US -> en-US)' {
-        $out = & $gt -Key 'CanadaA' -File $translations -Locale 'en_US'
+        $out = & $MagicKeyboard -Action GetTranslation -Key 'CanadaA' -Locale 'en_US' -NoLogo
         $out | Should -Be 'Canadian (Apple)'
     }
 
     It 'falls back to another available locale when given unknown locale' {
-        $out = & $gt -Key 'GermanA' -File $translations -Locale 'xx-ZZ'
+        $out = & $MagicKeyboard -Action GetTranslation -Key 'GermanA' -Locale 'xx-ZZ' -NoLogo
         # should not be empty; prefer 'en' fallback or another available translation
         $out | Should -Not -BeNullOrEmpty
     }
