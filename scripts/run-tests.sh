@@ -71,8 +71,8 @@ fi
 echo
 echo "[test] Running PowerShell matrix installer dry-run (POSIX)"
 if command -v pwsh >/dev/null 2>&1; then
-  # use absolute layout_dir paths to avoid failing after we cd earlier in the script
-  pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/install_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -TranslationsPath "$layout_dir/translations.json" -DryRun >/dev/null 2>&1 || { echo "ERROR: PowerShell matrix dry-run failed"; exit 8; }
+  # use MagicKeyboard.ps1 instead of legacy install_registry_from_matrix.ps1
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/MagicKeyboard.ps1" -Action Install -DryRun -Quiet >/dev/null 2>&1 || { echo "ERROR: PowerShell matrix dry-run failed"; exit 8; }
   echo "[test] PowerShell matrix installer dry-run OK"
 else
   echo "[test] pwsh (PowerShell) not available — skipping PowerShell matrix dry-run"
@@ -81,7 +81,8 @@ fi
 echo
 echo "[test] Running PowerShell uninstall matrix dry-run (POSIX)"
 if command -v pwsh >/dev/null 2>&1; then
-  pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/uninstall_registry_from_matrix.ps1" -MatrixPath "$layout_dir/layouts.json" -DryRun >/dev/null 2>&1 || { echo "ERROR: PowerShell uninstall dry-run failed"; exit 9; }
+  # use MagicKeyboard.ps1 instead of legacy uninstall_registry_from_matrix.ps1
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "$layout_dir/MagicKeyboard.ps1" -Action Uninstall -DryRun -Quiet >/dev/null 2>&1 || { echo "ERROR: PowerShell uninstall dry-run failed"; exit 9; }
   echo "[test] PowerShell uninstall matrix dry-run OK"
 else
   echo "[test] pwsh (PowerShell) not available — skipping uninstall matrix dry-run"

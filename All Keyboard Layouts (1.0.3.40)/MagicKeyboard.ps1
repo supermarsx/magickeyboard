@@ -42,8 +42,12 @@ $script:LayoutsJsonPath = Join-Path $script:ScriptDir 'layouts.json'
 $script:TranslationsJsonPath = if ($TranslationsFile -and (Test-Path $TranslationsFile)) { $TranslationsFile } else { Join-Path $script:ScriptDir 'translations.json' }
 $script:FileListPath = Join-Path $script:ScriptDir 'install_filelist.txt'
 $script:ChecksumsPath = Join-Path $script:ScriptDir 'install_checksums.txt'
-$script:LogFile = Join-Path $env:TEMP 'magickeyboard.log'
-$script:System32 = 'C:\Windows\System32'
+# Cross-platform temp path handling
+$script:TempDir = if ($env:TEMP) { $env:TEMP } elseif ($env:TMPDIR) { $env:TMPDIR } else { '/tmp' }
+$script:LogFile = Join-Path $script:TempDir 'magickeyboard.log'
+# Cross-platform System32 path (only valid on Windows)
+$script:RunningOnWindows = $PSVersionTable.PSVersion.Major -lt 6 -or $IsWindows
+$script:System32 = if ($script:RunningOnWindows) { 'C:\Windows\System32' } else { '/tmp/fake-system32' }
 
 # TUI Colors
 $script:Colors = @{
@@ -58,6 +62,10 @@ $script:Colors = @{
 }
 
 function Test-IsElevated {
+    if (-not $script:RunningOnWindows) {
+        # On non-Windows, check if running as root
+        return (id -u) -eq 0
+    }
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = [Security.Principal.WindowsPrincipal]$identity
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -65,6 +73,11 @@ function Test-IsElevated {
 
 function Invoke-Elevate {
     param([string[]]$Arguments)
+    
+    if (-not $script:RunningOnWindows) {
+        Write-ColorText "Elevation not supported on non-Windows platforms. Please run with sudo." -Color $script:Colors.Error
+        return 1
+    }
     
     $scriptPath = $PSCommandPath
     if (-not $scriptPath) { $scriptPath = $MyInvocation.PSCommandPath }
