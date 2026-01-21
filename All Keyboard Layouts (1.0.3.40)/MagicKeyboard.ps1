@@ -24,6 +24,8 @@ param(
     [string]$TranslationsFile,
     [switch]$DryRun,
     [switch]$Silent,
+    [Alias('v')]
+    [switch]$ShowDetails,
     [switch]$CreateRestorePoint,
     [switch]$NoLogo,
     [Alias('h', '?')]
@@ -444,7 +446,19 @@ function Install-RegistryEntries {
         [switch]$DryRunMode
     )
     
+    $allKeys = @($Matrix.PSObject.Properties.Name)
+    $keysToProcess = if ($LayoutFilter -and $LayoutFilter.Count -gt 0) {
+        $allKeys | Where-Object { $LayoutFilter -contains $_ }
+    } else { $allKeys }
+    
+    $total = @($keysToProcess).Count
     $count = 0
+    $current = 0
+    
+    if (-not $Silent) {
+        Write-Status "Processing $total registry entries..." -Type Info
+    }
+    
     foreach ($prop in $Matrix.PSObject.Properties) {
         $key = $prop.Name
         
@@ -452,6 +466,7 @@ function Install-RegistryEntries {
             continue
         }
         
+        $current++
         $entry = $prop.Value
         $layoutText = Get-TranslatedName -Key $key -Translations $Translations -RequestedLocale $RequestedLocale
         $regPath = Get-RegistryPath -Entry $entry
@@ -461,15 +476,26 @@ function Install-RegistryEntries {
             continue
         }
         
+        if (-not $Silent) {
+            Write-ProgressBar -Current $current -Total $total -Activity "Registry: $key"
+        }
+        
         if ($DryRunMode) {
-            Write-Status "Would create: $regPath" -Type Info
-            Write-Status "  Layout Text: $layoutText" -Type Info
+            if (-not $Silent) { Write-Host "" }
+            Write-Status "[$current/$total] Would create: $key" -Type Info
+            if ($ShowDetails) {
+                Write-Status "    Path: $regPath" -Type Info
+                Write-Status "    Layout Text: $layoutText" -Type Info
+                Write-Status "    Layout File: $($entry.file)" -Type Info
+                Write-Status "    Layout Id: $($entry.layout_id)" -Type Info
+            }
             $count++
             continue
         }
         
         try {
-            if (-not (Test-Path $regPath)) {
+            $isNew = -not (Test-Path $regPath)
+            if ($isNew) {
                 New-Item -Path $regPath -Force | Out-Null
             }
             
@@ -486,15 +512,23 @@ function Install-RegistryEntries {
                 New-ItemProperty -Path $regPath -Name 'Layout Component ID' -Value $entry.component_id -PropertyType String -Force | Out-Null
             }
             
-            Write-Status "Registry: $key -> $regPath" -Type Success
+            if (-not $Silent) { Write-Host "" }
+            $action = if ($isNew) { "Created" } else { "Updated" }
+            Write-Status "[$current/$total] $action`: $key ($layoutText)" -Type Success
+            if ($ShowDetails) {
+                Write-Status "    Path: $regPath" -Type Info
+                Write-Status "    File: $($entry.file)" -Type Info
+            }
             $count++
         }
         catch {
-            Write-Status "Failed to update registry for ${key}: $_" -Type Error
+            if (-not $Silent) { Write-Host "" }
+            Write-Status "[$current/$total] Failed: $key - $_" -Type Error
             throw
         }
     }
     
+    if (-not $Silent) { Write-Host "" }
     return $count
 }
 
@@ -505,7 +539,19 @@ function Uninstall-RegistryEntries {
         [switch]$DryRunMode
     )
     
+    $allKeys = @($Matrix.PSObject.Properties.Name)
+    $keysToProcess = if ($LayoutFilter -and $LayoutFilter.Count -gt 0) {
+        $allKeys | Where-Object { $LayoutFilter -contains $_ }
+    } else { $allKeys }
+    
+    $total = @($keysToProcess).Count
     $count = 0
+    $current = 0
+    
+    if (-not $Silent) {
+        Write-Status "Processing $total registry entries for removal..." -Type Info
+    }
+    
     foreach ($prop in $Matrix.PSObject.Properties) {
         $key = $prop.Name
         
@@ -513,33 +559,58 @@ function Uninstall-RegistryEntries {
             continue
         }
         
+        $current++
         $entry = $prop.Value
         $regPath = Get-RegistryPath -Entry $entry
         
-        if (-not $regPath) { continue }
+        if (-not $regPath) { 
+            Write-Status "[$current/$total] Skipping $key - no registry path" -Type Warning
+            continue 
+        }
+        
+        if (-not $Silent) {
+            Write-ProgressBar -Current $current -Total $total -Activity "Registry: $key"
+        }
+        
+        $exists = Test-Path $regPath
         
         if ($DryRunMode) {
-            Write-Status "Would delete: $regPath" -Type Info
+            if (-not $Silent) { Write-Host "" }
+            if ($exists) {
+                Write-Status "[$current/$total] Would delete: $key" -Type Info
+                if ($ShowDetails) {
+                    Write-Status "    Path: $regPath" -Type Info
+                }
+            } else {
+                Write-Status "[$current/$total] Not present: $key" -Type Info
+            }
             $count++
             continue
         }
         
         try {
-            if (Test-Path $regPath) {
+            if ($exists) {
                 Remove-Item -Path $regPath -Recurse -Force -ErrorAction Stop
-                Write-Status "Removed: $regPath" -Type Success
+                if (-not $Silent) { Write-Host "" }
+                Write-Status "[$current/$total] Removed: $key" -Type Success
+                if ($ShowDetails) {
+                    Write-Status "    Path: $regPath" -Type Info
+                }
                 $count++
             }
             else {
-                Write-Status "Not present: $regPath" -Type Info
+                if (-not $Silent) { Write-Host "" }
+                Write-Status "[$current/$total] Skipped (not found): $key" -Type Info
             }
         }
         catch {
-            Write-Status "Failed to remove ${regPath}: $_" -Type Error
+            if (-not $Silent) { Write-Host "" }
+            Write-Status "[$current/$total] Failed: $key - $_" -Type Error
             throw
         }
     }
     
+    if (-not $Silent) { Write-Host "" }
     return $count
 }
 
@@ -583,54 +654,88 @@ function Install-LayoutFiles {
     $installed = 0
     $total = $Files.Count
     
+    if (-not $Silent) {
+        Write-Status "Processing $total DLL files..." -Type Info
+    }
+    
     foreach ($file in $Files) {
+        $installed++
         $sourcePath = Join-Path $script:ScriptDir $file
         $destPath = Join-Path $script:System32 $file
         
+        if (-not $Silent) {
+            Write-ProgressBar -Current $installed -Total $total -Activity "Verifying: $file"
+        }
+        
         if (-not (Test-Path $sourcePath)) {
-            Write-Status "Missing source file: $file" -Type Error
+            if (-not $Silent) { Write-Host "" }
+            Write-Status "[$installed/$total] Missing source file: $file" -Type Error
             throw "Source file not found: $sourcePath"
         }
         
+        # Checksum verification
+        $checksumOk = $false
         $expectedHash = Get-ChecksumForFile -FileName $file
         if ($expectedHash) {
             $actualHash = Get-FileHash256 -FilePath $sourcePath
             if ($actualHash -ne $expectedHash) {
-                Write-Status "Checksum mismatch for $file" -Type Error
-                Write-Status "  Expected: $expectedHash" -Type Error
-                Write-Status "  Actual:   $actualHash" -Type Error
+                if (-not $Silent) { Write-Host "" }
+                Write-Status "[$installed/$total] Checksum FAILED: $file" -Type Error
+                if ($ShowDetails) {
+                    Write-Status "    Expected: $expectedHash" -Type Error
+                    Write-Status "    Actual:   $actualHash" -Type Error
+                }
                 throw "Checksum verification failed for $file"
             }
-        }
-        else {
-            Write-Status "No checksum entry for $file" -Type Warning
-        }
-        
-        try {
-            $sig = Get-AuthenticodeSignature -FilePath $sourcePath
-            if ($sig.Status -ne 'Valid') {
-                Write-Status "Signature not valid for $file (Status: $($sig.Status))" -Type Warning
+            $checksumOk = $true
+        } else {
+            if ($ShowDetails -and -not $Silent) {
+                Write-Host ""
+                Write-Status "[$installed/$total] No checksum entry for $file" -Type Warning
             }
         }
-        catch {
-            Write-Status "Could not verify signature for $file" -Type Warning
+        
+        # Signature verification
+        $signatureOk = $false
+        try {
+            $sig = Get-AuthenticodeSignature -FilePath $sourcePath
+            $signatureOk = ($sig.Status -eq 'Valid')
+            if (-not $signatureOk -and $ShowDetails -and -not $Silent) {
+                Write-Host ""
+                Write-Status "[$installed/$total] Signature: $($sig.Status) for $file" -Type Warning
+            }
+        } catch {
+            if ($ShowDetails -and -not $Silent) {
+                Write-Host ""
+                Write-Status "[$installed/$total] Could not verify signature for $file" -Type Warning
+            }
         }
         
         if ($DryRunMode) {
-            Write-Status "Would copy: $file -> $script:System32" -Type Info
-        }
-        else {
+            if (-not $Silent) { Write-Host "" }
+            $verifyStatus = @()
+            if ($checksumOk) { $verifyStatus += "checksum OK" }
+            if ($signatureOk) { $verifyStatus += "signed" }
+            $verifyText = if ($verifyStatus.Count -gt 0) { " (" + ($verifyStatus -join ", ") + ")" } else { "" }
+            Write-Status "[$installed/$total] Would copy: $file$verifyText" -Type Info
+            if ($ShowDetails) {
+                Write-Status "    Source: $sourcePath" -Type Info
+                Write-Status "    Dest:   $destPath" -Type Info
+            }
+        } else {
+            if (-not $Silent) {
+                Write-ProgressBar -Current $installed -Total $total -Activity "Copying: $file"
+            }
             Copy-Item -Path $sourcePath -Destination $destPath -Force -ErrorAction Stop
-            Write-Status "Copied: $file" -Type Success
-        }
-        
-        $installed++
-        if (-not $Silent) {
-            Write-ProgressBar -Current $installed -Total $total -Activity $file
+            if (-not $Silent) { Write-Host "" }
+            $verifyStatus = @()
+            if ($checksumOk) { $verifyStatus += "checksum OK" }
+            if ($signatureOk) { $verifyStatus += "signed" }
+            $verifyText = if ($verifyStatus.Count -gt 0) { " (" + ($verifyStatus -join ", ") + ")" } else { "" }
+            Write-Status "[$installed/$total] Copied: $file$verifyText" -Type Success
         }
     }
     
-    if (-not $Silent) { Write-Host "" }
     return $installed
 }
 
@@ -641,31 +746,53 @@ function Uninstall-LayoutFiles {
     )
     
     $removed = 0
+    $skipped = 0
     $total = $Files.Count
     
+    if (-not $Silent) {
+        Write-Status "Processing $total DLL files for removal..." -Type Info
+    }
+    
     foreach ($file in $Files) {
+        $current = $removed + $skipped + 1
         $destPath = Join-Path $script:System32 $file
         
-        if ($DryRunMode) {
-            Write-Status "Would delete: $destPath" -Type Info
-        }
-        else {
-            if (Test-Path $destPath) {
-                Remove-Item -Path $destPath -Force -ErrorAction SilentlyContinue
-                Write-Status "Deleted: $file" -Type Success
-            }
-            else {
-                Write-Status "Not found: $file" -Type Info
-            }
+        if (-not $Silent) {
+            Write-ProgressBar -Current $current -Total $total -Activity "Checking: $file"
         }
         
-        $removed++
-        if (-not $Silent) {
-            Write-ProgressBar -Current $removed -Total $total -Activity $file
+        $exists = Test-Path $destPath
+        
+        if ($DryRunMode) {
+            if (-not $Silent) { Write-Host "" }
+            if ($exists) {
+                Write-Status "[$current/$total] Would delete: $file" -Type Info
+                if ($ShowDetails) {
+                    Write-Status "    Path: $destPath" -Type Info
+                }
+                $removed++
+            } else {
+                Write-Status "[$current/$total] Not present: $file" -Type Info
+                $skipped++
+            }
+        } else {
+            if ($exists) {
+                Remove-Item -Path $destPath -Force -ErrorAction SilentlyContinue
+                if (-not $Silent) { Write-Host "" }
+                Write-Status "[$current/$total] Deleted: $file" -Type Success
+                $removed++
+            } else {
+                if (-not $Silent) { Write-Host "" }
+                Write-Status "[$current/$total] Skipped (not found): $file" -Type Info
+                $skipped++
+            }
         }
     }
     
-    if (-not $Silent) { Write-Host "" }
+    if (-not $Silent -and $skipped -gt 0) {
+        Write-Status "Skipped $skipped files (not present)" -Type Info
+    }
+    
     return $removed
 }
 
@@ -954,7 +1081,10 @@ OPTIONS:
 
     -DryRun               Simulate operations without making changes
 
-    -Silent               Run without interactive prompts
+    -Silent               Run without interactive prompts or progress bars
+
+    -ShowDetails, -v      Show detailed progress for each operation
+                          Displays checksums, paths, and verification status
 
     -CreateRestorePoint   Create Windows restore point before changes
 
@@ -978,8 +1108,14 @@ EXAMPLES:
     # Install specific layouts only
     .\MagicKeyboard.ps1 -Action Install -Layouts "GermanA,FrenchA"
 
+    # Install with detailed progress output
+    .\MagicKeyboard.ps1 -Action Install -ShowDetails
+
     # Dry-run install (no changes made)
     .\MagicKeyboard.ps1 -Action Install -DryRun
+
+    # Dry-run with verbose output
+    .\MagicKeyboard.ps1 -Action Install -DryRun -ShowDetails
 
     # Silent install with restore point
     .\MagicKeyboard.ps1 -Action Install -Silent -CreateRestorePoint
