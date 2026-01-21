@@ -1178,17 +1178,24 @@ function Main {
     if ($Action -and $Action -ne 'Menu') {
         $layoutFilter = if ($Layouts) { $Layouts -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ } } else { $null }
         
-        switch ($Action) {
-            'Install' { return Invoke-InstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
-            'Uninstall' { return Invoke-UninstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
-            'Backup' { return Invoke-BackupAction }
-            'Restore' { return Invoke-RestoreAction }
+        $result = switch ($Action) {
+            'Install' { Invoke-InstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
+            'Uninstall' { Invoke-UninstallAction -LayoutFilter $layoutFilter -DryRunMode:$DryRun }
+            'Backup' { Invoke-BackupAction }
+            'Restore' { Invoke-RestoreAction }
             'List' { 
                 if (-not $NoLogo) { Write-Logo }
                 Show-InstalledLayouts
-                return 0
+                0
             }
         }
+        
+        # Press Enter prompt (unless Silent or Quiet)
+        if (-not $Silent -and -not $Quiet) {
+            Show-PausePrompt
+        }
+        
+        return $result
     }
     
     while ($true) {
