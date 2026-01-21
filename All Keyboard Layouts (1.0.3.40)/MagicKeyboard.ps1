@@ -861,6 +861,8 @@ function Invoke-InstallAction {
         if ($Locale) { $elevArgs += @('-Locale', $Locale) }
         if ($CreateRestorePoint) { $elevArgs += '-CreateRestorePoint' }
         if ($Silent) { $elevArgs += '-Silent' }
+        if ($Quiet) { $elevArgs += '-Quiet' }
+        if ($ShowDetails) { $elevArgs += '-ShowDetails' }
         $elevArgs += '-NoLogo'
         
         $exitCode = Invoke-Elevate -Arguments $elevArgs
@@ -911,6 +913,8 @@ function Invoke-UninstallAction {
         if ($LayoutFilter) { $elevArgs += @('-Layouts', ($LayoutFilter -join ',')) }
         if ($CreateRestorePoint) { $elevArgs += '-CreateRestorePoint' }
         if ($Silent) { $elevArgs += '-Silent' }
+        if ($Quiet) { $elevArgs += '-Quiet' }
+        if ($ShowDetails) { $elevArgs += '-ShowDetails' }
         $elevArgs += '-NoLogo'
         
         $exitCode = Invoke-Elevate -Arguments $elevArgs
@@ -985,6 +989,8 @@ function Invoke-RestoreAction {
         Write-Status "Requesting elevation..." -Type Info
         $elevArgs = @('-Action', 'Restore', '-BackupPath', $BackupPath)
         if ($Silent) { $elevArgs += '-Silent' }
+        if ($Quiet) { $elevArgs += '-Quiet' }
+        if ($ShowDetails) { $elevArgs += '-ShowDetails' }
         $elevArgs += '-NoLogo'
         
         return Invoke-Elevate -Arguments $elevArgs
