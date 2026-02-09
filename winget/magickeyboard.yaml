@@ -7,7 +7,7 @@ InstallerLocale: en-US
 InstallerType: zip
 NestedInstallerType: script
 NestedInstallerFiles:
-  - RelativeFilePath: 'install_scoop_winget_elevated.bat'
+  - RelativeFilePath: 'pkgmngr/install_scoop_winget_elevated.bat'
 InstallerUrl: https://github.com/supermarsx/magickeyboard/releases/latest/download/All.Keyboard.Layouts.1.0.3.40.zip
 InstallerSha256: 3D6E225A7DE76610DC34F08E14FA234AC9F0DD01E1665ACB3F7B537D6BADE1D8
 InstallModes:
@@ -31,7 +31,7 @@ Uninstallers:
   - InstallerType: zip
     NestedInstallerType: script
     NestedInstallerFiles:
-      - RelativeFilePath: 'uninstall_scoop_winget_elevated.bat'
+      - RelativeFilePath: 'pkgmngr/uninstall_scoop_winget_elevated.bat'
     InstallerUrl: https://github.com/supermarsx/magickeyboard/releases/latest/download/All.Keyboard.Layouts.1.0.3.40.zip
     InstallerSha256: 3D6E225A7DE76610DC34F08E14FA234AC9F0DD01E1665ACB3F7B537D6BADE1D8
     InstallerSwitches:

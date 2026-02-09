@@ -23,9 +23,9 @@ Describe 'Scoop/Winget installer flow' {
         if (-not $RepoRoot) { throw "Repository root not found from starts: $($starts -join ', ')" }
 
         $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
-        $InstallerScript = Join-Path $LayoutDir 'ScoopWingetInstaller.ps1'
-        $InstallWrapper = Join-Path $LayoutDir 'install_scoop_winget_elevated.bat'
-        $UninstallWrapper = Join-Path $LayoutDir 'uninstall_scoop_winget_elevated.bat'
+        $InstallerScript = Join-Path $LayoutDir 'pkgmngr/ScoopWingetInstaller.ps1'
+        $InstallWrapper = Join-Path $LayoutDir 'pkgmngr/install_scoop_winget_elevated.bat'
+        $UninstallWrapper = Join-Path $LayoutDir 'pkgmngr/uninstall_scoop_winget_elevated.bat'
     }
 
     It 'manifest files reference the new Scoop/Winget wrappers' {
@@ -34,8 +34,8 @@ Describe 'Scoop/Winget installer flow' {
 
         $bucket | Should -Match 'install_scoop_winget_elevated\.bat'
         $bucket | Should -Match 'uninstall_scoop_winget_elevated\.bat'
-        $winget | Should -Match "RelativeFilePath:\s*'install_scoop_winget_elevated\.bat'"
-        $winget | Should -Match "RelativeFilePath:\s*'uninstall_scoop_winget_elevated\.bat'"
+        $winget | Should -Match "RelativeFilePath:\s*'pkgmngr/install_scoop_winget_elevated\.bat'"
+        $winget | Should -Match "RelativeFilePath:\s*'pkgmngr/uninstall_scoop_winget_elevated\.bat'"
     }
 
     It 'installer scripts exist in layout package root' {

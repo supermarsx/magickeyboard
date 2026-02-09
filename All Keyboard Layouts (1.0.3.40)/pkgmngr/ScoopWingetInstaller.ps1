@@ -17,7 +17,7 @@ $ErrorActionPreference = 'Stop'
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 if (-not $LayoutsScriptPath) {
-    $LayoutsScriptPath = Join-Path $scriptDir 'MagicKeyboard.ps1'
+    $LayoutsScriptPath = Join-Path (Split-Path -Parent $scriptDir) 'MagicKeyboard.ps1'
 }
 
 function Write-Status {
