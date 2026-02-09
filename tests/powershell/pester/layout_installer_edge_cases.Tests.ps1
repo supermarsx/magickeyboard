@@ -25,13 +25,18 @@ Describe 'MagicKeyboard layout installer edge cases' {
         $LayoutDir = Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)'
         $MagicKeyboard = Join-Path $LayoutDir 'MagicKeyboard.ps1'
         if (-not (Test-Path $MagicKeyboard)) { throw "MagicKeyboard.ps1 not found at $MagicKeyboard" }
+        $PowerShellExe = (Get-Command powershell -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1)
+        if (-not $PowerShellExe) {
+            $PowerShellExe = (Get-Command pwsh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1)
+        }
+        if (-not $PowerShellExe) { throw 'No PowerShell executable found (powershell or pwsh).' }
 
         function Invoke-MagicKeyboardProcess {
             param(
                 [string]$ScriptPath,
                 [string[]]$Arguments
             )
-            $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Arguments 2>&1
+            $out = & $PowerShellExe -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Arguments 2>&1
             [pscustomobject]@{
                 ExitCode = $LASTEXITCODE
                 Output   = ($out -join "`n")

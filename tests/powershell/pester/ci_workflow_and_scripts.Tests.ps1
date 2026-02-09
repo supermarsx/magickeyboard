@@ -58,6 +58,7 @@ Describe 'CI workflow and script smoke tests' {
 
     Context 'Windows scripts' {
         It 'runs check-lint.bat successfully' {
+            if (-not $IsWindows) { Set-ItResult -Skipped -Because 'Windows-only cmd test' }
             Push-Location $RepoRoot
             try {
                 cmd /c scripts\check-lint.bat
@@ -67,6 +68,7 @@ Describe 'CI workflow and script smoke tests' {
         }
 
         It 'runs check-format.bat successfully' {
+            if (-not $IsWindows) { Set-ItResult -Skipped -Because 'Windows-only cmd test' }
             Push-Location $RepoRoot
             try {
                 cmd /c scripts\check-format.bat
@@ -76,6 +78,7 @@ Describe 'CI workflow and script smoke tests' {
         }
 
         It 'packages layouts via package_layouts.ps1' {
+            if (-not $IsWindows) { Set-ItResult -Skipped -Because 'Windows-only packaging cmd test' }
             $version = "ci-smoke-$([DateTime]::UtcNow.ToString('yyyyMMddHHmmss'))"
             $archive = Join-Path $RepoRoot ("dist/All.Keyboard.Layouts.{0}.zip" -f $version)
             Push-Location $RepoRoot

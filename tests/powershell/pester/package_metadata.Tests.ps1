@@ -96,27 +96,33 @@ Uninstallers:
 
             $job = Start-Job -ScriptBlock {
                 param($p, $file, $routeFile)
-                $listener = [System.Net.HttpListener]::new()
-                $listener.Prefixes.Add("http://127.0.0.1:$p/")
+                $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $p)
                 $listener.Start()
                 try {
-                    $ctx = $listener.GetContext()
-                    $path = $ctx.Request.Url.AbsolutePath.TrimStart('/')
-                    if ($path -eq $routeFile) {
-                        $bytes = [IO.File]::ReadAllBytes($file)
-                        $ctx.Response.StatusCode = 200
-                        $ctx.Response.ContentType = 'application/octet-stream'
-                        $ctx.Response.ContentLength64 = $bytes.Length
-                        $ctx.Response.OutputStream.Write($bytes, 0, $bytes.Length)
+                    $client = $listener.AcceptTcpClient()
+                    try {
+                        $stream = $client.GetStream()
+                        try {
+                            $buffer = New-Object byte[] 4096
+                            $null = $stream.Read($buffer, 0, $buffer.Length)
+
+                            $bytes = [IO.File]::ReadAllBytes($file)
+                            $header = "HTTP/1.1 200 OK`r`nContent-Type: application/octet-stream`r`nContent-Length: $($bytes.Length)`r`nConnection: close`r`n`r`n"
+                            $headerBytes = [Text.Encoding]::ASCII.GetBytes($header)
+                            $stream.Write($headerBytes, 0, $headerBytes.Length)
+                            $stream.Write($bytes, 0, $bytes.Length)
+                            $stream.Flush()
+                        }
+                        finally {
+                            $stream.Dispose()
+                        }
                     }
-                    else {
-                        $ctx.Response.StatusCode = 404
+                    finally {
+                        $client.Dispose()
                     }
-                    $ctx.Response.OutputStream.Close()
                 }
                 finally {
-                    if ($listener.IsListening) { $listener.Stop() }
-                    $listener.Close()
+                    $listener.Stop()
                 }
             } -ArgumentList $port, $FilePath, $RouteFileName
 
