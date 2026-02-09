@@ -16,7 +16,7 @@ cd "$layout_dir"
 
 if ! jq -e '[.[] | select(.sha256)] | length > 0' layouts.json >/dev/null 2>&1; then
   echo "Warning: layouts.json has no embedded sha256 values — generating helper checksums.json"
-  ../../scripts/compute_checksums.sh || true
+  "$root_dir/scripts/compute_checksums.sh" || true
 fi
 
 zip -r "$out_dir/$archive_name" . -x "*.DS_Store"

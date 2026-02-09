@@ -39,7 +39,7 @@ call "%~dp0test-translations.bat"
 REM --- PowerShell matrix dry-run (Windows) ---
 echo.
 echo [test] Running PowerShell matrix installer dry-run (Windows)
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\install_registry_from_matrix.ps1" -MatrixPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\layouts.json" -TranslationsPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\translations.json" -DryRun
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\MagicKeyboard.ps1" -Action Install -DryRun -Quiet
 if errorlevel 1 (
   echo [test] PowerShell matrix dry-run failed with exit code %ERRORLEVEL%
   exit /b 12
@@ -50,7 +50,7 @@ if errorlevel 1 (
   REM Uninstall matrix dry-run
   echo.
   echo [test] Running PowerShell uninstall matrix dry-run (Windows)
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\uninstall_registry_from_matrix.ps1" -MatrixPath "%~dp0..\All Keyboard Layouts (1.0.3.40)\layouts.json" -DryRun
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\All Keyboard Layouts (1.0.3.40)\MagicKeyboard.ps1" -Action Uninstall -DryRun -Quiet
   if errorlevel 1 (
     echo [test] PowerShell uninstall dry-run failed with exit code %ERRORLEVEL%
     exit /b 13

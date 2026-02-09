@@ -30,7 +30,7 @@ if (-not (Test-Path $MatrixPath)) {
 
 if (-not $Locale) { $Locale = $null }
 
-$matrix = Get-Content -Raw -Path $MatrixPath | ConvertFrom-Json
+$matrix = Get-Content -Raw -Encoding UTF8 -Path $MatrixPath | ConvertFrom-Json
 
 # Support comma-separated single-argument for -Layouts
 if ($Layouts -and $Layouts.Count -eq 1 -and $Layouts[0] -match ',') {
@@ -67,7 +67,7 @@ foreach ($key in $matrix.PSObject.Properties.Name) {
   if (-not $layoutText) {
     # fallback to english name in translations.json or key name
     try {
-      $t = Get-Content -Raw -Path $TranslationsPath | ConvertFrom-Json
+      $t = Get-Content -Raw -Encoding UTF8 -Path $TranslationsPath | ConvertFrom-Json
       if ($t.$key -and $t.$key.en) { $layoutText = $t.$key.en }
       else { $layoutText = $key }
     }

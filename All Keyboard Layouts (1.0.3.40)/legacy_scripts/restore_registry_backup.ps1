@@ -25,7 +25,7 @@ if (-not (Test-Path $BackupPath)) {
   exit 2
 }
 
-$backup = Get-Content -Raw -Path $BackupPath | ConvertFrom-Json
+$backup = Get-Content -Raw -Encoding UTF8 -Path $BackupPath | ConvertFrom-Json
 if (-not $backup.entries) {
   Write-Error "Backup file does not contain entries: $BackupPath"
   exit 3

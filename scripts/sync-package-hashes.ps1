@@ -4,6 +4,24 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Get-Sha256Hex {
+  param([string] $Path)
+  $stream = [System.IO.File]::OpenRead($Path)
+  try {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+      $hashBytes = $sha.ComputeHash($stream)
+    }
+    finally {
+      $sha.Dispose()
+    }
+  }
+  finally {
+    $stream.Dispose()
+  }
+  return (-join ($hashBytes | ForEach-Object { $_.ToString('x2') })).ToUpperInvariant()
+}
+
 $bucketPath = Join-Path $RepoRoot 'bucket/magickeyboard.json'
 $wingetPath = Join-Path $RepoRoot 'winget/magickeyboard.yaml'
 
@@ -18,7 +36,7 @@ $tmpFile = Join-Path ([IO.Path]::GetTempPath()) ("magickeyboard_sync_{0}.zip" -f
 try {
   Write-Host "[sync] Downloading package from: $url"
   Invoke-WebRequest -Uri $url -OutFile $tmpFile
-  $hash = (Get-FileHash -LiteralPath $tmpFile -Algorithm SHA256).Hash.ToUpperInvariant()
+  $hash = Get-Sha256Hex -Path $tmpFile
   Write-Host "[sync] Computed SHA256: $hash"
 }
 finally {

@@ -52,7 +52,9 @@ Describe 'MagicKeyboard.ps1 GetTranslation action' {
         $LayoutDir = Resolve-Path (Join-Path $RepoRoot 'All Keyboard Layouts (1.0.3.40)')
         $MagicKeyboard = Join-Path $LayoutDir 'MagicKeyboard.ps1'
         if (-not (Test-Path $MagicKeyboard)) { throw "MagicKeyboard.ps1 not found at $MagicKeyboard" }
-        $translationsJson = Get-Content -Raw -Path (Join-Path $LayoutDir 'translations.json') | ConvertFrom-Json
+        $translationsJson = Get-Content -Raw -Encoding UTF8 -Path (Join-Path $LayoutDir 'translations.json') | ConvertFrom-Json
+        $expectedRu = ((0x0411,0x0435,0x043B,0x044C,0x0433,0x0438,0x0439,0x0441,0x043A,0x0438,0x0439) | ForEach-Object { [char]$_ }) -join ''
+        $expectedZhCn = ((0x6BD4,0x5229,0x65F6) | ForEach-Object { [char]$_ }) -join ''
     }
 
     It 'returns the French translation for BelgiumA when asked explicitly' {
@@ -74,5 +76,16 @@ Describe 'MagicKeyboard.ps1 GetTranslation action' {
         $out = & $MagicKeyboard -Action GetTranslation -Key 'GermanA' -Locale 'xx-ZZ' -NoLogo
         # should not be empty; prefer 'en' fallback or another available translation
         $out | Should -Not -BeNullOrEmpty
+    }
+
+    It 'returns non-ASCII Cyrillic text without mojibake' {
+        $out = & $MagicKeyboard -Action GetTranslation -Key 'BelgiumA' -Locale 'ru-RU' -NoLogo
+        $out | Should -Be ("$expectedRu (Apple)")
+        ([int][char]$out[0]) | Should -Be 1041
+    }
+
+    It 'returns non-ASCII CJK text without mojibake' {
+        $out = & $MagicKeyboard -Action GetTranslation -Key 'BelgiumA' -Locale 'zh-CN' -NoLogo
+        $out | Should -Be ("$expectedZhCn (Apple)")
     }
 }

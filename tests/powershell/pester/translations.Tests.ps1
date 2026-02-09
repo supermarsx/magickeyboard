@@ -51,8 +51,9 @@ Describe 'Translations matrix' {
         $MagicKeyboard = Join-Path $LayoutDir 'MagicKeyboard.ps1'
         if (-not (Test-Path $translations)) { throw "translations.json not found at $translations" }
         if (-not (Test-Path $MagicKeyboard)) { throw "MagicKeyboard.ps1 not found at $MagicKeyboard" }
-        $json = Get-Content -Raw -Path $translations | ConvertFrom-Json
+        $json = Get-Content -Raw -Encoding UTF8 -Path $translations | ConvertFrom-Json
         $reqLocales = 'en','en-US','fr-FR','de-DE','es-ES','nl-NL','it-IT','pt-PT','pt-BR','ru-RU','zh-CN','zh-TW','pl-PL','sv-SE','fi-FI','nb-NO','cs-CZ','hu-HU','tr-TR','en-CA'
+        $expectedRu = ((0x0411,0x0435,0x043B,0x044C,0x0433,0x0438,0x0439,0x0441,0x043A,0x0438,0x0439) | ForEach-Object { [char]$_ }) -join ''
     }
 
     It 'contains all required locales for each key and no empty placeholders' {
@@ -75,6 +76,12 @@ Describe 'Translations matrix' {
         It 'supports regional/language normalization (en_US -> en-US)' {
             $out = & $MagicKeyboard -Action GetTranslation -Key 'CanadaA' -Locale 'en_US' -NoLogo
             $out | Should -Be 'Canadian (Apple)'
+        }
+
+        It 'resolves Cyrillic translations without mojibake' {
+            $out = & $MagicKeyboard -Action GetTranslation -Key 'BelgiumA' -Locale 'ru-RU' -NoLogo
+            $out | Should -Be ("$expectedRu (Apple)")
+            ([int][char]$out[0]) | Should -Be 1041
         }
     }
 }

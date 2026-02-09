@@ -48,7 +48,7 @@ function Resolve-FullRegPath {
   return $null
 }
 
-$matrix = Get-Content -Raw -Path $MatrixPath | ConvertFrom-Json
+$matrix = Get-Content -Raw -Encoding UTF8 -Path $MatrixPath | ConvertFrom-Json
 
 if (-not $OutFile -or $OutFile -eq '1') {
   $stamp = (Get-Date).ToString('yyyyMMddHHmmss')

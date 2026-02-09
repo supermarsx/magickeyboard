@@ -5,7 +5,7 @@ param(
 )
 
 try {
-  $json = Get-Content -Raw -Path $File | ConvertFrom-Json -ErrorAction Stop
+  $json = Get-Content -Raw -Encoding UTF8 -Path $File | ConvertFrom-Json -ErrorAction Stop
 } catch {
   Write-Error "Could not load translations file: $File"
   exit 2

@@ -1,5 +1,6 @@
 @echo off
 :: MagicKeyboard Launcher
+:: Purpose: Launch MagicKeyboard.ps1 with forwarded CLI arguments.
 :: Double-click to run the interactive TUI installer
 :: Supports passing command-line arguments to the PowerShell script
 ::

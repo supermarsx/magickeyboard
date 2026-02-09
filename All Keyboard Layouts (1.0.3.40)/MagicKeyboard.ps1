@@ -224,14 +224,14 @@ function Get-LayoutMatrix {
     if (-not (Test-Path $script:LayoutsJsonPath)) {
         throw "layouts.json not found at: $script:LayoutsJsonPath"
     }
-    return Get-Content -Raw -Path $script:LayoutsJsonPath | ConvertFrom-Json
+    return Get-Content -Raw -Encoding UTF8 -Path $script:LayoutsJsonPath | ConvertFrom-Json
 }
 
 function Get-Translations {
     if (-not (Test-Path $script:TranslationsJsonPath)) {
         return $null
     }
-    return Get-Content -Raw -Path $script:TranslationsJsonPath | ConvertFrom-Json
+    return Get-Content -Raw -Encoding UTF8 -Path $script:TranslationsJsonPath | ConvertFrom-Json
 }
 
 function Get-TranslatedName {
@@ -390,7 +390,7 @@ function Restore-RegistryBackup {
         throw "Backup file not found: $BackupFile"
     }
     
-    $backup = Get-Content -Raw -Path $BackupFile | ConvertFrom-Json
+    $backup = Get-Content -Raw -Encoding UTF8 -Path $BackupFile | ConvertFrom-Json
     if (-not $backup.entries) {
         throw "Invalid backup file format"
     }

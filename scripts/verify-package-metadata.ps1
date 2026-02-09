@@ -4,6 +4,24 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Get-Sha256Hex {
+  param([string] $Path)
+  $stream = [System.IO.File]::OpenRead($Path)
+  try {
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+      $hashBytes = $sha.ComputeHash($stream)
+    }
+    finally {
+      $sha.Dispose()
+    }
+  }
+  finally {
+    $stream.Dispose()
+  }
+  return (-join ($hashBytes | ForEach-Object { $_.ToString('x2') })).ToUpperInvariant()
+}
+
 function Get-WingetFieldValues {
   param(
     [string] $Path,
@@ -77,7 +95,7 @@ $tmpFile = Join-Path ([IO.Path]::GetTempPath()) ("magickeyboard_metadata_{0}.zip
 try {
   Write-Host "[verify] Downloading package from: $bucketUrl"
   Invoke-WebRequest -Uri $bucketUrl -OutFile $tmpFile
-  $actualHash = (Get-FileHash -LiteralPath $tmpFile -Algorithm SHA256).Hash.ToUpperInvariant()
+  $actualHash = Get-Sha256Hex -Path $tmpFile
   Write-Host "[verify] Downloaded SHA256: $actualHash"
 
   if ($actualHash -ne $bucketHash) {

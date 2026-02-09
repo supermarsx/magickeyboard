@@ -23,7 +23,7 @@ if (-not (Test-Path $MatrixPath)) {
   exit 2
 }
 
-$matrix = Get-Content -Raw -Path $MatrixPath | ConvertFrom-Json
+$matrix = Get-Content -Raw -Encoding UTF8 -Path $MatrixPath | ConvertFrom-Json
 
 # Support comma-separated single-argument for -Layouts
 if ($Layouts -and $Layouts.Count -eq 1 -and $Layouts[0] -match ',') {
