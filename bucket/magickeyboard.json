@@ -4,7 +4,7 @@
     "homepage": "https://github.com/supermarsx/magickeyboard",
     "license": "MIT",
     "url": "https://github.com/supermarsx/magickeyboard/releases/latest/download/All.Keyboard.Layouts.1.0.3.40.zip",
-    "hash": "80568EAC68A8E85583B8D9F0D9348274CAFD0178083C7201459196E41F06A8F0",
+    "hash": "3D6E225A7DE76610DC34F08E14FA234AC9F0DD01E1665ACB3F7B537D6BADE1D8",
     "installer": {
         "script": "Push-Location \"$dir\"; & \"$dir\\install_keyboard_layouts_elevated.bat\" /SILENT; Pop-Location"
     },

@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -34,6 +37,38 @@ jobs:
         run: |
           echo "No type checking applicable for this project"
 
+  package-metadata:
+    runs-on: windows-latest
+    needs: [lint, format, type]
+    outputs:
+      updated: ${{ steps.sync.outputs.updated }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Auto-sync Scoop/Winget hashes (main push)
+        id: sync
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'push' -and '${{ github.ref }}' -eq 'refs/heads/main' -and '${{ github.actor }}' -ne 'github-actions[bot]') {
+            ./scripts/sync-package-hashes.ps1
+            $changed = (git status --porcelain -- bucket/magickeyboard.json winget/magickeyboard.yaml)
+            if (-not [string]::IsNullOrWhiteSpace($changed)) {
+              git config user.name "github-actions[bot]"
+              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+              git add bucket/magickeyboard.json winget/magickeyboard.yaml
+              git commit -m "ci: sync package hashes"
+              git push
+              "updated=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+              exit 0
+            }
+          }
+          "updated=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - name: Verify Scoop/Winget metadata
+        shell: pwsh
+        run: |
+          ./scripts/verify-package-metadata.ps1
+
   test:
     runs-on: ubuntu-latest
     needs: [lint, format, type]
@@ -50,19 +85,25 @@ jobs:
 
   package:
     runs-on: ubuntu-latest
-    needs: [lint, format, type, test]
+    needs: [lint, format, type, test, package-metadata]
+    if: needs.package-metadata.outputs.updated != 'true'
     steps:
       - uses: actions/checkout@v4
+      - name: Read package version from Scoop manifest
+        id: meta
+        run: |
+          version=$(jq -r '.version' bucket/magickeyboard.json)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Run packaging
         run: |
           chmod +x scripts/package_layouts.sh
-          scripts/package_layouts.sh "1.0.3.40"
+          scripts/package_layouts.sh "${{ steps.meta.outputs.version }}"
       - name: Create full repo zip
         run: |
           zip -r MagicKeyboard-all.zip . --exclude dist/ --exclude .git/ --exclude .github/ --exclude bucket/ --exclude winget/ --exclude tests/ --exclude .gitattributes --exclude .gitignore
       - name: Prepare release artifacts
         run: |
-          cp All.Keyboard.Layouts.1.0.3.40.zip dist/ || true
+          cp "All.Keyboard.Layouts.${{ steps.meta.outputs.version }}.zip" dist/ || true
           cp MagicKeyboard-all.zip dist/ || true
           cp magickeyboard1_AppleKeyboardInstaller64.exe dist/ || true
           cp magickeyboard2_AppleKeyboardInstaller64.exe dist/ || true
@@ -74,8 +115,8 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: package
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [package, package-metadata]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.package-metadata.outputs.updated != 'true'
     steps:
       - uses: actions/checkout@v4
       - name: Download artifacts
