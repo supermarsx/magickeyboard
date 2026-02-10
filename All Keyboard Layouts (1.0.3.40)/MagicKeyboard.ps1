@@ -292,7 +292,25 @@ function Get-ChecksumForFile {
 
 function Get-FileHash256 {
     param([string]$FilePath)
-    return (Get-FileHash -Path $FilePath -Algorithm SHA256).Hash.ToLower()
+    $cmd = Get-Command Get-FileHash -ErrorAction SilentlyContinue
+    if ($cmd) {
+        return (Get-FileHash -Path $FilePath -Algorithm SHA256).Hash.ToLower()
+    }
+
+    $stream = [System.IO.File]::OpenRead($FilePath)
+    try {
+        $sha = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $hashBytes = $sha.ComputeHash($stream)
+        }
+        finally {
+            $sha.Dispose()
+        }
+    }
+    finally {
+        $stream.Dispose()
+    }
+    return (-join ($hashBytes | ForEach-Object { $_.ToString('x2') })).ToLowerInvariant()
 }
 
 function Get-RegistryPath {

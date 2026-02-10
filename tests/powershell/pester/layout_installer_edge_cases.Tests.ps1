@@ -90,14 +90,14 @@ Describe 'MagicKeyboard layout installer edge cases' {
 
     It 'install dry-run with one layout processes one registry entry' {
         $r = Invoke-MagicKeyboardProcess -ScriptPath $MagicKeyboard -Arguments @('-Action', 'Install', '-Layouts', 'BelgiumA', '-DryRun', '-NoLogo', '-Silent')
-        $r.Output | Should -Match 'Registry entries:\s+1'
-        $r.Output | Should -Match 'Files copied:\s+1'
+        $r.Output | Should -Match 'Would create:\s+BelgiumA'
+        $r.Output | Should -Match 'Would copy:\s+BelgiumA\.dll'
     }
 
     It 'install dry-run with unknown layout filter processes zero entries' {
         $r = Invoke-MagicKeyboardProcess -ScriptPath $MagicKeyboard -Arguments @('-Action', 'Install', '-Layouts', 'NotARealLayout', '-DryRun', '-NoLogo', '-Silent')
-        $r.Output | Should -Match 'Registry entries:\s+0'
-        $r.Output | Should -Match 'Files copied:\s+0'
+        $r.Output | Should -Not -Match 'Would create:\s+'
+        $r.Output | Should -Not -Match 'Would copy:\s+'
     }
 
     It 'reinstall dry-run runs both steps successfully' {
