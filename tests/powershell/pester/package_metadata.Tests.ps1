@@ -82,64 +82,20 @@ Uninstallers:
 
             return $root
         }
-
-        $StartOneShotHttpFileServer = {
-            param(
-                [string]$FilePath,
-                [string]$RouteFileName
-            )
-
-            $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
-            $listener.Start()
-            $port = ([System.Net.IPEndPoint]$listener.LocalEndpoint).Port
-            $listener.Stop()
-
-            $job = Start-Job -ScriptBlock {
-                param($p, $file, $routeFile)
-                $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $p)
-                $listener.Start()
-                try {
-                    $client = $listener.AcceptTcpClient()
-                    try {
-                        $stream = $client.GetStream()
-                        try {
-                            $buffer = New-Object byte[] 4096
-                            $null = $stream.Read($buffer, 0, $buffer.Length)
-
-                            $bytes = [IO.File]::ReadAllBytes($file)
-                            $header = "HTTP/1.1 200 OK`r`nContent-Type: application/octet-stream`r`nContent-Length: $($bytes.Length)`r`nConnection: close`r`n`r`n"
-                            $headerBytes = [Text.Encoding]::ASCII.GetBytes($header)
-                            $stream.Write($headerBytes, 0, $headerBytes.Length)
-                            $stream.Write($bytes, 0, $bytes.Length)
-                            $stream.Flush()
-                        }
-                        finally {
-                            $stream.Dispose()
-                        }
-                    }
-                    finally {
-                        $client.Dispose()
-                    }
-                }
-                finally {
-                    $listener.Stop()
-                }
-            } -ArgumentList $port, $FilePath, $RouteFileName
-
-            return [pscustomobject]@{
-                Port = $port
-                Job  = $job
-            }
-        }
     }
 
     It 'sync script updates bucket and winget hashes from artifact' {
-        $route = 'All.Keyboard.Layouts.1.2.3.zip'
         $artifact = Join-Path ([IO.Path]::GetTempPath()) ("mk_artifact_{0}.zip" -f [guid]::NewGuid().ToString('N'))
         Set-Content -LiteralPath $artifact -Value 'sync-hash-test-data' -NoNewline
-        $server = & $StartOneShotHttpFileServer -FilePath $artifact -RouteFileName $route
-        $url = "http://127.0.0.1:$($server.Port)/$route"
+        $url = 'https://example.test/All.Keyboard.Layouts.1.2.3.zip'
         $repo = & $NewTempRepoFixture -Url $url -Version '1.2.3' -BucketHash ('0' * 64) -WingetHash1 ('1' * 64) -WingetHash2 ('2' * 64)
+        $hadInvokeWebRequest = Test-Path function:\global:Invoke-WebRequest
+        $oldInvokeWebRequest = if ($hadInvokeWebRequest) { (Get-Item function:\global:Invoke-WebRequest).ScriptBlock } else { $null }
+        $global:MockArtifactPath = $artifact
+        function global:Invoke-WebRequest {
+            param([string]$Uri, [string]$OutFile)
+            Copy-Item -LiteralPath $global:MockArtifactPath -Destination $OutFile -Force
+        }
         try {
             & $SyncScript -RepoRoot $repo
 
@@ -154,25 +110,42 @@ Uninstallers:
             }
         }
         finally {
-            if ($server -and $server.Job) { Wait-Job -Job $server.Job -Timeout 10 | Out-Null; Remove-Job -Job $server.Job -Force -ErrorAction SilentlyContinue }
+            Remove-Variable -Name MockArtifactPath -Scope Global -ErrorAction SilentlyContinue
+            if ($hadInvokeWebRequest) {
+                Set-Item function:\global:Invoke-WebRequest -Value $oldInvokeWebRequest
+            }
+            else {
+                Remove-Item function:\global:Invoke-WebRequest -ErrorAction SilentlyContinue
+            }
             if (Test-Path -LiteralPath $artifact) { Remove-Item -LiteralPath $artifact -Force -ErrorAction SilentlyContinue }
             if (Test-Path -LiteralPath $repo) { Remove-Item -LiteralPath $repo -Recurse -Force -ErrorAction SilentlyContinue }
         }
     }
 
     It 'verify script passes when manifests and remote artifact hash match' {
-        $route = 'All.Keyboard.Layouts.1.2.3.zip'
         $artifact = Join-Path ([IO.Path]::GetTempPath()) ("mk_artifact_{0}.zip" -f [guid]::NewGuid().ToString('N'))
         Set-Content -LiteralPath $artifact -Value 'verify-pass-data' -NoNewline
-        $server = & $StartOneShotHttpFileServer -FilePath $artifact -RouteFileName $route
-        $url = "http://127.0.0.1:$($server.Port)/$route"
+        $url = 'https://example.test/All.Keyboard.Layouts.1.2.3.zip'
         $hash = & $GetSha256Hex -Path $artifact
         $repo = & $NewTempRepoFixture -Url $url -Version '1.2.3' -BucketHash $hash -WingetHash1 $hash -WingetHash2 $hash
+        $hadInvokeWebRequest = Test-Path function:\global:Invoke-WebRequest
+        $oldInvokeWebRequest = if ($hadInvokeWebRequest) { (Get-Item function:\global:Invoke-WebRequest).ScriptBlock } else { $null }
+        $global:MockArtifactPath = $artifact
+        function global:Invoke-WebRequest {
+            param([string]$Uri, [string]$OutFile)
+            Copy-Item -LiteralPath $global:MockArtifactPath -Destination $OutFile -Force
+        }
         try {
             { & $VerifyScript -RepoRoot $repo } | Should -Not -Throw
         }
         finally {
-            if ($server -and $server.Job) { Wait-Job -Job $server.Job -Timeout 10 | Out-Null; Remove-Job -Job $server.Job -Force -ErrorAction SilentlyContinue }
+            Remove-Variable -Name MockArtifactPath -Scope Global -ErrorAction SilentlyContinue
+            if ($hadInvokeWebRequest) {
+                Set-Item function:\global:Invoke-WebRequest -Value $oldInvokeWebRequest
+            }
+            else {
+                Remove-Item function:\global:Invoke-WebRequest -ErrorAction SilentlyContinue
+            }
             if (Test-Path -LiteralPath $artifact) { Remove-Item -LiteralPath $artifact -Force -ErrorAction SilentlyContinue }
             if (Test-Path -LiteralPath $repo) { Remove-Item -LiteralPath $repo -Recurse -Force -ErrorAction SilentlyContinue }
         }
@@ -190,18 +163,29 @@ Uninstallers:
     }
 
     It 'verify script fails when remote artifact hash differs from expected' {
-        $route = 'All.Keyboard.Layouts.1.2.3.zip'
         $artifact = Join-Path ([IO.Path]::GetTempPath()) ("mk_artifact_{0}.zip" -f [guid]::NewGuid().ToString('N'))
         Set-Content -LiteralPath $artifact -Value 'verify-mismatch-data' -NoNewline
-        $server = & $StartOneShotHttpFileServer -FilePath $artifact -RouteFileName $route
-        $url = "http://127.0.0.1:$($server.Port)/$route"
+        $url = 'https://example.test/All.Keyboard.Layouts.1.2.3.zip'
         $wrongHash = ('C' * 64)
         $repo = & $NewTempRepoFixture -Url $url -Version '1.2.3' -BucketHash $wrongHash -WingetHash1 $wrongHash -WingetHash2 $wrongHash
+        $hadInvokeWebRequest = Test-Path function:\global:Invoke-WebRequest
+        $oldInvokeWebRequest = if ($hadInvokeWebRequest) { (Get-Item function:\global:Invoke-WebRequest).ScriptBlock } else { $null }
+        $global:MockArtifactPath = $artifact
+        function global:Invoke-WebRequest {
+            param([string]$Uri, [string]$OutFile)
+            Copy-Item -LiteralPath $global:MockArtifactPath -Destination $OutFile -Force
+        }
         try {
             { & $VerifyScript -RepoRoot $repo } | Should -Throw -ExpectedMessage '*Remote artifact hash mismatch*'
         }
         finally {
-            if ($server -and $server.Job) { Wait-Job -Job $server.Job -Timeout 10 | Out-Null; Remove-Job -Job $server.Job -Force -ErrorAction SilentlyContinue }
+            Remove-Variable -Name MockArtifactPath -Scope Global -ErrorAction SilentlyContinue
+            if ($hadInvokeWebRequest) {
+                Set-Item function:\global:Invoke-WebRequest -Value $oldInvokeWebRequest
+            }
+            else {
+                Remove-Item function:\global:Invoke-WebRequest -ErrorAction SilentlyContinue
+            }
             if (Test-Path -LiteralPath $artifact) { Remove-Item -LiteralPath $artifact -Force -ErrorAction SilentlyContinue }
             if (Test-Path -LiteralPath $repo) { Remove-Item -LiteralPath $repo -Recurse -Force -ErrorAction SilentlyContinue }
         }

@@ -27,96 +27,8 @@ Describe 'Scoop/Winget installer flow' {
         $InstallWrapper = Join-Path $LayoutDir 'pkgmngr/install_scoop_winget_elevated.bat'
         $UninstallWrapper = Join-Path $LayoutDir 'pkgmngr/uninstall_scoop_winget_elevated.bat'
 
-        function Start-OneShotHttpTextServer {
-            param(
-                [string]$RouteFileName,
-                [string]$Content
-            )
-
-            $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
-            $listener.Start()
-            $port = ([System.Net.IPEndPoint]$listener.LocalEndpoint).Port
-            $listener.Stop()
-
-            $job = Start-Job -ScriptBlock {
-                param($p, $route, $body)
-                $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $p)
-                $listener.Start()
-                try {
-                    $served = $false
-                    $attempts = 0
-                    while (-not $served -and $attempts -lt 10) {
-                        $attempts++
-                        $client = $listener.AcceptTcpClient()
-                        try {
-                            $stream = $client.GetStream()
-                            try {
-                                $buffer = New-Object byte[] 4096
-                                $count = $stream.Read($buffer, 0, $buffer.Length)
-                                $requestLine = [Text.Encoding]::ASCII.GetString($buffer, 0, [Math]::Max(0, $count)).Split("`r`n")[0]
-                                $requestedPath = ''
-                                if ($requestLine -match '^GET\s+(\S+)\s+HTTP/') {
-                                    $requestedPath = $Matches[1].TrimStart('/')
-                                }
-
-                                if ($requestedPath -eq $route) {
-                                    $bytes = [Text.Encoding]::ASCII.GetBytes($body)
-                                    $header = "HTTP/1.1 200 OK`r`nContent-Type: application/octet-stream`r`nContent-Length: $($bytes.Length)`r`nConnection: close`r`n`r`n"
-                                    $headerBytes = [Text.Encoding]::ASCII.GetBytes($header)
-                                    $stream.Write($headerBytes, 0, $headerBytes.Length)
-                                    $stream.Write($bytes, 0, $bytes.Length)
-                                    $served = $true
-                                }
-                                else {
-                                    $header = "HTTP/1.1 404 Not Found`r`nContent-Length: 0`r`nConnection: close`r`n`r`n"
-                                    $headerBytes = [Text.Encoding]::ASCII.GetBytes($header)
-                                    $stream.Write($headerBytes, 0, $headerBytes.Length)
-                                }
-                                $stream.Flush()
-                            }
-                            finally {
-                                $stream.Dispose()
-                            }
-                        }
-                        finally {
-                            $client.Dispose()
-                        }
-                    }
-                }
-                finally {
-                    $listener.Stop()
-                }
-            } -ArgumentList $port, $RouteFileName, $Content
-
-            # Wait briefly for background listener startup to avoid connection-refused races in CI.
-            $ready = $false
-            for ($i = 0; $i -lt 50; $i++) {
-                Start-Sleep -Milliseconds 50
-                try {
-                    $probe = [System.Net.Sockets.TcpClient]::new()
-                    try {
-                        $probe.Connect('127.0.0.1', $port)
-                        $ready = $true
-                    }
-                    finally {
-                        $probe.Dispose()
-                    }
-                }
-                catch { }
-                if ($ready) { break }
-            }
-            if (-not $ready) {
-                try { Stop-Job -Job $job -ErrorAction SilentlyContinue } catch { }
-                try { Remove-Job -Job $job -Force -ErrorAction SilentlyContinue } catch { }
-                throw "Failed to start one-shot HTTP server on port $port"
-            }
-
-            return [pscustomobject]@{
-                Port = $port
-                Job  = $job
-            }
-        }
     }
+
 
     It 'manifest files reference the new Scoop/Winget wrappers' {
         $bucket = Get-Content -Raw -Path (Join-Path $RepoRoot 'bucket/magickeyboard.json')
@@ -290,16 +202,28 @@ exit 0
 
         $d1Content = "@echo off`necho driver1 url %*>>`"$log`"`nexit /b 0`n"
         $d2Content = "@echo off`necho driver2 url %*>>`"$log`"`nexit /b 0`n"
-        $srv1 = Start-OneShotHttpTextServer -RouteFileName 'driver1.cmd' -Content $d1Content
-        $srv2 = Start-OneShotHttpTextServer -RouteFileName 'driver2.cmd' -Content $d2Content
         @'
 param([string]$Action,[switch]$Quiet,[switch]$DryRun,[switch]$NoLogo)
 "layout $Action quiet=$($Quiet.IsPresent) dryrun=$($DryRun.IsPresent)" | Out-File -FilePath "__LOG__" -Append -Encoding ascii
 exit 0
 '@.Replace('__LOG__', $log.Replace("'", "''")) | Set-Content -Path $mockLayout -NoNewline
 
-        $url1 = "http://127.0.0.1:$($srv1.Port)/driver1.cmd"
-        $url2 = "http://127.0.0.1:$($srv2.Port)/driver2.cmd"
+        $url1 = 'https://example.test/driver1.cmd'
+        $url2 = 'https://example.test/driver2.cmd'
+        $hadInvokeWebRequest = Test-Path function:\global:Invoke-WebRequest
+        $oldInvokeWebRequest = if ($hadInvokeWebRequest) { (Get-Item function:\global:Invoke-WebRequest).ScriptBlock } else { $null }
+        $global:MockDriverDownloads = @{
+            'driver1.cmd' = $d1Content
+            'driver2.cmd' = $d2Content
+        }
+        function global:Invoke-WebRequest {
+            param([string]$Uri, [string]$OutFile)
+            $leaf = Split-Path -Leaf $Uri
+            if (-not $global:MockDriverDownloads.ContainsKey($leaf)) {
+                throw "Unexpected download URL in test: $Uri"
+            }
+            Set-Content -Path $OutFile -Value $global:MockDriverDownloads[$leaf] -NoNewline -Encoding ASCII
+        }
         try {
             & $InstallerScript -Action Install -Silent -SkipElevation -Driver1Url $url1 -Driver2Url $url2 -LayoutsScriptPath $mockLayout
             $LASTEXITCODE | Should -Be 0
@@ -309,8 +233,13 @@ exit 0
             $content | Should -Match 'layout Install quiet=True dryrun=False'
         }
         finally {
-            if ($srv1 -and $srv1.Job) { Wait-Job -Job $srv1.Job -Timeout 10 | Out-Null; Remove-Job -Job $srv1.Job -Force -ErrorAction SilentlyContinue }
-            if ($srv2 -and $srv2.Job) { Wait-Job -Job $srv2.Job -Timeout 10 | Out-Null; Remove-Job -Job $srv2.Job -Force -ErrorAction SilentlyContinue }
+            Remove-Variable -Name MockDriverDownloads -Scope Global -ErrorAction SilentlyContinue
+            if ($hadInvokeWebRequest) {
+                Set-Item function:\global:Invoke-WebRequest -Value $oldInvokeWebRequest
+            }
+            else {
+                Remove-Item function:\global:Invoke-WebRequest -ErrorAction SilentlyContinue
+            }
             if (Test-Path $tmp) { Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue }
         }
     }
@@ -418,3 +347,4 @@ exit 0
         }
     }
 }
+
