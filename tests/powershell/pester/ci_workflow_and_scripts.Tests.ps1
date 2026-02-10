@@ -44,7 +44,7 @@ Describe 'CI workflow and script smoke tests' {
             $CiText | Should -Match 'scripts/ci/run-lint\.sh'
             $CiText | Should -Match 'scripts/ci/run-format\.sh'
             $CiText | Should -Match 'scripts/ci/run-type\.sh'
-            $CiText | Should -Match 'scripts/ci/run-tests\.sh'
+            $CiText | Should -Match 'scripts/ci/run-tests\.ps1'
             $CiText | Should -Match 'scripts/ci/run-package\.sh'
             $CiText | Should -Match 'scripts/ci/run-package-metadata\.ps1'
         }
@@ -100,7 +100,7 @@ Describe 'CI workflow and script smoke tests' {
             Test-Path (Join-Path $RepoRoot 'scripts/ci/run-lint.sh') | Should -BeTrue
             Test-Path (Join-Path $RepoRoot 'scripts/ci/run-format.sh') | Should -BeTrue
             Test-Path (Join-Path $RepoRoot 'scripts/ci/run-type.sh') | Should -BeTrue
-            Test-Path (Join-Path $RepoRoot 'scripts/ci/run-tests.sh') | Should -BeTrue
+            Test-Path (Join-Path $RepoRoot 'scripts/ci/run-tests.ps1') | Should -BeTrue
             Test-Path (Join-Path $RepoRoot 'scripts/ci/run-package.sh') | Should -BeTrue
         }
 

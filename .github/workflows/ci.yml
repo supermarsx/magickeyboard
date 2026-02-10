@@ -54,14 +54,14 @@ jobs:
           ./scripts/ci/run-package-metadata.ps1 -EventName '${{ github.event_name }}' -Ref '${{ github.ref }}' -Actor '${{ github.actor }}' -GithubOutputPath $env:GITHUB_OUTPUT
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: [lint, format, type]
     steps:
       - uses: actions/checkout@v4
       - name: Run tests
+        shell: pwsh
         run: |
-          chmod +x scripts/ci/run-tests.sh
-          scripts/ci/run-tests.sh
+          ./scripts/ci/run-tests.ps1
 
   package:
     runs-on: ubuntu-latest
