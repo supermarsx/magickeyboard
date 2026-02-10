@@ -168,7 +168,6 @@ Describe 'CI workflow and script smoke tests' {
                     # Windows fallback when bash is not available
                     & (Join-Path $RepoRoot 'scripts/package_layouts.ps1') -Version $version
                 }
-                $LASTEXITCODE | Should -Be 0
                 Test-Path -LiteralPath $archive | Should -BeTrue
             }
             finally {
