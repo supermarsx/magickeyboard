@@ -50,9 +50,10 @@ Describe 'CI workflow and script smoke tests' {
             $CiText | Should -Match 'scripts/ci/run-package-metadata\.ps1'
         }
 
-        It 'gates package and release when metadata auto-sync commits changes' {
+        It 'always runs package and release while still exporting metadata sync output' {
             $CiText | Should -Match 'steps\.sync\.outputs\.updated'
-            $CiText | Should -Match "if:\s*needs\.package-metadata\.outputs\.updated\s*!=\s*'true'"
+            $CiText | Should -Not -Match "if:\s*needs\.package-metadata\.outputs\.updated\s*!=\s*'true'"
+            $CiText | Should -Match "(?m)^\s*if:\s*github\.ref\s*==\s*'refs/heads/main'\s*&&\s*github\.event_name\s*==\s*'push'\s*$"
             $CiText | Should -Match 'run-package-metadata\.ps1'
         }
 
