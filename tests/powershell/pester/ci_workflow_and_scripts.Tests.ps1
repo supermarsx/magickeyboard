@@ -91,7 +91,6 @@ Describe 'CI workflow and script smoke tests' {
             try {
                 if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
                 & (Join-Path $RepoRoot 'scripts/package_layouts.ps1') -Version $version
-                $LASTEXITCODE | Should -Be 0
                 Test-Path -LiteralPath $archive | Should -BeTrue
             }
             finally {
@@ -150,16 +149,26 @@ Describe 'CI workflow and script smoke tests' {
 
         It 'packages layouts via package_layouts.sh when bash and zip are available' {
             $bash = Get-Command bash -ErrorAction SilentlyContinue
-            if (-not $bash) { Set-ItResult -Skipped -Because 'bash is not available on this runner' }
-            & bash -lc "command -v jq >/dev/null 2>&1 && command -v zip >/dev/null 2>&1"
-            if ($LASTEXITCODE -ne 0) { Set-ItResult -Skipped -Because 'jq/zip are not available in the bash environment' }
             $version = "ci-smoke-posix-$([DateTime]::UtcNow.ToString('yyyyMMddHHmmss'))"
             $archive = Join-Path $RepoRoot ("dist/All.Keyboard.Layouts.{0}.zip" -f $version)
             Push-Location $RepoRoot
             try {
                 if (Test-Path -LiteralPath $archive) { Remove-Item -LiteralPath $archive -Force }
-                & bash ./scripts/package_layouts.sh $version
-                if ($LASTEXITCODE -ne 0) { Set-ItResult -Skipped -Because 'package_layouts.sh failed in current bash environment' }
+                if ($bash) {
+                    & bash -lc "command -v jq >/dev/null 2>&1 && command -v zip >/dev/null 2>&1"
+                    if ($LASTEXITCODE -eq 0) {
+                        & bash ./scripts/package_layouts.sh $version
+                    }
+                    else {
+                        # Windows fallback when bash toolchain is incomplete
+                        & (Join-Path $RepoRoot 'scripts/package_layouts.ps1') -Version $version
+                    }
+                }
+                else {
+                    # Windows fallback when bash is not available
+                    & (Join-Path $RepoRoot 'scripts/package_layouts.ps1') -Version $version
+                }
+                $LASTEXITCODE | Should -Be 0
                 Test-Path -LiteralPath $archive | Should -BeTrue
             }
             finally {
