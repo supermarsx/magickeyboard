@@ -107,6 +107,44 @@ Describe 'MagicKeyboard layout installer edge cases' {
         $r.Output | Should -Match 'Step 2: Installing layouts'
     }
 
+    It 'install dry-run deduplicates duplicate layout keys' {
+        $r = Invoke-MagicKeyboardProcess -ScriptPath $MagicKeyboard -Arguments @('-Action', 'Install', '-Layouts', 'USA,USA,USA', '-DryRun', '-NoLogo', '-Silent')
+        $r.Output | Should -Match 'Registry entries:\s+1'
+        $r.Output | Should -Match 'Files copied:\s+1'
+    }
+
+    It 'gettranslation normalizes locale with underscore and codeset' {
+        $r = Invoke-MagicKeyboardProcess -ScriptPath $MagicKeyboard -Arguments @('-Action', 'GetTranslation', '-Key', 'BritishA', '-Locale', 'en_US.UTF-8', '-NoLogo', '-Silent')
+        $r.ExitCode | Should -Be 0
+        $r.Output.Trim() | Should -Be 'British (Apple)'
+    }
+
+    It 'reads non-ASCII UTF-8 translations without mojibake' {
+        $tmp = Join-Path $env:TEMP ("mk_utf8_trans_{0}.json" -f [guid]::NewGuid().ToString('N'))
+        try {
+            @'
+{
+  "BelgiumA": {
+    "fr-FR": "Belge Élite"
+  }
+}
+'@ | Set-Content -Path $tmp -NoNewline -Encoding UTF8
+            $r = Invoke-MagicKeyboardProcess -ScriptPath $MagicKeyboard -Arguments @('-Action', 'GetTranslation', '-Key', 'BelgiumA', '-Locale', 'fr_FR.UTF-8', '-TranslationsFile', $tmp, '-NoLogo', '-Silent')
+            $r.ExitCode | Should -Be 0
+            $r.Output.Trim() | Should -Be 'Belge Élite'
+        }
+        finally {
+            if (Test-Path $tmp) { Remove-Item -LiteralPath $tmp -Force -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It 'quiet mode suppresses list output' {
+        $r = Invoke-MagicKeyboardProcess -ScriptPath $MagicKeyboard -Arguments @('-Action', 'List', '-NoLogo', '-Quiet')
+        $r.ExitCode | Should -Be 0
+        # Main returns an exit result through pipeline; in quiet mode there should be no human-facing text.
+        $r.Output.Trim() | Should -Be '0'
+    }
+
     It 'backup action writes a JSON file with entries' {
         $tmp = Join-Path $env:TEMP ("mk_backup_{0}.json" -f [guid]::NewGuid().ToString('N'))
         try {

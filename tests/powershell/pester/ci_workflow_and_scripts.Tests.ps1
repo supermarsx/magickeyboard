@@ -54,6 +54,12 @@ Describe 'CI workflow and script smoke tests' {
             $CiText | Should -Match "if:\s*needs\.package-metadata\.outputs\.updated\s*!=\s*'true'"
             $CiText | Should -Match 'run-package-metadata\.ps1'
         }
+
+        It 'runs Windows-dependent tests on Windows runner' {
+            $CiText | Should -Match '(?ms)^\s*test:\s*.*?runs-on:\s*windows-latest'
+            $CiText | Should -Match '(?ms)^\s*package-metadata:\s*.*?runs-on:\s*windows-latest'
+            $CiText | Should -Match '(?ms)^\s*test:\s*.*?shell:\s*pwsh'
+        }
     }
 
     Context 'Windows scripts' {
@@ -102,6 +108,20 @@ Describe 'CI workflow and script smoke tests' {
             Test-Path (Join-Path $RepoRoot 'scripts/ci/run-type.sh') | Should -BeTrue
             Test-Path (Join-Path $RepoRoot 'scripts/ci/run-tests.ps1') | Should -BeTrue
             Test-Path (Join-Path $RepoRoot 'scripts/ci/run-package.sh') | Should -BeTrue
+        }
+
+        It 'CI scripts are thin wrappers around project-level scripts' {
+            $lintText = Get-Content -Raw -Path (Join-Path $RepoRoot 'scripts/ci/run-lint.sh')
+            $fmtText = Get-Content -Raw -Path (Join-Path $RepoRoot 'scripts/ci/run-format.sh')
+            $typeText = Get-Content -Raw -Path (Join-Path $RepoRoot 'scripts/ci/run-type.sh')
+            $pkgText = Get-Content -Raw -Path (Join-Path $RepoRoot 'scripts/ci/run-package.sh')
+            $testWinText = Get-Content -Raw -Path (Join-Path $RepoRoot 'scripts/ci/run-tests.ps1')
+
+            $lintText | Should -Match 'scripts/check-lint\.sh'
+            $fmtText | Should -Match 'scripts/check-format\.sh'
+            $typeText | Should -Match 'No type checking applicable'
+            $pkgText | Should -Match 'scripts/package_layouts\.sh'
+            $testWinText | Should -Match 'scripts\\run-tests\.bat'
         }
 
         It 'runs check-lint.sh when bash exists' {

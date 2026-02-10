@@ -206,4 +206,29 @@ Uninstallers:
             if (Test-Path -LiteralPath $repo) { Remove-Item -LiteralPath $repo -Recurse -Force -ErrorAction SilentlyContinue }
         }
     }
+
+    It 'verify script fails when winget version differs from bucket version' {
+        $url = 'https://example.test/All.Keyboard.Layouts.1.2.3.zip'
+        $repo = & $NewTempRepoFixture -Url $url -Version '1.2.3' -BucketHash ('A' * 64) -WingetHash1 ('A' * 64) -WingetHash2 ('A' * 64)
+        try {
+            $wingetPath = Join-Path $repo 'winget/magickeyboard.yaml'
+            $winget = (Get-Content -LiteralPath $wingetPath -Raw) -replace '(?m)^PackageVersion:\s*1\.2\.3\s*$', 'PackageVersion: 1.2.4'
+            Set-Content -LiteralPath $wingetPath -Value $winget -NoNewline
+            { & $VerifyScript -RepoRoot $repo } | Should -Throw -ExpectedMessage '*Version mismatch*'
+        }
+        finally {
+            if (Test-Path -LiteralPath $repo) { Remove-Item -LiteralPath $repo -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It 'verify script fails when bucket hash is not valid SHA256' {
+        $url = 'https://example.test/All.Keyboard.Layouts.1.2.3.zip'
+        $repo = & $NewTempRepoFixture -Url $url -Version '1.2.3' -BucketHash 'not-a-real-hash'
+        try {
+            { & $VerifyScript -RepoRoot $repo } | Should -Throw -ExpectedMessage '*not a valid SHA256*'
+        }
+        finally {
+            if (Test-Path -LiteralPath $repo) { Remove-Item -LiteralPath $repo -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+    }
 }

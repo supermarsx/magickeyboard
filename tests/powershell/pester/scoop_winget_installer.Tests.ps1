@@ -268,6 +268,89 @@ exit 0
         }
     }
 
+    It 'install action treats reboot-required driver exit codes as success' {
+        $tmp = Join-Path $env:TEMP ("mk_installreboot_{0}" -f [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $tmp | Out-Null
+        $log = Join-Path $tmp 'log.txt'
+        $driver1 = Join-Path $tmp 'driver1.cmd'
+        $driver2 = Join-Path $tmp 'driver2.cmd'
+        $mockLayout = Join-Path $tmp 'MagicKeyboard.ps1'
+
+        @"
+@echo off
+echo driver1 reboot %*>>"$log"
+exit /b 3010
+"@ | Set-Content -Path $driver1 -NoNewline
+        @"
+@echo off
+echo driver2 reboot %*>>"$log"
+exit /b 1641
+"@ | Set-Content -Path $driver2 -NoNewline
+        @'
+param([string]$Action,[switch]$Quiet,[switch]$DryRun,[switch]$NoLogo)
+"layout $Action quiet=$($Quiet.IsPresent) dryrun=$($DryRun.IsPresent)" | Out-File -FilePath "__LOG__" -Append -Encoding ascii
+exit 0
+'@.Replace('__LOG__', $log.Replace("'", "''")) | Set-Content -Path $mockLayout -NoNewline
+
+        try {
+            & $InstallerScript -Action Install -Silent -SkipElevation -Driver1Path $driver1 -Driver2Path $driver2 -LayoutsScriptPath $mockLayout
+            $LASTEXITCODE | Should -Be 0
+            $content = Get-Content -Raw -Path $log
+            $content | Should -Match 'driver1 reboot /S'
+            $content | Should -Match 'driver2 reboot /S'
+            $content | Should -Match 'layout Install quiet=True dryrun=False'
+        }
+        finally {
+            if (Test-Path $tmp) { Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+    }
+
+    It 'install action prefers local driver files from pkgmngr folder over URL download' {
+        $tmp = Join-Path $env:TEMP ("mk_installlocal_{0}" -f [guid]::NewGuid().ToString('N'))
+        $pkgmngrDir = Join-Path $tmp 'pkgmngr'
+        New-Item -ItemType Directory -Path $pkgmngrDir -Force | Out-Null
+
+        $scriptCopy = Join-Path $pkgmngrDir 'ScoopWingetInstaller.ps1'
+        Copy-Item -LiteralPath $InstallerScript -Destination $scriptCopy -Force
+
+        $log = Join-Path $tmp 'log.txt'
+        $localDriver1Name = 'localdriver1.cmd'
+        $localDriver2Name = 'localdriver2.cmd'
+        $localDriver1Path = Join-Path $pkgmngrDir $localDriver1Name
+        $localDriver2Path = Join-Path $pkgmngrDir $localDriver2Name
+        $mockLayout = Join-Path $tmp 'MagicKeyboard.ps1'
+
+        @"
+@echo off
+echo local1 %*>>"$log"
+exit /b 0
+"@ | Set-Content -Path $localDriver1Path -NoNewline
+        @"
+@echo off
+echo local2 %*>>"$log"
+exit /b 0
+"@ | Set-Content -Path $localDriver2Path -NoNewline
+        @'
+param([string]$Action,[switch]$Quiet,[switch]$DryRun,[switch]$NoLogo)
+"layout $Action quiet=$($Quiet.IsPresent) dryrun=$($DryRun.IsPresent)" | Out-File -FilePath "__LOG__" -Append -Encoding ascii
+exit 0
+'@.Replace('__LOG__', $log.Replace("'", "''")) | Set-Content -Path $mockLayout -NoNewline
+
+        $url1 = "http://127.0.0.1:9/$localDriver1Name"
+        $url2 = "http://127.0.0.1:9/$localDriver2Name"
+        try {
+            & $scriptCopy -Action Install -Silent -SkipElevation -Driver1Url $url1 -Driver2Url $url2 -LayoutsScriptPath $mockLayout
+            $LASTEXITCODE | Should -Be 0
+            $content = Get-Content -Raw -Path $log
+            $content | Should -Match 'local1 /S'
+            $content | Should -Match 'local2 /S'
+            $content | Should -Match 'layout Install quiet=True dryrun=False'
+        }
+        finally {
+            if (Test-Path $tmp) { Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue }
+        }
+    }
+
     It 'uninstall action calls layout uninstaller silently' {
         $tmp = Join-Path $env:TEMP ("mk_uninstalltest_{0}" -f [guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $tmp | Out-Null
