@@ -40,29 +40,76 @@ Describe 'Scoop/Winget installer flow' {
 
             $job = Start-Job -ScriptBlock {
                 param($p, $route, $body)
-                $listener = [System.Net.HttpListener]::new()
-                $listener.Prefixes.Add("http://127.0.0.1:$p/")
+                $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, $p)
                 $listener.Start()
                 try {
-                    $ctx = $listener.GetContext()
-                    $path = $ctx.Request.Url.AbsolutePath.TrimStart('/')
-                    if ($path -eq $route) {
-                        $bytes = [Text.Encoding]::ASCII.GetBytes($body)
-                        $ctx.Response.StatusCode = 200
-                        $ctx.Response.ContentType = 'application/octet-stream'
-                        $ctx.Response.ContentLength64 = $bytes.Length
-                        $ctx.Response.OutputStream.Write($bytes, 0, $bytes.Length)
+                    $served = $false
+                    $attempts = 0
+                    while (-not $served -and $attempts -lt 10) {
+                        $attempts++
+                        $client = $listener.AcceptTcpClient()
+                        try {
+                            $stream = $client.GetStream()
+                            try {
+                                $buffer = New-Object byte[] 4096
+                                $count = $stream.Read($buffer, 0, $buffer.Length)
+                                $requestLine = [Text.Encoding]::ASCII.GetString($buffer, 0, [Math]::Max(0, $count)).Split("`r`n")[0]
+                                $requestedPath = ''
+                                if ($requestLine -match '^GET\s+(\S+)\s+HTTP/') {
+                                    $requestedPath = $Matches[1].TrimStart('/')
+                                }
+
+                                if ($requestedPath -eq $route) {
+                                    $bytes = [Text.Encoding]::ASCII.GetBytes($body)
+                                    $header = "HTTP/1.1 200 OK`r`nContent-Type: application/octet-stream`r`nContent-Length: $($bytes.Length)`r`nConnection: close`r`n`r`n"
+                                    $headerBytes = [Text.Encoding]::ASCII.GetBytes($header)
+                                    $stream.Write($headerBytes, 0, $headerBytes.Length)
+                                    $stream.Write($bytes, 0, $bytes.Length)
+                                    $served = $true
+                                }
+                                else {
+                                    $header = "HTTP/1.1 404 Not Found`r`nContent-Length: 0`r`nConnection: close`r`n`r`n"
+                                    $headerBytes = [Text.Encoding]::ASCII.GetBytes($header)
+                                    $stream.Write($headerBytes, 0, $headerBytes.Length)
+                                }
+                                $stream.Flush()
+                            }
+                            finally {
+                                $stream.Dispose()
+                            }
+                        }
+                        finally {
+                            $client.Dispose()
+                        }
                     }
-                    else {
-                        $ctx.Response.StatusCode = 404
-                    }
-                    $ctx.Response.OutputStream.Close()
                 }
                 finally {
-                    if ($listener.IsListening) { $listener.Stop() }
-                    $listener.Close()
+                    $listener.Stop()
                 }
             } -ArgumentList $port, $RouteFileName, $Content
+
+            # Wait briefly for background listener startup to avoid connection-refused races in CI.
+            $ready = $false
+            for ($i = 0; $i -lt 50; $i++) {
+                Start-Sleep -Milliseconds 50
+                try {
+                    $probe = [System.Net.Sockets.TcpClient]::new()
+                    try {
+                        $probe.Connect('127.0.0.1', $port)
+                        $ready = $true
+                    }
+                    finally {
+                        $probe.Dispose()
+                    }
+                }
+                catch { }
+                if ($ready) { break }
+            }
+            if (-not $ready) {
+                try { Stop-Job -Job $job -ErrorAction SilentlyContinue } catch { }
+                try { Remove-Job -Job $job -Force -ErrorAction SilentlyContinue } catch { }
+                throw "Failed to start one-shot HTTP server on port $port"
+            }
 
             return [pscustomobject]@{
                 Port = $port
