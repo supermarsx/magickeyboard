@@ -14,23 +14,13 @@ if ([string]::IsNullOrWhiteSpace($GithubOutputPath)) {
 
 Push-Location $RepoRoot
 try {
-  $updated = $false
+  # Hashes are synced from the freshly packaged artifact in the package job.
+  "updated=false" | Out-File -FilePath $GithubOutputPath -Encoding utf8 -Append
 
-  if ($EventName -eq 'push' -and $Ref -eq 'refs/heads/main' -and $Actor -ne 'github-actions[bot]') {
-    & "$RepoRoot\scripts\sync-package-hashes.ps1"
-    $changed = (git status --porcelain -- bucket/magickeyboard.json winget/magickeyboard.yaml)
-    if (-not [string]::IsNullOrWhiteSpace($changed)) {
-      git config user.name "github-actions[bot]"
-      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      git add bucket/magickeyboard.json winget/magickeyboard.yaml
-      git commit -m "ci: sync package hashes"
-      git push
-      $updated = $true
-    }
+  # Skip remote verification on main pushes because release artifact is produced later in this workflow.
+  if (-not ($EventName -eq 'push' -and $Ref -eq 'refs/heads/main')) {
+    & "$RepoRoot\scripts\verify-package-metadata.ps1"
   }
-
-  "updated=$($updated.ToString().ToLowerInvariant())" | Out-File -FilePath $GithubOutputPath -Encoding utf8 -Append
-  & "$RepoRoot\scripts\verify-package-metadata.ps1"
 }
 finally {
   Pop-Location

@@ -48,6 +48,7 @@ Describe 'CI workflow and script smoke tests' {
             $CiText | Should -Match 'scripts/ci/run-tests\.ps1'
             $CiText | Should -Match 'scripts/ci/run-package\.sh'
             $CiText | Should -Match 'scripts/ci/run-package-metadata\.ps1'
+            $CiText | Should -Match 'scripts/sync-package-hashes-from-artifact\.ps1'
         }
 
         It 'always runs package and release while still exporting metadata sync output' {
@@ -55,6 +56,12 @@ Describe 'CI workflow and script smoke tests' {
             $CiText | Should -Not -Match "if:\s*needs\.package-metadata\.outputs\.updated\s*!=\s*'true'"
             $CiText | Should -Match "(?m)^\s*if:\s*github\.ref\s*==\s*'refs/heads/main'\s*&&\s*github\.event_name\s*==\s*'push'\s*$"
             $CiText | Should -Match 'run-package-metadata\.ps1'
+        }
+
+        It 'commits hash updates from packaged artifact during package job' {
+            $CiText | Should -Match '(?ms)^\s*package:\s*.*?Sync package manager hashes from packaged artifact'
+            $CiText | Should -Match '(?ms)^\s*package:\s*.*?Commit package hash updates'
+            $CiText | Should -Match 'ci: sync package hashes from artifact'
         }
 
         It 'runs Windows-dependent tests on Windows runner' {

@@ -68,10 +68,27 @@ jobs:
     needs: [lint, format, type, test, package-metadata]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Run packaging
         run: |
           chmod +x scripts/ci/run-package.sh
           scripts/ci/run-package.sh
+      - name: Sync package manager hashes from packaged artifact
+        shell: pwsh
+        run: |
+          ./scripts/sync-package-hashes-from-artifact.ps1
+      - name: Commit package hash updates
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'github-actions[bot]'
+        shell: bash
+        run: |
+          if ! git diff --quiet -- bucket/magickeyboard.json winget/magickeyboard.yaml; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add bucket/magickeyboard.json winget/magickeyboard.yaml
+            git commit -m "ci: sync package hashes from artifact"
+            git push
+          fi
       - name: Upload package
         uses: actions/upload-artifact@v4
         with:
