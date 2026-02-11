@@ -4,7 +4,7 @@
   "homepage": "https://github.com/supermarsx/magickeyboard",
   "license": "MIT",
   "url": "https://github.com/supermarsx/magickeyboard/releases/latest/download/All.Keyboard.Layouts.1.0.3.40.zip",
-  "hash": "3D6E225A7DE76610DC34F08E14FA234AC9F0DD01E1665ACB3F7B537D6BADE1D8",
+  "hash": "09963608DE5748D712B8A6513FF7FB312E3CFDCFF555C7EFC2FEF93E07DD955A",
   "installer": {
     "script": "Push-Location \"$dir\"; & \"$dir\\pkgmngr\\install_scoop_winget_elevated.bat\" /SILENT; Pop-Location"
   },
